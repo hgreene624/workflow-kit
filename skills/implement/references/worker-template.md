@@ -136,7 +136,7 @@ When adding new paths to ForwardAuth prefixMap or permission checks:
 ### Dual-Compose Middleware Check
 
 Before enabling Traefik on a new service:
-- Search ALL docker-compose files for the same middleware name (e.g., `grep -r "{{ORG_LOWER}}-auth" /docker/*/docker-compose.yml`)
+- Search ALL docker-compose files for the same middleware name (e.g., `grep -r "flora-auth" /docker/*/docker-compose.yml`)
 - If the same middleware is defined in multiple compose projects with different configs, Traefik will DROP it entirely
 - Remove or disable duplicate definitions before deploying
 
@@ -362,7 +362,7 @@ After scaffolding `requirements.txt` with `>=` bounds:
 3. Pin: `pip freeze > requirements.txt`
 4. Verify the Docker image uses the SAME versions as local dev
 
-Loose bounds (`>=`) cause deploy breaks when Docker installs a newer version with API changes. This caused a 3-commit fix cycle in the {{ORG}}DB MCP sprint when MCP SDK 1.9 to 1.26 broke the `@server.tool()` API.
+Loose bounds (`>=`) cause deploy breaks when Docker installs a newer version with API changes. This caused a 3-commit fix cycle in the FloraDB MCP sprint when MCP SDK 1.9 to 1.26 broke the `@server.tool()` API.
 
 ### Docker CLI Dependency Check (MANDATORY — scripts calling external tools)
 

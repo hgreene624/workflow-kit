@@ -174,7 +174,7 @@ git merge origin/<branch-name> --no-edit
 
 ## Rule 7: Multi-Repo Deploy Coordination
 
-When deploying changes across multiple repos (common in the {{ORG}} ecosystem):
+When deploying changes across multiple repos (common in the Flora ecosystem):
 
 1. **Plan the order** — identify dependencies (e.g., API must deploy before frontend)
 2. **Do repos sequentially** — one at a time, verified before moving to next (Rule 2)
@@ -182,12 +182,12 @@ When deploying changes across multiple repos (common in the {{ORG}} ecosystem):
 4. **If any repo fails, stop** — don't continue to dependent repos with a broken upstream
 5. **Track progress explicitly** — tell the user which repos are done, which remain
 
-### The {{ORG}} repo ecosystem
+### The Flora repo ecosystem
 These repos often need coordinated deploys:
 - `<APP_1>` → `<APP_2>` → `<YOUR_ADMIN_APP>` (shared components flow downstream)
 - `<SIGNAL_ENGINE>` / `fwis-api` (backend, usually independent)
 - `dossier-builder` (independent, scp-based deploy)
-- `inbox-triage`, `reservations-dashboard-next`, `{{ORG_LOWER}}-kb` (usually independent)
+- `inbox-triage`, `reservations-dashboard-next`, `flora-kb` (usually independent)
 
 ## Rule 8: Commit Discipline
 
@@ -226,7 +226,7 @@ git log --oneline origin/main..HEAD  # should show nothing
 ```
 
 ### Deploy key lookup
-Each {{ORG}} repo on VPS has a deploy key. **Always use `GIT_SSH_COMMAND` for VPS git operations** — bare `git push`/`git pull` will fail with "Permission denied (publickey)".
+Each Flora repo on VPS has a deploy key. **Always use `GIT_SSH_COMMAND` for VPS git operations** — bare `git push`/`git pull` will fail with "Permission denied (publickey)".
 
 ```bash
 # Pattern for ALL VPS git operations:
@@ -300,7 +300,7 @@ Feature branches that are "done" but not merged to main are a ticking time bomb.
 
 ## Rule 13: Repo Routing — New Work Goes to the Monorepo
 
-**For {{ORG}} projects:** All new work targets `<YOUR_ORG>/<YOUR_MONOREPO>` (the monorepo). Old individual repos (`<APP_1>`, `<APP_2>`, `<YOUR_ADMIN_APP>`, `{{ORG_LOWER}}-work-intelligence`, etc.) are **read-only for new features**. They may receive hotfixes only.
+**For Flora projects:** All new work targets `<YOUR_ORG>/<YOUR_MONOREPO>` (the monorepo). Old individual repos (`<APP_1>`, `<APP_2>`, `<YOUR_ADMIN_APP>`, `flora-work-intelligence`, etc.) are **read-only for new features**. They may receive hotfixes only.
 
 Before creating a branch or committing new work, verify the remote:
 ```bash

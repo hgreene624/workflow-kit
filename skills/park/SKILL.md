@@ -69,7 +69,7 @@ For example:
 ```markdown
 ## Queued Context
 
-- [[RE - Read.ai Platform Reverse Engineering]] — Reverse-engineered Read.ai API surface: lazy-load heavy endpoints (transcripts/metrics), unified clip model for shareable segments, async processing with status polling, pre-generated copilot questions. *Relevance: apply these patterns when designing the meeting lifecycle UI for {{ORG}} Portal.*
+- [[RE - Read.ai Platform Reverse Engineering]] — Reverse-engineered Read.ai API surface: lazy-load heavy endpoints (transcripts/metrics), unified clip model for shareable segments, async processing with status polling, pre-generated copilot questions. *Relevance: apply these patterns when designing the meeting lifecycle UI for Flora Portal.*
 - [[PIC - MIP Phase 3 Context Enrichment]] — Context assembler needs to handle per-segment S-label mismatches using person_id from speaker_map, not raw labels. 8k token budget with priority truncation. *Relevance: when building the context assembler in limitless-sync/intelligence/.*
 ```
 

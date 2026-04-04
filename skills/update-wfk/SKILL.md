@@ -20,7 +20,7 @@ Sync core Workflow Kit skills, templates, and conventions with the `YOUR_USERNAM
 The repo contains a `kit.json` manifest that governs all sync behavior. **Read it before every push or pull.**
 
 ```bash
-cat /tmp/wfk-skills-repo/kit.json
+cat /tmp/flora-skills-repo/kit.json
 ```
 
 The manifest declares:
@@ -46,7 +46,7 @@ The manifest declares:
 
 - **Repo:** `YOUR_USERNAME/workflow-kit`
 - **Branch:** `main`
-- **Clone cache:** `/tmp/wfk-skills-repo`
+- **Clone cache:** `/tmp/flora-skills-repo`
 - **Active skills:** `~/.claude/skills/`
 - **Sync manifest:** `~/.claude/skills/.sync-manifest.json`
 
@@ -57,7 +57,7 @@ The manifest declares:
         |
    push v  ^ pull
         |
-/tmp/wfk-skills-repo/      <- Scratch clone for git operations
+/tmp/flora-skills-repo/      <- Scratch clone for git operations
         |
    push v  ^ fetch
         |
@@ -96,17 +96,17 @@ The sync manifest at `~/.claude/skills/.sync-manifest.json` tracks content hashe
 
 1. **Clone or pull the latest repo:**
    ```bash
-   if [ -d /tmp/wfk-skills-repo/.git ]; then
-     cd /tmp/wfk-skills-repo && git pull --quiet
+   if [ -d /tmp/flora-skills-repo/.git ]; then
+     cd /tmp/flora-skills-repo && git pull --quiet
    else
-     rm -rf /tmp/wfk-skills-repo
-     git clone https://github.com/YOUR_USERNAME/workflow-kit.git /tmp/wfk-skills-repo
+     rm -rf /tmp/flora-skills-repo
+     git clone https://github.com/YOUR_USERNAME/workflow-kit.git /tmp/flora-skills-repo
    fi
    ```
 
 2. **Read the kit manifest:**
    ```bash
-   cat /tmp/wfk-skills-repo/kit.json
+   cat /tmp/flora-skills-repo/kit.json
    ```
    Parse `core_skills` and `org_skills`. Only `core_skills` are eligible for push.
 
@@ -117,14 +117,14 @@ The sync manifest at `~/.claude/skills/.sync-manifest.json` tracks content hashe
    # For each skill in core_skills from kit.json:
    # Skip if skill dir doesn't exist locally
    # Skip *-workspace directories
-   rm -rf /tmp/wfk-skills-repo/skills/<name>
-   cp -r ~/.claude/skills/<name> /tmp/wfk-skills-repo/skills/<name>
+   rm -rf /tmp/flora-skills-repo/skills/<name>
+   cp -r ~/.claude/skills/<name> /tmp/flora-skills-repo/skills/<name>
    ```
    **IMPORTANT:** If a local skill is NOT in `core_skills` and NOT in `org_skills`, ask the user to categorize it before pushing.
 
    **Templates:**
    ```bash
-   cp ~/Documents/Vaults/Work\ Vault/05_System/Templates/*.md /tmp/wfk-skills-repo/05_System/Templates/
+   cp ~/Documents/Vaults/Work\ Vault/05_System/Templates/*.md /tmp/flora-skills-repo/05_System/Templates/
    ```
 
    **CLAUDE.md and agents.md - NEVER OVERWRITE:**
@@ -139,25 +139,68 @@ The sync manifest at `~/.claude/skills/.sync-manifest.json` tracks content hashe
 
    **Obsidian config** (selective):
    ```bash
-   cp ~/Documents/Vaults/Work\ Vault/.obsidian/community-plugins.json /tmp/wfk-skills-repo/.obsidian/community-plugins.json
+   cp ~/Documents/Vaults/Work\ Vault/.obsidian/community-plugins.json /tmp/flora-skills-repo/.obsidian/community-plugins.json
    ```
 
-4. **Show what changed:**
+4. **Scrub org-specific content:**
+
+   Read the scrub map at `~/.claude/skills/update-wfk/scrub-map.json`. This file maps org-specific values to public placeholders. It never gets synced to the repo.
+
+   For every `.md`, `.py`, `.sh`, `.json`, `.yaml`, `.yml`, `.toml` file in the repo clone:
+   - Apply each replacement from `scrub-map.json` (longest match first to avoid partial replacements)
+   - Skip files matching `skip_files` patterns
+
+   Also verify no `flora_only_skills` from the scrub map exist in the repo's `skills/` directory. If any are present, delete them before proceeding.
+
    ```bash
-   cd /tmp/wfk-skills-repo && git status --short
+   # Example: apply replacements using sed (order matters - longest patterns first)
+   find /tmp/flora-skills-repo/skills -type f \( -name "*.md" -o -name "*.py" -o -name "*.sh" -o -name "*.json" \) | while read f; do
+     # Apply each replacement from scrub-map.json
+     sed -i '' 's|YOUR_PLANE_URL|YOUR_PLANE_URL|g' "$f"
+     sed -i '' 's|YOUR_ADMIN_URL|YOUR_ADMIN_URL|g' "$f"
+     sed -i '' 's|YOUR_DOMAIN|YOUR_DOMAIN|g' "$f"
+     # ... (all patterns from scrub-map.json)
+   done
    ```
 
-5. **Ask the user to confirm.** Show changed files grouped by component. Flag skipped org_skills.
+5. **Validate - no secrets remaining:**
 
-6. **Commit and push:**
+   Run a pattern scan against the staged repo. This is the gate that prevents leaks.
+
    ```bash
-   cd /tmp/wfk-skills-repo
+   cd /tmp/flora-skills-repo
+   grep -r "myarroyo\|flora-farms\|holdengreene\|YOUR_USERNAME\|31\.220\|192\.168\|fce258\|plane_api\|YOUR_DB_PASSWORD\|{{PROJECT_DB}}\|{{DB_CONTAINER}}\|{{SESSION_COOKIE}}" \
+     --include="*.md" --include="*.py" --include="*.sh" --include="*.json" --include="*.yaml" --include="*.yml" --include="*.toml" \
+     | grep -v ".git/"
+   ```
+
+   **If ANY hits are found: STOP.** Show the findings to the user. Ask them to either:
+   - Add the pattern to `scrub-map.json` and re-run
+   - Reclassify the skill as `flora_only_skills` in scrub-map.json (it won't be synced)
+
+   **Only proceed if the scan returns zero hits.**
+
+   If `gitleaks` is installed, also run:
+   ```bash
+   gitleaks detect --source /tmp/flora-skills-repo --no-git --config /tmp/flora-skills-repo/.gitleaks.toml
+   ```
+
+6. **Show what changed:**
+   ```bash
+   cd /tmp/flora-skills-repo && git status --short
+   ```
+
+7. **Ask the user to confirm.** Show changed files grouped by component. Flag skipped org_skills. Note that scrub-map replacements were applied.
+
+8. **Commit and push:**
+   ```bash
+   cd /tmp/flora-skills-repo
    git add -A
    git commit -m "Update WFK: <summary>"
    git push origin main
    ```
 
-7. Update sync manifest. Report what was pushed and skipped.
+9. Update sync manifest. Report what was pushed and skipped.
 
 ### `pull` - Pull latest from the WFK repo
 

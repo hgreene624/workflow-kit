@@ -11,7 +11,7 @@ Use this table to pick the narrowest scope that covers where the lesson applies.
 | Frontend / UI / CSS | `04_ Tools/Reference/REF - Frontend Lessons.md` | — |
 | Project planning | `04_ Tools/Reference/REF - Project Planning Lessons.md` | — |
 | Chawdys / OpenClaw | `01_Work/03_Projects/Chawdys/lessons.md` | that dir's `agents.md` |
-| FWIS / Signal Engine | `01_Work/03_Projects/{{ORG}} Work Intelligence System/lessons.md` | that dir's `agents.md` |
+| FWIS / Signal Engine | `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` | that dir's `agents.md` |
 | Specific project | that project's `lessons.md` | that project's `agents.md` |
 | Specific file's gotcha | `## Lessons` section in that file | — (rules don't go in content files) |
 | General agent behavior | `04_ Tools/Reference/REF - Agent Lessons.md` | root `agents.md` |

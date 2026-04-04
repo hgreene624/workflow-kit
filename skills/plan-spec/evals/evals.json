@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "plan-spec-001",
-      "query": "create a plan from this spec: 01_Work/03_Projects/{{ORG}} Work Intelligence System/{{ORG}} Hub/SPC - Admin Alert Management System.md",
+      "query": "create a plan from this spec: 01_Work/03_Projects/Flora Work Intelligence System/{{ORG}} Hub/SPC - Admin Alert Management System.md",
       "should_trigger": true,
       "expectations": [
         "The skill reads the spec at the provided path before producing any output",
@@ -28,7 +28,7 @@
     },
     {
       "id": "plan-spec-003",
-      "query": "I just finished reviewing the spec. Let's plan SPC - {{ORG}} KB Platform.md",
+      "query": "I just finished reviewing the spec. Let's plan SPC - Flora KB Platform.md",
       "should_trigger": true,
       "expectations": [
         "The skill checks for review artifacts in the Reviews/ directory alongside the spec",
@@ -55,7 +55,7 @@
       "query": "let's make the inbox triage spec into a plan with phases",
       "should_trigger": true,
       "expectations": [
-        "The skill locates the SPC file for inbox triage (under {{ORG}} Work Intelligence System/Inbox Triage/)",
+        "The skill locates the SPC file for inbox triage (under Flora Work Intelligence System/Inbox Triage/)",
         "The plan document is placed in the same directory as the spec",
         "Phase labels are created in Plane using the format '{IDENTIFIER} Phase N - {Phase Name}'"
       ],

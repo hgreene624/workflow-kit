@@ -43,7 +43,7 @@ If there's an associated plan, default to detailed mode. Otherwise default to si
 ## Step 3 — Identify the Topic and Project
 
 Match the work to a topic name:
-- If plan-backed: use the plan name (e.g., "{{ORG}} Migration Orchestration Plan")
+- If plan-backed: use the plan name (e.g., "Flora Migration Orchestration Plan")
 - If project-scoped: use the project name (e.g., "Signal Engine", "IK Buckets")
 - If standalone: use a descriptive label (e.g., "Vault Maintenance", "Recipe Extraction")
 
@@ -122,16 +122,16 @@ Before creating a new `###` heading, scan ALL existing headings under `## Worked
 
 **Good daily note entry (sprint with 16 tasks):**
 ```markdown
-### {{ORG}} Migration — [[PL - {{ORG}} Migration Orchestration Plan|Plan]]
+### Flora Migration — [[PL - Flora Migration Orchestration Plan|Plan]]
 - Completed **Phase 14 (FWIS Viewer)** — SvelteKit → Next.js, 16 routes, 17 AG Grid instances
 - **16/17 tasks Done**, 4 post-deploy fixes, build:fix ratio **73:27**
 - Old <APP_1> sunset — **9.9 GB** reclaimed, M12 (Core Apps Live) achieved
-- [[WL - {{ORG}} Migration Orchestration Plan|Full log]]
+- [[WL - Flora Migration Orchestration Plan|Full log]]
 ```
 
 **BAD daily note entry (same sprint — too detailed):**
 ```markdown
-### {{ORG}} Migration — [[PL - ...]]
+### Flora Migration — [[PL - ...]]
 - P14.1 Audit — 16 routes, 17 AG Grid instances...
 - P14.2 Scaffold — apps/fwis-viewer/ created...
 - P14.3 Meetings — AG Grid 8 cols...

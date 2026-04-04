@@ -53,7 +53,7 @@ A project is identified by the presence of any of: `.git/`, `package.json`, `pyp
 
 #### Clustering Rules (apply in order)
 
-1. **Name-prefix grouping:** Repos sharing a name prefix (e.g., `{{MONOREPO_NAME}}`, `{{ORG_LOWER}}-admin`, `{{ORG_LOWER}}-hub`) → group under a single umbrella project. Use the shared prefix as the project name (e.g., "{{ORG}}"). Strip common suffixes like `-monorepo`, `-app`, `-api`, `-web`, `-admin` when naming.
+1. **Name-prefix grouping:** Repos sharing a name prefix (e.g., `{{MONOREPO_NAME}}`, `flora-admin`, `flora-hub`) → group under a single umbrella project. Use the shared prefix as the project name (e.g., "Flora"). Strip common suffixes like `-monorepo`, `-app`, `-api`, `-web`, `-admin` when naming.
 
 2. **Parent-directory grouping:** Repos in the same parent directory that don't share a name prefix → candidate group. Mark these with `"candidate_group": true` so the report renderer presents them as an option, not a recommendation.
 
@@ -70,7 +70,7 @@ For each project, generate a one-line description by combining:
 - Recent commit themes (summarize `SCAN_RESULT.repos[].recent_commits` into a 3–5 word activity description)
 
 Format: `"<What it is> — <evidence summary>"`
-Example: `"Full-stack app suite — found 3 repos matching {{ORG_LOWER}}-* in ~/Repos/"`
+Example: `"Full-stack app suite — found 3 repos matching flora-* in ~/Repos/"`
 
 #### Confidence Scoring for Projects
 

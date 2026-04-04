@@ -73,7 +73,7 @@ tags = ["org-specific"]
 [[rules]]
 id = "flora-session-cookie"
 description = "Flora session cookie name"
-regex = '''__flora_session'''
+regex = '''{{SESSION_COOKIE}}'''
 tags = ["org-specific"]
 
 # Allowlist - files and patterns that are OK

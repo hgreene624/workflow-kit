@@ -13,7 +13,7 @@ Browser → Traefik → ForwardAuth middleware (<YOUR_GATEWAY_APP> gateway) → 
 | App ID | Purpose | Flow |
 |--------|---------|------|
 | `a79fcf06` | Web sign-in (user-facing) | Authorization code flow |
-| `YOUR_APP_ID` | Graph API (server-to-server) | Client credentials — NO user sign-in |
+| `4935ad02` | Graph API (server-to-server) | Client credentials — NO user sign-in |
 
 **Always verify which app ID a service uses.** The Graph API app will never work for user-facing OAuth.
 
@@ -23,16 +23,16 @@ Browser → Traefik → ForwardAuth middleware (<YOUR_GATEWAY_APP> gateway) → 
 
 1. Request hits Traefik
 2. Traefik calls `<YOUR_DOMAIN>/auth/verify` (ForwardAuth middleware)
-3. Gateway checks session cookie → if valid, returns 200 + `X-{{ORG}}-*` headers
+3. Gateway checks session cookie → if valid, returns 200 + `X-Flora-*` headers
 4. If invalid → returns 302 redirect to `/auth/signin?returnTo=...`
 5. User completes MS login → redirected back with session cookie
-6. Downstream containers receive headers: `X-{{ORG}}-User-Id`, `X-{{ORG}}-Email`, `X-{{ORG}}-Name`, `X-{{ORG}}-Role`
+6. Downstream containers receive headers: `X-Flora-User-Id`, `X-Flora-Email`, `X-Flora-Name`, `X-Flora-Role`
 
 ### Services with/without auth
 
 | Auth Type | Services |
 |-----------|----------|
-| ForwardAuth (`{{ORG_LOWER}}-auth`) | {{ORG}} Hub, Portal, IK Buckets, Inbox Triage, Email Portal, KB, DocGen, Admin |
+| ForwardAuth (`flora-auth`) | {{ORG}} Hub, Portal, IK Buckets, Inbox Triage, Email Portal, KB, DocGen, Admin |
 | Basic auth | FWIS API (`api.<YOUR_DOMAIN>`), Dossier Builder, Chawdys |
 | MS Entra (oauth2-proxy) | Uptime Kuma (`status.<YOUR_DOMAIN>`) |
 | No auth | `/ai/widget.js` (public), Plane (`projects.<YOUR_DOMAIN>`) |

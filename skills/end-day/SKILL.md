@@ -22,7 +22,7 @@ Read in parallel. Skip missing files silently.
    - Extract `## TODO` to check completion
    - Extract `## Meetings` for context
 2. **Today's SOD** — `01_Notes/Reports/SOD/SOD - {today}.md`
-   - Read the user's Priorities and Suggested Start sections
+   - Read Holden's Priorities and Suggested Start sections
    - This is the intent baseline to compare against
 3. **PICs created today** — glob `02_Projects/**/PIC - *.md` where `date created` = today
    - These represent carry-forward work from today's closeouts
@@ -110,7 +110,7 @@ Then list the goals. User responds with which to keep. Update the EOD to check t
 
 ## Step 4: Generate tomorrow's SOD
 
-The SOD is an **agent-facing document** — every agent reads it via orient to understand the state of the world and the user's priorities. It's a rolling week-to-date (WTD) context window that resets when an EOW drops.
+The SOD is an **agent-facing document** — every agent reads it via orient to understand the state of the world and Holden's priorities. It's a rolling week-to-date (WTD) context window that resets when an EOW drops.
 
 ### Determine the WTD window
 - Find the most recent EOW in `Reports/EOW/` — this is the window start
@@ -142,7 +142,7 @@ wtd_window_start: {date of last EOW or earliest EOD}
 Group by project/initiative, not by day. This is an index, not a retelling —
 agents can read the daily notes for detail. Be terse.}
 
-## User's Priorities
+## Holden's Priorities
 {Confirmed goals from today's EOD + any carried from SOW/previous EODs.
 These represent what the user is trying to accomplish — agents should align
 their suggestions, tradeoff decisions, and pickup recommendations with these.}
@@ -176,7 +176,7 @@ relying on it.
 If none: omit this section.}
 
 ## Suggested Start
-{Recommend a PIC based on: alignment with user's priorities > blocking
+{Recommend a PIC based on: alignment with Holden's priorities > blocking
 other work > time-sensitivity > natural continuation of recent work.}
 ```
 
@@ -291,7 +291,63 @@ If none: omit this section.}
 
 Save to `01_Notes/Reports/EOM/EOM - {YYYY-MM}.md`.
 
-## Step 6: Dream (memory consolidation)
+## Step 6: Vault Hygiene Scan
+
+Before dream, scan the vault for misplaced files created today. This catches routing violations early and identifies which workflows are generating files in the wrong location.
+
+### What to scan
+
+1. **Prefix-location mismatches** - find files created today (frontmatter `date created` = today) whose prefix doesn't match the routing rules:
+
+   | Prefix | Expected Location Pattern |
+   |--------|-------------------------|
+   | `DN -` | `01_Notes/Daily/` |
+   | `MN -` | `01_Notes/Meetings/` |
+   | `WS -` | `01_Notes/Weekly/` |
+   | `PIC -` | `01_Notes/Pickups/` or `02_Projects/**/pickups/` |
+   | `WL -` | `01_Notes/Work Logs/` |
+   | `SPC -` | `02_Projects/**/specs/YYYY-MM-DD/` |
+   | `PL -` | `02_Projects/**/plans/YYYY-MM-DD/` |
+   | `RE -` | `02_Projects/**/reports/YYYY-MM-DD/` |
+   | `ARE -` | `02_Projects/**/reports/YYYY-MM-DD/` or `02_Projects/**/reviews/YYYY-MM-DD/` |
+   | `REF -` | `04_Reference/` |
+   | `DD -` | `02_Projects/**/designs/YYYY-MM-DD/` |
+   | `SO -` | `02_Projects/**/structures/YYYY-MM-DD/` |
+   | `RET -` | `02_Projects/**/reports/YYYY-MM-DD/` |
+   | `HAN -` | `02_Projects/**/reports/YYYY-MM-DD/` |
+
+2. **Project structure violations** - files in `02_Projects/` that aren't in a dated subfolder when they should be (specs, plans, reports, reviews sitting directly in the type folder without a `YYYY-MM-DD/` subdirectory).
+
+3. **Orphan files** - markdown files at vault root or in unexpected locations (not in `01_Notes/`, `02_Projects/`, `03_Operations/`, `04_Reference/`, `05_System/`).
+
+4. **Missing frontmatter** - files created today without required `date created`, `tags`, or `category` fields.
+
+### How to scan
+
+```bash
+# Find all .md files created today (by frontmatter date, not filesystem)
+grep -rl "date created: {today}" "Work Vault/" --include="*.md"
+```
+
+Then for each file, check its prefix against the expected location table above.
+
+### Actions
+
+- **Auto-fix obvious cases**: A `DN - 2026-04-04.md` found at vault root can be moved to `01_Notes/Daily/` without asking.
+- **Flag ambiguous cases**: A `RE -` file outside any project needs user input on which project it belongs to. Present as a numbered list.
+- **Track the source**: For each violation, note what likely created it (check today's daily note for the matching topic). Add a one-line note in the EOD's "What Didn't" section: "Vault hygiene: [file] was created in [wrong location], likely by [skill/action]. Should go in [correct location]."
+- **If zero violations**: Skip silently. Don't report "vault is clean" unless the user asks.
+
+### Improving the workflow
+
+When a violation is traced to a specific skill, park a note to that skill's project agents.md:
+```
+- **Routing bug**: [skill name] created [file] in [wrong location] on [date]. Expected location: [correct path]. Fix the skill's file creation logic.
+```
+
+This creates a feedback loop: vault scan finds violations, parks bugs, future agents fix the skills.
+
+## Step 7: Dream (memory consolidation)
 
 After all reports are written, run `/dream` to consolidate automemory. This is the natural end-of-day moment for memory hygiene — the day's work is captured in reports, and any new memories from the session should be merged, deduplicated, and pruned before the next day starts.
 

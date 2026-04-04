@@ -8,8 +8,8 @@ Email fetch (Graph API) → classify.py → signal_builder.py → DB insert
                      sales_classifier.py → sales_actuator.py → sales_profile_builder.py
 ```
 
-- **Container:** `fwis-api` ({{ORG}} compose)
-- **Source:** `/docker/{{ORG_LOWER}}/<SIGNAL_ENGINE>/`
+- **Container:** `fwis-api` (Flora compose)
+- **Source:** `/docker/flora/<SIGNAL_ENGINE>/`
 - **DB:** `{{PROJECT_DB}}` (PostgreSQL 17, `{{DB_CONTAINER}}`)
 - **API:** `api.<YOUR_DOMAIN>` (FastAPI, basic auth)
 
@@ -25,10 +25,10 @@ Email fetch (Graph API) → classify.py → signal_builder.py → DB insert
 
 ```bash
 # List all prompts
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c \"SELECT key, version, updated_at FROM prompt_templates ORDER BY key\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT key, version, updated_at FROM prompt_templates ORDER BY key\""
 
 # Check a specific prompt
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c \"SELECT content FROM prompt_templates WHERE key = '<key>'\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT content FROM prompt_templates WHERE key = '<key>'\""
 ```
 
 **Cross-ref:** FWIS L6 (regenerate prompts.json after DB updates)
@@ -68,10 +68,10 @@ When a prompt outputs structured JSON that maps to a DB table:
 
 ```bash
 # Verify data was actually written
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c \"SELECT id, signal_type, created_at FROM signals ORDER BY created_at DESC LIMIT 5\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT id, signal_type, created_at FROM signals ORDER BY created_at DESC LIMIT 5\""
 
 # Check for NULL columns that should have data
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c \"SELECT COUNT(*) FILTER (WHERE signal_type IS NULL) as null_signal_type FROM signals\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT COUNT(*) FILTER (WHERE signal_type IS NULL) as null_signal_type FROM signals\""
 ```
 
 **Cross-ref:** FWIS L7 (INSERT SQL missing column in list)
@@ -119,6 +119,6 @@ docker exec fwis-api python3 {{PROJECT_DB}}.py --mailbox user@domain.com --dry-r
 ```
 
 ## Lessons Files
-- `01_Work/03_Projects/{{ORG}} Work Intelligence System/lessons.md` — L1-L7
+- `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` — L1-L7
 - `04_ Tools/Reference/REF - Agent Lessons.md` — L12 (batch limits), L13 (progressive validation)
 - MEMORY topic: `llm-pipeline-lessons.md`

@@ -15,7 +15,7 @@ A reflective pass over your memory files. Synthesize what you've learned recentl
 | `user` | User-level (all projects) | `~/.claude/memory/` | `MEMORY.md` in that directory |
 | `all` | Both scopes | Both directories | Both index files |
 
-Where `<encoded-cwd>` is the current working directory with `/` replaced by `-` and leading `-` (e.g., `{{USER_HOME_ENCODED}}-Documents-Vaults-Work-Vault`).
+Where `<encoded-cwd>` is the current working directory with `/` replaced by `-` and leading `-` (e.g., `{{VAULT_PROJECT_PATH}}-Work-Vault`).
 
 Session transcripts are JSONL files in the **project directory** (sibling to `memory/`, not inside it): `~/.claude/projects/<encoded-cwd>/*.jsonl`
 

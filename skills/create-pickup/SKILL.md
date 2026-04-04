@@ -190,7 +190,7 @@ of "it worked last week but broke" investigations — see L18 in Agent Lessons.]
 [Quick summary of what was verified and when. This tells the next agent
 which claims they can trust vs which might have drifted.
 Example:
-- "Container {{ORG_LOWER}}-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
+- "Container flora-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
 - "activities table: 1,226 rows, 332 with type='issue' (verified 2026-03-28 15:30)"
 - "entity_links table: 13 rows (verified 2026-03-28 15:30)"
 If no system state was relevant to verify, omit this section.]

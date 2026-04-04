@@ -35,7 +35,7 @@
       "expectations": [
         "The router runs triage — searches for existing specs in the {{ORG}} Hub project area",
         "If no matching spec is found, routes to Create flow",
-        "The spec is placed at the {{ORG}} Hub sub-project root: '01_Work/03_Projects/{{ORG}} Work Intelligence System/{{ORG}} Hub/SPC - *.md'",
+        "The spec is placed at the {{ORG}} Hub sub-project root: '01_Work/03_Projects/Flora Work Intelligence System/{{ORG}} Hub/SPC - *.md'",
         "The skill asks AskUserQuestion for clarification before drafting (interactive mode)"
       ],
       "golden": false,
@@ -60,7 +60,7 @@
       "should_trigger": true,
       "expectations": [
         "The skill identifies this belongs under the Signal Engine sub-project within FWIS",
-        "The spec file is placed at '01_Work/03_Projects/{{ORG}} Work Intelligence System/Signal Engine/SPC - *.md' (not at the FWIS root)",
+        "The spec file is placed at '01_Work/03_Projects/Flora Work Intelligence System/Signal Engine/SPC - *.md' (not at the FWIS root)",
         "The skill asks clarifying questions via AskUserQuestion one at a time in interactive mode"
       ],
       "golden": false,
@@ -151,7 +151,7 @@
     },
     {
       "id": "create-spec-013",
-      "query": "Create a spec for the {{ORG}} Hub reservations page AI agent. Here is the approved proposal: [proposal text]. Target spec: 01_Work/03_Projects/{{ORG}} Work Intelligence System/Reservations/SPC - Reservations Agent Configuration.md — this is updating the existing spec with new tools.",
+      "query": "Create a spec for the {{ORG}} Hub reservations page AI agent. Here is the approved proposal: [proposal text]. Target spec: 01_Work/03_Projects/Flora Work Intelligence System/Reservations/SPC - Reservations Agent Configuration.md — this is updating the existing spec with new tools.",
       "should_trigger": true,
       "expectations": [
         "The router detects agent mode with a target spec specified and routes to Update flow",

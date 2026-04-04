@@ -83,7 +83,7 @@ If 3 consecutive FAILs on the same issue: PM escalates to team-lead.
 
 ### Known Limitation: Auth-Protected Pages
 
-All {{ORG}} apps use ForwardAuth via Traefik. Unauthenticated `curl` requests return 302 redirects, not page content. This means you CANNOT verify:
+All Flora apps use ForwardAuth via Traefik. Unauthenticated `curl` requests return 302 redirects, not page content. This means you CANNOT verify:
 - Page content renders correctly (DOM-level check)
 - Data is present in the UI
 - JavaScript interactions work

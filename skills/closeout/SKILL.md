@@ -32,7 +32,7 @@ Context compaction loses detail. The live conversation context may be missing ea
 Session logs live at `~/.claude/projects/<project-slug>/`. The project slug is derived from the working directory path (slashes become dashes). Find the most recent `.jsonl` file:
 
 ```bash
-ls -lt ~/.claude/projects/{{USER_HOME_ENCODED}}-Documents-Vaults/*.jsonl 2>/dev/null | head -5
+ls -lt ~/.claude/projects/{{VAULT_PROJECT_PATH}}/*.jsonl 2>/dev/null | head -5
 ```
 
 The current session is typically the most recently modified file.

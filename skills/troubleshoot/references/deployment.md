@@ -20,7 +20,7 @@ ssh <YOUR_VPS> "cd <source-path> && git pull && docker compose -f <compose-file>
 ssh <YOUR_VPS> "cd <source-path> && git add <files> && git commit -m 'message' && git push"
 ```
 
-**Apps:** inbox-triage, dossier-builder, reservation-scraper, {{ORG_LOWER}}-kb, {{ORG_LOWER}}-email-portal
+**Apps:** inbox-triage, dossier-builder, reservation-scraper, flora-kb, flora-email-portal
 
 ### Pattern 3: Commit Inside Container (IK Buckets)
 
@@ -29,7 +29,7 @@ ssh <YOUR_VPS> "cd <source-path> && git add <files> && git commit -m 'message' &
 ssh <YOUR_VPS> "docker exec ik-buckets sh -c 'cd /app && git add -A && git commit -m \"message\"'"
 
 # Push from host (where SSH keys exist)
-ssh <YOUR_VPS> "cd /docker/{{ORG_LOWER}}/ik-buckets && git push"
+ssh <YOUR_VPS> "cd /docker/flora/ik-buckets && git push"
 ```
 
 **Only IK Buckets uses this pattern.** `.git`, `briefs/`, `db/` are bind-mounted; `app.py` and `templates/` are COPY'd into the container.
@@ -64,7 +64,7 @@ ssh <YOUR_VPS> "cd <source-path> && git status"
 ssh <YOUR_VPS> "docker compose -f <compose-file> config --services"
 ```
 
-Common mistake: using container name (e.g., `{{ORG_LOWER}}-kb`) instead of service name (e.g., `kb`).
+Common mistake: using container name (e.g., `flora-kb`) instead of service name (e.g., `kb`).
 
 ### 4. Check if rebuild is actually needed
 
@@ -97,11 +97,11 @@ ssh <YOUR_VPS> "ssh -T github-<alias> 2>&1"
 
 | Local Path | VPS Path | Compose Service |
 |-----------|----------|-----------------|
-| `~/Projects/<YOUR_GATEWAY_APP>/` | `/docker/{{ORG_LOWER}}/<YOUR_GATEWAY_APP>/` | `<YOUR_GATEWAY_APP>` |
-| `~/Projects/<YOUR_ADMIN_APP>/` | `/docker/{{ORG_LOWER}}/<YOUR_ADMIN_APP>/` | `<YOUR_ADMIN_APP>` |
-| `~/Projects/<APP_1>/` | `/docker/{{ORG_LOWER}}/<APP_1>/` | `<APP_1>` |
-| `~/Projects/<APP_2>/` | `/docker/{{ORG_LOWER}}/<APP_2>/` | `<APP_2>` |
-| `~/Projects/<SIGNAL_ENGINE>/` | `/docker/{{ORG_LOWER}}/<SIGNAL_ENGINE>/` | `fwis-api` |
+| `~/Projects/<YOUR_GATEWAY_APP>/` | `/docker/flora/<YOUR_GATEWAY_APP>/` | `<YOUR_GATEWAY_APP>` |
+| `~/Projects/<YOUR_ADMIN_APP>/` | `/docker/flora/<YOUR_ADMIN_APP>/` | `<YOUR_ADMIN_APP>` |
+| `~/Projects/<APP_1>/` | `/docker/flora/<APP_1>/` | `<APP_1>` |
+| `~/Projects/<APP_2>/` | `/docker/flora/<APP_2>/` | `<APP_2>` |
+| `~/Projects/<SIGNAL_ENGINE>/` | `/docker/flora/<SIGNAL_ENGINE>/` | `fwis-api` |
 | `~/Projects/reservations-dashboard-next/` | `/docker/reservations-dashboard/` | `reservations-dashboard` |
 
 ## Worktree Agent Rules

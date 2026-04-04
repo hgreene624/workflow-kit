@@ -17,7 +17,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_DEFAULT_REPO = Path("/tmp/wfk-skills-repo")
+_DEFAULT_REPO = Path("/tmp/flora-skills-repo")
 
 # ---------------------------------------------------------------------------
 # Internal git helpers

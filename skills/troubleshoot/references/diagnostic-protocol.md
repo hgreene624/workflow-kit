@@ -79,7 +79,7 @@ Evidence over assumptions. Every claim must be backed by command output, screens
 
 9. **For UI issues: take an AUTHENTICATED screenshot with JS error capture.**
    - Use Playwright on VPS (installed globally; chromium via `npx playwright install chromium`)
-   - **MUST use correct auth cookie.** Read the cookie name from source (`grep COOKIE_NAME` in the auth cookie utility). Do NOT guess -- `wrong_cookie_name` vs `{{SESSION_COOKIE}}` caused a full diagnostic cycle of false passes (L45).
+   - **MUST use correct auth cookie.** Read the cookie name from source (`grep COOKIE_NAME` in the auth cookie utility). Do NOT guess -- `flora_session` vs `{{SESSION_COOKIE}}` caused a full diagnostic cycle of false passes (L45).
    - **MUST capture `pageerror` events.** This is the only way to detect client-side JS crashes. Server-side tests (wget, curl, docker exec) return HTTP 200 for pages that crash client-side. The `pageerror` handler gives you the exact exception message.
    - **MUST take a screenshot and visually inspect it.** Text-based checks (`locator('text=Application error').count()`) produce false negatives when the wrong page loads (e.g., login redirect returns 200 without error text).
    - See `references/frontend.md` section 2c for the full Playwright error capture script.

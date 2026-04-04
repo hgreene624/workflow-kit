@@ -136,7 +136,7 @@ def bootstrap_evals(
             data=data,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": "Bearer YOUR_PROXY_AUTH",
+                "Authorization": "Bearer max-proxy",
                 "anthropic-version": "2023-06-01",
             },
         )

@@ -19,7 +19,7 @@ Accept meeting content in any form:
 - **Limitless lifelog data** (JSON or already-processed summaries)
 - **Conversational dictation** ("we talked about X, then Y, then Z")
 - **Unstructured notes** (bullet points, fragments, stream of consciousness)
-- **Arguments to the command** (e.g., `/create-MN topic: weekly standup, attendees: Alice, Bob`)
+- **Arguments to the command** (e.g., `/create-MN topic: weekly standup, attendees: Holden, Dad`)
 
 If the user provides no content at all, ask: "Paste or describe the meeting content and I'll structure it." Do not interview topic-by-topic - take whatever they give in one pass.
 

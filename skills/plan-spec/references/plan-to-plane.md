@@ -50,7 +50,7 @@ Module status values: `planned`, `in-progress`, `completed` (NOT `started`).
 
 `POST /projects/{pid}/issues/` for each task from the plan's task tables:
 
-- `name`: **MUST use phase-prefixed ID format** — `P{phase}.{number} — {task description}` (e.g., `P0.1 — Run schema migration`, `P3.4 — Integrate widget into {{ORG}} Portal`). This is mandatory so the Plane board is scannable.
+- `name`: **MUST use phase-prefixed ID format** — `P{phase}.{number} — {task description}` (e.g., `P0.1 — Run schema migration`, `P3.4 — Integrate widget into Flora Portal`). This is mandatory so the Plane board is scannable.
 - `description_html`: `<p>{task details, dependencies, relevant gotchas}</p>`
 - `state`: **(HARD RULE)** Phase 0 tasks → **Todo** state. ALL other phases → **Backlog** state. No exceptions. Issues are promoted to Todo only when their phase starts and dependencies are satisfied.
 - `label_ids`: `[{phase_label_id}]`

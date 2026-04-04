@@ -31,10 +31,10 @@ Do all of these before responding to the user:
 
 6. **Lessons files** — Read the general lessons file (cross-project lessons) and any local `lessons.md` in the current project. These are hard-won knowledge from past sessions — ignoring them means repeating the same mistakes.
 
-7. **Period reports** — Read these from `Work Vault/01_Notes/Reports/` to understand what's been happening and what the user's priorities are. Read in parallel:
+7. **Period reports** — Read these from `Work Vault/01_Notes/Reports/` to understand what's been happening and what Holden's priorities are. Read in parallel:
    - **SOD** (daily context): Most recent file in `Reports/SOD/`. Check today first, fall back to most recent. This has the WTD summary, priorities, open PICs, and suggested start.
    - **EOW** (last week): Most recent file in `Reports/EOW/`. This is the weekly rollup — what shipped, goal progress, retro findings, and next-week setup.
-   - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has the user's monthly objectives that should frame all work.
+   - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has Holden's monthly objectives that should frame all work.
    - **EOM** (last month): Most recent file in `Reports/EOM/`. This has the prior month's retrospective and carry-forwards.
 
    Skip any that don't exist. The SOD is the most important — it's the freshest context. The others provide progressively wider framing.

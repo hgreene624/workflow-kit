@@ -4,9 +4,9 @@
 
 - **VPS:** Single Hetzner server, all services containerized
 - **Reverse proxy:** Traefik v3.5 at `/docker/traefik-n8n/docker-compose.yml`
-- **Networks:** `root_default` (Traefik/public), `{{ORG_LOWER}}_{{ORG_LOWER}}-internal` (postgres/inter-service)
-- **Compose projects:** {{ORG}} (main), {{ORG}} KB, DocGen, OpenClaw, Plane, Reservations, Tools, Monitoring
-- **Auth:** ForwardAuth via `<YOUR_GATEWAY_APP>` gateway — protected services get `X-{{ORG}}-*` headers
+- **Networks:** `root_default` (Traefik/public), `flora_flora-internal` (postgres/inter-service)
+- **Compose projects:** Flora (main), Flora KB, DocGen, OpenClaw, Plane, Reservations, Tools, Monitoring
+- **Auth:** ForwardAuth via `<YOUR_GATEWAY_APP>` gateway — protected services get `X-Flora-*` headers
 
 ## Diagnostic Checklist
 
@@ -99,8 +99,8 @@ ssh <YOUR_VPS> "docker cp /tmp/fix.py CONTAINER:/tmp/fix.py && docker exec CONTA
 
 | Project | Path |
 |---------|------|
-| {{ORG}} (main) | `/docker/{{ORG_LOWER}}/docker-compose.yml` |
-| {{ORG}} KB | `/root/{{ORG_LOWER}}-kb/docker-compose.yml` |
+| Flora (main) | `/docker/flora/docker-compose.yml` |
+| Flora KB | `/root/flora-kb/docker-compose.yml` |
 | DocGen | `/docker/docgen/docker-compose.yml` |
 | OpenClaw | `/docker/openclaw/docker-compose.yml` |
 | Traefik + n8n | `/docker/traefik-n8n/docker-compose.yml` |

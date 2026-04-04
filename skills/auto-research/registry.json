@@ -118,6 +118,20 @@
       "priority": "medium"
     },
     {
+      "name": "create-flora-agent",
+      "tier": 3,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/create-flora-agent",
+      "eval_set": "~/.claude/skills/create-flora-agent/evals/evals.json",
+      "golden_tests": [
+        "create-flora-agent-001",
+        "create-flora-agent-002"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "medium"
+    },
+    {
       "name": "implement",
       "tier": 3,
       "type": "claude-skill",

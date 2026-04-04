@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "review-spec-001",
-      "query": "review this spec 01_Work/03_Projects/{{ORG}} Work Intelligence System/SPC - AI Chat Widget.md",
+      "query": "review this spec 01_Work/03_Projects/Flora Work Intelligence System/SPC - AI Chat Widget.md",
       "should_trigger": true,
       "expectations": [
         "The response reads the spec file AND infers the project from its vault location",

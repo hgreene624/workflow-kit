@@ -6,16 +6,16 @@ Traefik uses **most-specific prefix wins**. `/kb/sales` matches before `/kb/`.
 
 | URL Path | Container | App Type | Port | Compose File | Auth |
 |----------|-----------|----------|------|-------------|------|
-| `/hub/*` | <APP_1> | SvelteKit | 3000 | /docker/{{ORG_LOWER}}/ | {{ORG_LOWER}}-auth |
-| `/portal/*` | <APP_2> | SvelteKit | 3000 | /docker/{{ORG_LOWER}}/ | {{ORG_LOWER}}-auth |
-| `/kb/sales*` | ik-buckets | Flask/Gunicorn | 8080 | /docker/{{ORG_LOWER}}/ | {{ORG_LOWER}}-auth |
-| `/kb/*` | {{ORG_LOWER}}-kb | SvelteKit | 3000 | /root/{{ORG_LOWER}}-kb/ | {{ORG_LOWER}}-auth |
-| `/mail/*` | inbox-triage | Flask/Gunicorn | 8080 | /docker/{{ORG_LOWER}}/ | {{ORG_LOWER}}-auth |
-| `/email/*` | email-portal | Next.js | 3000 | /docker/{{ORG_LOWER}}/ | {{ORG_LOWER}}-auth |
-| `/reservations/*` | reservations-dashboard | Next.js | 3000 | /docker/reservations-dashboard/ | {{ORG_LOWER}}-auth |
-| `/ai/widget.js` | <YOUR_ADMIN_APP> | Next.js | 3000 | /docker/{{ORG_LOWER}}/ | NO AUTH |
-| `/api/ai/*` | <YOUR_ADMIN_APP> | Next.js | 3000 | /docker/{{ORG_LOWER}}/ | {{ORG_LOWER}}-auth |
-| `/*` (default) | <YOUR_GATEWAY_APP> | SvelteKit | 3000 | /docker/{{ORG_LOWER}}/ | (gateway) |
+| `/hub/*` | <APP_1> | SvelteKit | 3000 | /docker/flora/ | flora-auth |
+| `/portal/*` | <APP_2> | SvelteKit | 3000 | /docker/flora/ | flora-auth |
+| `/kb/sales*` | ik-buckets | Flask/Gunicorn | 8080 | /docker/flora/ | flora-auth |
+| `/kb/*` | flora-kb | SvelteKit | 3000 | /root/flora-kb/ | flora-auth |
+| `/mail/*` | inbox-triage | Flask/Gunicorn | 8080 | /docker/flora/ | flora-auth |
+| `/email/*` | email-portal | Next.js | 3000 | /docker/flora/ | flora-auth |
+| `/reservations/*` | reservations-dashboard | Next.js | 3000 | /docker/reservations-dashboard/ | flora-auth |
+| `/ai/widget.js` | <YOUR_ADMIN_APP> | Next.js | 3000 | /docker/flora/ | NO AUTH |
+| `/api/ai/*` | <YOUR_ADMIN_APP> | Next.js | 3000 | /docker/flora/ | flora-auth |
+| `/*` (default) | <YOUR_GATEWAY_APP> | SvelteKit | 3000 | /docker/flora/ | (gateway) |
 
 ## Subdomains
 
@@ -29,7 +29,7 @@ Traefik uses **most-specific prefix wins**. `/kb/sales` matches before `/kb/`.
 
 ## Common Gotchas
 
-- `/kb/sales/` → IK Buckets (Flask), NOT {{ORG}} KB (SvelteKit). These are DIFFERENT apps.
+- `/kb/sales/` → IK Buckets (Flask), NOT Flora KB (SvelteKit). These are DIFFERENT apps.
 - `/ai/widget.js` has NO auth — it's served publicly by <YOUR_ADMIN_APP>
 - Old subdomains (hub.<YOUR_DOMAIN>, portal.<YOUR_DOMAIN>, etc.) 308-redirect to <YOUR_DOMAIN>/path/
 

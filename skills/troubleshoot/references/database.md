@@ -4,7 +4,7 @@
 
 | Database | Container | Type | Access |
 |----------|-----------|------|--------|
-| `{{PROJECT_DB}}` | `{{DB_CONTAINER}}` | PostgreSQL 17 | `ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}}"` |
+| `{{PROJECT_DB}}` | `{{DB_CONTAINER}}` | PostgreSQL 17 | `ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}}"` |
 | Plane DB | `plane-plane-db-1` | PostgreSQL | `ssh <YOUR_VPS> "docker exec -e PGPASSWORD=YOUR_DB_PASSWORD plane-plane-db-1 psql -U plane -d plane"` |
 | IK Buckets search | `ik-buckets` | SQLite | `/app/db/search.db` (bind-mounted from host) |
 | IK Buckets data | `ik-buckets` | SQLite | `/app/db/ik_buckets.db` (bind-mounted) |
@@ -30,10 +30,10 @@
 
 ```bash
 # {{PROJECT_DB}} (main app DB)
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c '\dt public.*'"
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c '\dt public.*'"
 
 # Sales schema (inside {{PROJECT_DB}})
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c '\dt sales.*'"
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c '\dt sales.*'"
 
 # Plane DB
 ssh <YOUR_VPS> 'docker exec -e PGPASSWORD=YOUR_DB_PASSWORD plane-plane-db-1 psql -U plane -d plane -c "\dt"'
@@ -85,10 +85,10 @@ FROM table GROUP BY 1;
 ## PostgreSQL Connection Details
 
 - **Host:** `{{DB_CONTAINER}}` (internal network) or `127.0.0.1:5432` (VPS host)
-- **User:** `{{DB_USER}}`
+- **User:** `flora`
 - **DB:** `{{PROJECT_DB}}`
 - **Password:** In env vars of connected containers
-- **Backups:** `/docker/{{ORG_LOWER}}/backups/{{PROJECT_DB}}_YYYY-MM-DD.sql.gz` (7-day retention, nightly at 2:30 AM)
+- **Backups:** `/docker/flora/backups/{{PROJECT_DB}}_YYYY-MM-DD.sql.gz` (7-day retention, nightly at 2:30 AM)
 
 ## Key Gotchas
 
@@ -99,5 +99,5 @@ FROM table GROUP BY 1;
 
 ## Lessons Files
 - `04_ Tools/Reference/REF - Agent Lessons.md` — L7 (schema inspection), L9 (query for IDs), L11 (validate agent SQL), L18 (audit all queries)
-- `01_Work/03_Projects/{{ORG}} Work Intelligence System/lessons.md` — L7 (insert_signal SQL)
+- `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` — L7 (insert_signal SQL)
 - `01_Work/03_Projects/VPS/lessons.md` — L8 (password URI), L16-18 (shell/heredoc issues)

@@ -4,7 +4,7 @@
 
 | Integration | Used By | Protocol | Key Details |
 |-------------|---------|----------|-------------|
-| Microsoft Graph API | FWIS, Inbox Triage, Chawdys | REST + OAuth | App ID `YOUR_APP_ID` (client_credentials) |
+| Microsoft Graph API | FWIS, Inbox Triage, Chawdys | REST + OAuth | App ID `4935ad02` (client_credentials) |
 | Microsoft Entra ID | All ForwardAuth services | OAuth 2.0 | App ID `a79fcf06` (authorization code) |
 | Telegram Bot | Chawdys, cron alerts | Bot API | `TELEGRAM_TARGET` in config.py |
 | 7rooms | Reservation Scraper | Playwright scrape | **Currently broken** (auth failing since 2026-03-04) |
@@ -31,7 +31,7 @@ print(\"Expires:\", payload.get(\"exp\"))
 '"
 ```
 
-**App ID `YOUR_APP_ID`** = client_credentials (Graph API, server-to-server)
+**App ID `4935ad02`** = client_credentials (Graph API, server-to-server)
 **App ID `a79fcf06`** = authorization code (user sign-in)
 
 Never use the Graph API app for user-facing OAuth, or vice versa.
@@ -68,7 +68,7 @@ ssh <YOUR_VPS> "docker ps --filter name=reservation-scraper --format '{{.Status}
 
 ```bash
 # Check recent sync
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c \"SELECT id, created_at FROM limitless_lifelogs ORDER BY created_at DESC LIMIT 5\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT id, created_at FROM limitless_lifelogs ORDER BY created_at DESC LIMIT 5\""
 
 # Check sync logs
 ssh <YOUR_VPS> "cat /var/log/limitless-sync.log | tail -20"
@@ -83,7 +83,7 @@ Runs every 30 min (7 AM–9 PM Mazatlán). Pipeline: `sync_lifelogs.py` → `con
 ssh <YOUR_VPS> "curl -s http://$(docker inspect <YOUR_ADMIN_APP> --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' | head -c 15):3000/api/ai/health"
 
 # Check session count
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c \"SELECT COUNT(*) FROM chat_sessions\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT COUNT(*) FROM chat_sessions\""
 ```
 
 ## Common Failure Modes
@@ -125,8 +125,8 @@ This failure mode cost hours on 2026-03-27 when Graph returned 0 transcripts for
 
 - **Container:** `chawdys` in `/docker/openclaw/docker-compose.yml`
 - **Image:** Pre-built `ghcr.io/hostinger/hvps-openclaw`
-- **Volumes:** Mount from `/docker/{{ORG_LOWER}}/data/` (`.openclaw`, `.bun`, `.npm`, etc.)
-- **Network:** `root_default` (reaches {{ORG}} services via Traefik)
+- **Volumes:** Mount from `/docker/flora/data/` (`.openclaw`, `.bun`, `.npm`, etc.)
+- **Network:** `root_default` (reaches Flora services via Traefik)
 - **Env vars:** `FWIS_API_URL`, `INBOX_TRIAGE_URL`, `IK_BUCKETS_URL`
 - **Internal crons:** Managed via `openclaw cron list/enable/disable` inside container
 - **MS Graph tools:** `/data/.openclaw/workspace/projects/ms-teams-planner/`
@@ -142,16 +142,16 @@ ssh <YOUR_VPS> "docker exec chawdys openclaw cron list"
 ## Email Safety
 
 **ALWAYS verify emails against `monitored_mailboxes` table** before use:
-- `admin@YOUR_DOMAIN` = the business owner (owner/executive)
-- `user3@YOUR_DOMAIN` = external consultant (NOT the business owner)
+- `admin@YOUR_DOMAIN` = Patrick (owner/executive)
+- `user3@YOUR_DOMAIN` = External consultant (NOT the business owner)
 
 ```bash
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c 'SELECT email, display_name FROM monitored_mailboxes'"
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c 'SELECT email, display_name FROM monitored_mailboxes'"
 ```
 
 **Cross-ref:** FWIS L1
 
 ## Lessons Files
-- `01_Work/03_Projects/{{ORG}} Work Intelligence System/lessons.md` — L1 (email verification), L2 (Telegram)
+- `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` — L1 (email verification), L2 (Telegram)
 - `01_Work/03_Projects/VPS/lessons.md` — L3 (Entra app IDs)
 - `04_ Tools/Reference/REF - Agent Lessons.md` — L19 (admin operation side effects)

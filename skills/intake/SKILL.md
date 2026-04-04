@@ -1,6 +1,6 @@
 ---
 name: intake
-description: Evaluate incoming materials (files, directories, data) and triage them into the Work Vault's project structure — matching to existing projects or proposing new ones. Use this skill whenever the user points you at files to organize, says "intake these", "file these", "where do these go", "organize these into the vault", "I got files from [someone]", "process these materials", drops a path and says "figure out where this goes", or has external documents (specs, reports, data, reference material) that need a home in the project structure. Also trigger when the user receives deliverables from collaborators and wants them properly filed as reference material for future work. Even casual requests like "someone sent me some stuff, here" or "put these somewhere useful" with a file path should trigger this skill.
+description: Evaluate incoming materials (files, directories, data) and triage them into the Work Vault's project structure — matching to existing projects or proposing new ones. Use this skill whenever the user points you at files to organize, says "intake these", "file these", "where do these go", "organize these into the vault", "I got files from [someone]", "process these materials", drops a path and says "figure out where this goes", or has external documents (specs, reports, data, reference material) that need a home in the project structure. Also trigger when the user receives deliverables from collaborators (dad, Christian, contractors) and wants them properly filed as reference material for future work. Even casual requests like "dad sent me some stuff, here" or "put these somewhere useful" with a file path should trigger this skill.
 ---
 
 # Material Intake
@@ -93,7 +93,7 @@ Do not proceed until the user gives you the go-ahead. A simple "looks good" or "
 Once approved, do the work:
 
 ### For existing projects:
-1. Create a source material subfolder if one doesn't exist. Name it after the source — e.g., `Alice Files/`, `Bob Specs/`, or whatever makes sense for who sent the material.
+1. Create a source material subfolder if one doesn't exist. Name it after the source — e.g., `Dad Files/`, `Patrick Specs/`, `Christian Files/`, or whatever makes sense for who sent the material.
 2. Copy the original files into that subfolder, preserving them exactly as-is.
 
 ### For new projects:
@@ -128,6 +128,6 @@ After filing is complete, briefly suggest logical next actions for each project 
 - **Spec-ready material** (detailed requirements, user stories, technical specs): suggest `/create-spec` to formalize it
 - **Early-stage ideas** (overviews, placeholders, rough briefs): suggest the user review the material and flesh it out before spec'ing
 - **Data or reference material** (datasets, API docs, research): note that it's filed and available for when the relevant project needs it
-- **Material that raises questions**: suggest specific questions the user might want to ask the source (e.g., "App 3 is marked as a placeholder -- worth asking the sender for more detail before spec'ing")
+- **Material that raises questions**: suggest specific questions the user might want to ask the source (e.g., "App 3 is marked as a placeholder — worth asking dad for more detail before spec'ing")
 
 Keep this brief — a sentence or two per project. The user will decide what to prioritize.

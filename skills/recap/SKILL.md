@@ -122,7 +122,7 @@ One ALTER command on VPS. Fix it now? [yes/skip]
 **decide:** Present the options with full context.
 ```
 #2 decide — VPS has 6 uncommitted files from before our session.
-They're in .gitignore, docker-compose.yml, ai-gateway, ai-client-py,
+They're in .gitignore, docker-compose.yml, ai-gateway, flora-ai-client-py,
 api config. Options:
   a) Investigate what they are (I'll read the diff, ~2 min)
   b) Commit them as-is
