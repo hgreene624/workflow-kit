@@ -1,0 +1,10 @@
+# Default: repo owner reviews all PRs
+* @hgreene624
+
+# Security-sensitive files require owner review
+.gitleaks.toml @hgreene624
+.pre-commit-config.yaml @hgreene624
+kit.json @hgreene624
+CLAUDE.md @hgreene624
+agents.md @hgreene624
+skills/update-wfk/ @hgreene624

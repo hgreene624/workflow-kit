@@ -1,0 +1,85 @@
+# Gitleaks configuration for Workflow Kit
+# Catches WFK-specific patterns on top of the 200+ built-in secret rules
+
+title = "WFK Secret Scan"
+
+# Custom rules for org-specific patterns that should never appear in the public repo
+[[rules]]
+id = "org-domain"
+description = "Organization domain leak"
+regex = '''myarroyo\.com'''
+tags = ["org-specific"]
+
+[[rules]]
+id = "org-email-domain"
+description = "Organization email domain"
+regex = '''@flora-farms\.com'''
+tags = ["org-specific"]
+
+[[rules]]
+id = "vps-ip"
+description = "VPS IP address"
+regex = '''31\.220\.55\.98'''
+tags = ["infrastructure"]
+
+[[rules]]
+id = "internal-ip"
+description = "Internal network IP"
+regex = '''192\.168\.10\.250'''
+tags = ["infrastructure"]
+
+[[rules]]
+id = "hardcoded-user-path"
+description = "Hardcoded macOS user path"
+regex = '''/Users/[a-zA-Z]+/(?:Documents|Library|Desktop|Downloads)'''
+tags = ["personal"]
+
+[[rules]]
+id = "external-drive-path"
+description = "External drive path"
+regex = '''/Volumes/[^/]+/Repos/'''
+tags = ["personal"]
+
+[[rules]]
+id = "azure-tenant-id"
+description = "Azure AD tenant ID"
+regex = '''[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'''
+tags = ["credential"]
+[rules.allowlist]
+description = "Allow generic UUID placeholders"
+regexes = ['''YOUR_\w+_ID''']
+
+[[rules]]
+id = "telegram-chat-id"
+description = "Telegram chat ID (10+ digits)"
+regex = '''\b\d{10,}\b'''
+tags = ["personal"]
+[rules.allowlist]
+description = "Allow line numbers and timestamps"
+paths = ['''\.py$''', '''\.sh$''', '''\.json$''']
+
+[[rules]]
+id = "plane-api-key"
+description = "Plane API key pattern"
+regex = '''plane_api_[a-f0-9]{32}'''
+tags = ["credential"]
+
+[[rules]]
+id = "flora-db-refs"
+description = "Flora-specific database references"
+regex = '''flora[_-](signal|postgres|dev_pwd)'''
+tags = ["org-specific"]
+
+[[rules]]
+id = "flora-session-cookie"
+description = "Flora session cookie name"
+regex = '''__flora_session'''
+tags = ["org-specific"]
+
+# Allowlist - files and patterns that are OK
+[allowlist]
+description = "Global allowlist"
+paths = [
+    '''.gitleaks.toml''',
+    '''\.git/'''
+]
