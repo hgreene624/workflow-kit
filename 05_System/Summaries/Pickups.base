@@ -1,0 +1,49 @@
+properties:
+  status:
+    displayName: Status
+  project:
+    displayName: Project
+  date created:
+    displayName: Created
+views:
+  - type: table
+    name: Open Pickups
+    filters:
+      and:
+        - Category == "Pickup"
+        - or:
+            - status == "open"
+            - status == "picked-up"
+    order:
+      - file.name
+      - status
+      - project
+      - date created
+    sort:
+      - property: file.ctime
+        direction: DESC
+    limit: 10
+    columnSize:
+      file.name: 350
+      note.status: 80
+      note.project: 120
+      note.date created: 130
+  - type: table
+    name: All Pickups
+    filters:
+      and:
+        - Category == "Pickup"
+        - '!file.name.contains("Template")'
+    order:
+      - file.name
+      - status
+      - project
+      - date created
+    sort:
+      - property: file.ctime
+        direction: DESC
+    columnSize:
+      file.name: 350
+      note.status: 80
+      note.project: 120
+      note.date created: 130

@@ -1,0 +1,12 @@
+{
+    "expectations": [
+        {"text": "The skill should ask clarifying questions before drafting", "passed": true, "evidence": "Transcript shows 3 clarifying questions"},
+        {"text": "The skill should create all 11 spec sections", "passed": false, "evidence": "Only 8 sections were created, missing Risks, Open Decisions, Change Log"},
+        {"text": "The skill should gate with review-spec", "passed": false, "evidence": "No review-spec invocation found in transcript"}
+    ],
+    "summary": {"passed": 1, "failed": 2, "total": 3, "pass_rate": 0.33},
+    "eval_feedback": {
+        "suggestions": [{"reason": "Consider checking that all 11 sections match the template headers exactly"}],
+        "overall": "Assertions check section count but not section content quality"
+    }
+}

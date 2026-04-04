@@ -1,0 +1,24 @@
+# User-generated config (created by /setup)
+workflow-kit.config.json
+
+# Obsidian workspace state (per-user)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json
+
+# macOS
+.DS_Store
+
+# User data directories (content, not structure)
+01_Notes/Daily/*.md
+01_Notes/Meetings/*.md
+01_Notes/Weekly/*.md
+01_Notes/Work Logs/*.md
+01_Notes/Reports/*.md
+
+# Keep the Pickups dir but not user PICs
+01_Notes/Pickups/*.md
+!01_Notes/Pickups/.gitkeep
+
+# Keep project structure but not user projects
+# (users create their own projects after setup)

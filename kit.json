@@ -1,0 +1,85 @@
+{
+  "$schema": "Workflow Kit manifest — declares what ships with the kit vs stays local",
+
+  "core_skills": [
+    "article-intel",
+    "auto-research",
+    "closeout",
+    "create-MN",
+    "create-pickup",
+    "create-spec",
+    "design",
+    "dream",
+    "end-day",
+    "frontend-design",
+    "git-safe",
+    "grill",
+    "implement",
+    "intake",
+    "learn",
+    "log-work",
+    "orient",
+    "park",
+    "pickup",
+    "plan-spec",
+    "pr-review",
+    "recap",
+    "retro",
+    "review-spec",
+    "setup",
+    "skill-creator",
+    "step-away",
+    "structure",
+    "test-check",
+    "troubleshoot",
+    "update-wfk",
+    "usage-audit",
+    "video-intel",
+    "web-theme",
+    "best-practice"
+  ],
+
+  "org_skills": [
+    "limitless",
+    "vps-deploy"
+  ],
+
+  "deprecated_skills": [
+    "update-skills",
+    "update-workflow-kit",
+    "yt",
+    "pickup-triage"
+  ],
+
+  "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",
+
+  "sync_rules": {
+    "skills": {
+      "on_push": "Only push core_skills. Strip hardcoded paths and org-specific references.",
+      "on_pull": "Replace SKILL.md and references/. Never touch user's evals/ or workspace/ dirs."
+    },
+    "templates": {
+      "on_push": "Push generalized versions. Strip org-specific bases, sections, or references.",
+      "on_pull": "Show diff. User chooses: keep local, take upstream, or merge."
+    },
+    "claude_md": {
+      "on_push": "Push the repo's generalized CLAUDE.md. Never overwrite repo version with vault version.",
+      "on_pull": "Merge by section markers. Replace WFK:START/END blocks, preserve LOCAL:START/END blocks."
+    },
+    "agents_md": {
+      "on_push": "Same as claude_md — push generalized version only.",
+      "on_pull": "Same section-marker merge. Never touch project-level agents.md files."
+    },
+    "never_sync": [
+      "**/lessons.md",
+      "**/02_Projects/*/agents.md",
+      ".obsidian/snippets/",
+      ".obsidian/workspace*.json",
+      ".obsidian/plugins/*/data.json",
+      "**/data.nosync/",
+      "01_Notes/",
+      "03_Operations/",
+      "06_Media/"
+    ]
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "skill": "troubleshoot",
+  "version": "1.0.0",
+  "cases": [
+    {
+      "id": "troubleshoot-001",
+      "query": "troubleshoot",
+      "should_trigger": true,
+      "expectations": [
+        "The response explicitly freezes all fix attempts before doing anything else",
+        "The response classifies the problem domain (VPS, database, frontend, auth, etc.)",
+        "The response dispatches a diagnostic agent via TeamCreate"
+      ],
+      "golden": true,
+      "notes": "Bare invocation — must freeze, classify, AND dispatch. Never tries another fix."
+    },
+    {
+      "id": "troubleshoot-002",
+      "query": "you're going in circles, troubleshoot this",
+      "should_trigger": true,
+      "expectations": [
+        "The response stops the current approach immediately (freezes)",
+        "The response does NOT propose another variation of the previous fix",
+        "The response identifies the problem domain and reads the corresponding reference file",
+        "The response dispatches a diagnostic agent"
+      ],
+      "golden": true,
+      "notes": "Frustration trigger — circuit-breaker must stop the fix spiral, not continue it"
+    },
+    {
+      "id": "troubleshoot-003",
+      "query": "why isn't this working",
+      "should_trigger": true,
+      "expectations": [
+        "The response freezes current approach rather than immediately proposing another fix",
+        "The response gathers evidence before proposing a fix",
+        "The response dispatches a diagnostic agent with the problem context"
+      ],
+      "golden": false,
+      "notes": "Evidence-first trigger — must gather before proposing"
+    },
+    {
+      "id": "troubleshoot-004",
+      "query": "you're stuck, try again properly",
+      "should_trigger": true,
+      "expectations": [
+        "The response acknowledges it is stuck and freezes",
+        "The response classifies which domain(s) the issue touches",
+        "The response reads the relevant reference file from references/ directory",
+        "The response dispatches a diagnostic agent via TeamCreate (visible tmux pane)"
+      ],
+      "golden": false,
+      "notes": "Manual trigger phrase — full 4-step protocol: freeze, classify, read refs, dispatch"
+    },
+    {
+      "id": "troubleshoot-005",
+      "query": "this still isn't working after your last two fixes",
+      "should_trigger": true,
+      "expectations": [
+        "The response recognizes this as 2+ consecutive failed attempts and auto-triggers",
+        "The response freezes before attempting anything else",
+        "The response dispatches a diagnostic agent that verifies assumptions, not tries more fixes"
+      ],
+      "golden": true,
+      "notes": "Auto-trigger scenario — 2 consecutive failures must fire the skill automatically"
+    },
+    {
+      "id": "troubleshoot-006",
+      "query": "/troubleshoot",
+      "should_trigger": true,
+      "expectations": [
+        "The response invokes the troubleshoot skill",
+        "The response freezes and classifies the domain",
+        "The response dispatches a diagnostic agent before attempting any fix"
+      ],
+      "golden": false,
+      "notes": "Slash command invocation"
+    },
+    {
+      "id": "troubleshoot-007",
+      "query": "the Traefik routing still isn't working after fixing the labels twice",
+      "should_trigger": true,
+      "expectations": [
+        "The response freezes fix attempts",
+        "The response classifies as VPS/Docker/Traefik domain and reads references/vps-docker.md",
+        "The response dispatches a diagnostic agent that runs whichcontainer to verify target",
+        "The diagnostic agent prompt includes Phase 1 target verification steps"
+      ],
+      "golden": false,
+      "notes": "Domain-specific trigger — VPS/Docker domain should load correct reference file"
+    },
+    {
+      "id": "troubleshoot-neg-001",
+      "query": "fix this CSS bug in the dashboard",
+      "should_trigger": false,
+      "expectations": [
+        "The response attempts to fix the CSS bug directly",
+        "The response does NOT freeze all activity as a first step",
+        "The response does NOT dispatch a diagnostic agent for a first-time fix request"
+      ],
+      "golden": false,
+      "notes": "First fix attempt — troubleshoot only fires after 2 consecutive failures, not on first try"
+    },
+    {
+      "id": "troubleshoot-neg-002",
+      "query": "implement the new auth flow",
+      "should_trigger": false,
+      "expectations": [
+        "The response begins implementation work",
+        "The response does NOT classify problem domains or read diagnostic reference files"
+      ],
+      "golden": false,
+      "notes": "Implementation request — not a fix-loop situation"
+    },
+    {
+      "id": "troubleshoot-neg-003",
+      "query": "how does the signal engine work",
+      "should_trigger": false,
+      "expectations": [
+        "The response explains the signal engine",
+        "The response does NOT invoke troubleshoot protocol"
+      ],
+      "golden": false,
+      "notes": "Informational question — no failure loop, no troubleshoot needed"
+    }
+  ]
+}

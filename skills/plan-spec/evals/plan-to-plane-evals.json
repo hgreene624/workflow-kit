@@ -1,0 +1,78 @@
+{
+  "skill": "plan-spec/plan-to-plane",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "ptp-001",
+      "query": "create the Plane project from the approved plan PL - Admin Alert Management System Implementation Plan.md",
+      "should_trigger": true,
+      "expectations": [
+        "A Plane project is created via POST /projects/ with a valid 3-letter identifier, name, and network: 2",
+        "The Project Registry in the Plane Development Workflow doc is checked BEFORE creating a new project",
+        "The project URL returned matches https://YOUR_PLANE_URL/YOUR_WORKSPACE/projects/{pid}/"
+      ],
+      "golden": true,
+      "notes": "Golden — core identity: approved plan triggers Plane project creation with correct identifier"
+    },
+    {
+      "id": "ptp-002",
+      "query": "set up Plane issues for PL - Unified Auth Architecture Implementation Plan.md",
+      "should_trigger": true,
+      "expectations": [
+        "Issue names use phase-prefixed format: 'P0.1 — ...', 'P1.1 — ...', 'P2.3 — ...', etc.",
+        "Every issue name starts with P{phase}.{number} — followed by the task description",
+        "No issues are created without the phase prefix"
+      ],
+      "golden": true,
+      "notes": "Golden — phase-prefixed naming is mandatory for board scannability"
+    },
+    {
+      "id": "ptp-003",
+      "query": "create Plane project and issues from this 4-phase plan",
+      "should_trigger": true,
+      "expectations": [
+        "Phase 0 tasks are created with Todo state",
+        "Phase 1, Phase 2, and Phase 3 tasks are ALL created with Backlog state",
+        "States are queried dynamically via GET /projects/{pid}/states/ — never hardcoded"
+      ],
+      "golden": true,
+      "notes": "Golden — hard rule: Phase 0 → Todo, all others → Backlog. No exceptions."
+    },
+    {
+      "id": "ptp-004",
+      "query": "sync the plan to Plane — create module and issues",
+      "should_trigger": true,
+      "expectations": [
+        "A module is created via POST /projects/{pid}/modules/ with status 'planned'",
+        "Module name matches the spec name without 'SPC - ' prefix",
+        "All created issues are batch-added to the module via POST /projects/{pid}/modules/{mid}/module-issues/"
+      ],
+      "golden": false,
+      "notes": "Positive — module creation with correct status and issue linking"
+    },
+    {
+      "id": "ptp-005",
+      "query": "push this plan to Plane using MCP",
+      "should_trigger": true,
+      "expectations": [
+        "The skill uses REST API (urllib/curl) for ALL Plane API calls",
+        "MCP is NOT used for any write operations to Plane",
+        "API calls use the header X-Api-Key with the correct API key"
+      ],
+      "golden": false,
+      "notes": "Positive — must use REST API not MCP even when user mentions MCP (lesson L20)"
+    },
+    {
+      "id": "ptp-006",
+      "query": "create Plane project for {{ORG}} Hub — there's already one in the registry",
+      "should_trigger": true,
+      "expectations": [
+        "The skill reads the Project Registry and finds the existing project",
+        "No duplicate project is created via POST /projects/",
+        "The existing project ID is reused for creating issues and modules"
+      ],
+      "golden": false,
+      "notes": "Negative behavior: must NOT create duplicate project when one already exists"
+    }
+  ]
+}

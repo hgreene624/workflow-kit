@@ -1,0 +1,26 @@
+properties:
+  date created:
+    displayName: Created
+views:
+  - type: table
+    name: Recent Reports
+    filters:
+      and:
+        - or:
+            - Category == "Report"
+            - Category == "Incident Report"
+        - '!file.name.contains("Template")'
+        - '!file.path.contains("data.nosync")'
+        - '!file.name.contains("ARE")'
+        - file.path.contains("02_Projects")
+        - now() - file.mtime < "7d"
+    order:
+      - file.name
+      - note.date created
+    sort:
+      - property: date created
+        direction: DESC
+    limit: 10
+    columnSize:
+      file.name: 476
+      note.date created: 130

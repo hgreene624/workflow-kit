@@ -1,0 +1,256 @@
+formulas:
+  note_link: link(file, file.name)
+  path: file.path
+  report_link: link(file, file.name)
+  updated: date(file.mtime)
+  daily_date: date(file.name.replace("DN - ", ""))
+  meeting_date: date(file.name.replace("MN - ", "").split(" ")[0])
+  tasting_date: date(file.name.replace("TA - ", "").split(" ")[0])
+  weekly_date: date(file.name.split("- ")[-1])
+  initiative_link: link(file, initiative)
+properties:
+  note_link:
+    displayName: Note
+  path:
+    displayName: Path
+  report_link:
+    displayName: Report
+  updated:
+    displayName: Updated
+  daily_date:
+    displayName: Date
+  meeting_date:
+    displayName: Date
+  tasting_date:
+    displayName: Date
+  weekly_date:
+    displayName: Date
+  initiative_link:
+    displayName: Initiative
+  status:
+    displayName: Status
+  last_touched:
+    displayName: Last touched
+  last_log_update:
+    displayName: Last log update
+  description:
+    displayName: Description
+  source_note:
+    displayName: Source note
+views:
+  - type: table
+    name: Reports
+    filters:
+      and:
+        - Category == "Report"
+        - '!file.name.contains("Template")'
+    order:
+      - file.name
+      - date created
+    sort:
+      - property: date created
+        direction: DESC
+      - property: file.mtime
+        direction: DESC
+    properties:
+      - report_link
+      - updated
+      - path
+  - type: table
+    name: Meeting Notes
+    filters:
+      and:
+        - Category == "Meeting"
+    sort:
+      - property: date created
+        direction: DESC
+    properties:
+      - note_link
+      - meeting_date
+      - path
+  - type: table
+    name: Comps
+    filters:
+      and:
+        - Category == "Comp"
+    groupBy:
+      property: City
+      direction: ASC
+    order:
+      - file.name
+      - Cuisine_style
+      - Website
+    columnSize:
+      file.name: 308
+      note.Cuisine_style: 263
+  - type: table
+    name: Daily Notes
+    filters:
+      and:
+        - Category == "Daily Note"
+    sort:
+      - property: daily_date
+        direction: DESC
+    properties:
+      - note_link
+      - daily_date
+      - path
+  - type: table
+    name: Tastings
+    filters:
+      and:
+        - Category == "Tasting"
+    sort:
+      - property: date created
+        direction: DESC
+    properties:
+      - note_link
+      - tasting_date
+      - path
+  - type: table
+    name: Weekly Summaries
+    filters:
+      and:
+        - Category == "Weekly Summary"
+    sort:
+      - property: weekly_date
+        direction: DESC
+    properties:
+      - note_link
+      - weekly_date
+      - path
+  - type: table
+    name: AI Summaries
+    filters:
+      and:
+        - file.name.contains("AIS -")
+        - '!file.name.contains("template")'
+    groupBy:
+      property: file.tags
+      direction: DESC
+    order:
+      - file.name
+      - file.ctime
+    sort:
+      - property: file.ctime
+        direction: DESC
+    columnSize:
+      file.name: 325
+  - type: table
+    name: Templates
+    filters:
+      and:
+        - Category == "Template"
+    groupBy:
+      property: file.folder
+      direction: ASC
+    sort:
+      - property: file.name
+        direction: ASC
+  - type: table
+    name: Recipes
+    filters:
+      and:
+        - '!file.name.contains("template")'
+        - or:
+            - Category == "Recipe"
+            - Category == "Technique"
+    groupBy:
+      property: author
+      direction: ASC
+    order:
+      - file.name
+      - rating
+      - Medium
+      - date_made
+    sort:
+      - property: date_made
+        direction: DESC
+      - property: rating
+        direction: DESC
+    columnSize:
+      file.name: 313
+      note.author: 245
+  - type: table
+    name: Agent Workflow Files
+    filters:
+      or:
+        - Category == "Agent Preference"
+        - Category == "Agent Workflow"
+    groupBy:
+      property: Category
+      direction: ASC
+  - type: table
+    name: Agent Files
+    filters:
+      or:
+        - file.name == "agents"
+        - file.name == "AGENTS"
+    order:
+      - file.name
+      - file.folder
+  - type: table
+    name: Initiative Reviews
+    filters:
+      and:
+        - Category == "Initiative Review"
+    order:
+      - file.name
+      - initiative
+  - type: table
+    name: Software Info
+    filters:
+      and:
+        - Category == "Software Info"
+  - type: table
+    name: Date Doc Filter
+    filters:
+      and:
+        - date_created == "2025-12-08"
+    groupBy:
+      property: Category
+      direction: ASC
+    sort:
+      - property: Category
+        direction: ASC
+  - type: table
+    name: Menu
+    filters:
+      and:
+        - Category == "Menu"
+  - type: table
+    name: Delegated Tasks
+    filters:
+      and:
+        - Category == "Delegated Task"
+        - '!file.name.contains("template")'
+        - status == "open"
+    groupBy:
+      property: owner
+      direction: ASC
+    order:
+      - file.name
+      - due
+      - status
+      - task
+    sort:
+      - property: last_touch
+        direction: DESC
+    columnSize:
+      note.status: 66
+  - type: table
+    name: Cook Note
+    filters:
+      and:
+        - Category == "Cook Note"
+        - '!file.name.contains("Template")'
+  - type: table
+    name: Specs
+    filters:
+      and:
+        - Category == "Spec"
+  - type: table
+    name: Plans
+    filters:
+      and:
+        - category == "Plan"

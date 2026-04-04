@@ -1,0 +1,38 @@
+{
+  "plugins": [
+    {
+      "name": "workflow-kit-skills",
+      "description": "Claude Code skills for vault management, project planning, and workflow automation",
+      "skills": [
+        {
+          "name": "orient",
+          "source": "skills/orient"
+        },
+        {
+          "name": "learn",
+          "source": "skills/learn"
+        },
+        {
+          "name": "review-spec",
+          "source": "skills/review-spec"
+        },
+        {
+          "name": "plan-spec",
+          "source": "skills/plan-spec"
+        },
+        {
+          "name": "skill-creator",
+          "source": "skills/skill-creator"
+        },
+        {
+          "name": "implement",
+          "source": "skills/implement"
+        },
+        {
+          "name": "troubleshoot",
+          "source": "skills/troubleshoot"
+        }
+      ]
+    }
+  ]
+}

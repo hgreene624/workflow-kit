@@ -1,0 +1,12 @@
+{
+  "showFrontmatter": true,
+  "livePreview": true,
+  "defaultViewMode": "source",
+  "readableLineLength": true,
+  "showLineNumber": false,
+  "strictLineBreaks": false,
+  "useMarkdownLinks": false,
+  "newFileLocation": "folder",
+  "newFileFolderPath": "01_Notes",
+  "attachmentFolderPath": "./attachments"
+}

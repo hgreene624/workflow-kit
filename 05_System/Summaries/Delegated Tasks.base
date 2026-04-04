@@ -1,0 +1,72 @@
+filters:
+  and:
+    - '!file.name.contains("Template")'
+properties:
+  owner:
+    displayName: Owner
+  task:
+    displayName: Task
+  due:
+    displayName: Due
+  status:
+    displayName: Status
+  last_touch:
+    displayName: Last touch
+  source:
+    displayName: Source
+  notes:
+    displayName: Notes
+views:
+  - type: table
+    name: Open by due
+    filters:
+      and:
+        - Category == "Delegated Task"
+        - status == "open"
+        - '!file.name.contains("Template")'
+    groupBy:
+      property: due
+      direction: ASC
+    order:
+      - owner
+      - file.name
+      - due
+      - task
+    sort:
+      - property: due
+        direction: DESC
+    properties:
+      - owner
+      - task
+      - due
+      - status
+      - last_touch
+      - notes
+      - source
+    columnSize:
+      note.owner: 104
+      note.due: 163
+      note.task: 521
+  - type: table
+    name: All tasks
+    filters:
+      and:
+        - Category == "Delegated Task"
+    groupBy:
+      property: owner
+      direction: ASC
+    order:
+      - file.name
+      - status
+      - task
+    sort:
+      - property: due
+        direction: ASC
+    properties:
+      - owner
+      - task
+      - due
+      - status
+      - last_touch
+      - notes
+      - source

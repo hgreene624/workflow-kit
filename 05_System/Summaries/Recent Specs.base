@@ -1,0 +1,23 @@
+properties:
+  date created:
+    displayName: Created
+views:
+  - type: table
+    name: Recent Specs
+    limit: 10
+    filters:
+      and:
+        - Category == "Spec"
+        - '!file.name.contains("Template")'
+        - '!file.path.contains("data.nosync")'
+        - file.path.contains("02_Projects")
+        - now() - file.mtime < "7d"
+    sort:
+      - property: file.mtime
+        direction: DESC
+    order:
+      - file.name
+      - note.date created
+    columnSize:
+      file.name: 476
+      note.date created: 130

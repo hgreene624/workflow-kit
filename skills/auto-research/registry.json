@@ -1,0 +1,149 @@
+{
+  "targets": [
+    {
+      "name": "cron",
+      "tier": 3,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/cron",
+      "eval_set": "~/.claude/skills/cron/evals/evals.json",
+      "golden_tests": [
+        "cron-001",
+        "cron-002",
+        "cron-003"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "medium"
+    },
+    {
+      "name": "kb-doc",
+      "tier": 1,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/kb-doc",
+      "eval_set": "~/.claude/skills/kb-doc/evals/evals.json",
+      "golden_tests": [
+        "kb-doc-001",
+        "kb-doc-002",
+        "kb-doc-003"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "medium"
+    },
+    {
+      "name": "create-spec",
+      "tier": 2,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/create-spec",
+      "eval_set": "~/.claude/skills/create-spec/evals/evals.json",
+      "golden_tests": [
+        "create-spec-001",
+        "create-spec-002"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "medium"
+    },
+    {
+      "name": "plan-spec",
+      "tier": 1,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/plan-spec",
+      "eval_set": "~/.claude/skills/plan-spec/evals/evals.json",
+      "golden_tests": [
+        "plan-spec-001",
+        "plan-spec-002",
+        "plan-spec-003"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "medium"
+    },
+    {
+      "name": "yt",
+      "tier": 1,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/yt",
+      "eval_set": "~/.claude/skills/yt/evals/evals.json",
+      "golden_tests": [
+        "yt-001",
+        "yt-002",
+        "yt-003"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "medium"
+    },
+    {
+      "name": "orient",
+      "tier": 3,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/orient",
+      "eval_set": "~/.claude/skills/orient/evals/evals.json",
+      "golden_tests": [
+        "orient-001",
+        "orient-002"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "high"
+    },
+    {
+      "name": "troubleshoot",
+      "tier": 3,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/troubleshoot",
+      "eval_set": "~/.claude/skills/troubleshoot/evals/evals.json",
+      "golden_tests": [
+        "troubleshoot-001",
+        "troubleshoot-002",
+        "troubleshoot-005"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "high"
+    },
+    {
+      "name": "video-intel",
+      "tier": 3,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/video-intel",
+      "eval_set": "~/.claude/skills/video-intel/evals/evals.json",
+      "golden_tests": [
+        "video-intel-001",
+        "video-intel-002"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "medium"
+    },
+    {
+      "name": "implement",
+      "tier": 3,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/implement",
+      "eval_set": "~/.claude/skills/implement/evals/evals.json",
+      "golden_tests": [
+        "implement-001",
+        "implement-002"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "high"
+    },
+    {
+      "name": "review-spec",
+      "tier": 1,
+      "type": "claude-skill",
+      "path": "~/.claude/skills/review-spec",
+      "eval_set": "~/.claude/skills/review-spec/evals/evals.json",
+      "golden_tests": [
+        "review-spec-001",
+        "review-spec-002"
+      ],
+      "last_optimized": null,
+      "current_pass_rate": null,
+      "priority": "high"
+    }
+  ]
+}

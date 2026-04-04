@@ -1,0 +1,145 @@
+filters:
+  and:
+    - Category == "Initiative Log"
+formulas:
+  initiative_link: link(file, initiative)
+properties:
+  initiative_link:
+    displayName: Initiative
+  status:
+    displayName: Status
+  stage:
+    displayName: Stage
+  parent_initiative:
+    displayName: Parent
+  date modified:
+    displayName: Last Activity
+  description:
+    displayName: Description
+  source_note:
+    displayName: Source note
+views:
+  - type: table
+    name: Active
+    filters:
+      and:
+        - status == "Active"
+        - '!file.tags.contains("template")'
+        - parent_initiative == null
+    groupBy:
+      property: date modified
+      direction: DESC
+    order:
+      - formula.initiative_link
+      - description
+    sort: []
+    properties:
+      - initiative_link
+      - status
+      - stage
+      - date modified
+      - description
+      - source_note
+    columnSize:
+      note.status: 86
+      note.description: 601
+  - type: table
+    name: Active (Children)
+    filters:
+      and:
+        - status == "Active"
+        - '!file.tags.contains("template")'
+        - parent_initiative != null
+    order:
+      - parent_initiative
+      - formula.initiative_link
+    sort:
+      - property: parent_initiative
+        direction: ASC
+    properties:
+      - initiative_link
+      - parent_initiative
+      - status
+      - stage
+      - date modified
+      - description
+    columnSize:
+      note.status: 86
+      note.description: 400
+  - type: table
+    name: Stale / Needs attention
+    filters:
+      and:
+        - status == "Active"
+        - date modified == null || now() - date modified > "7d"
+        - parent_initiative == null
+    order:
+      - date modified
+      - formula.initiative_link
+      - description
+    sort:
+      - property: initiative_link
+        direction: ASC
+    properties:
+      - initiative_link
+      - status
+      - stage
+      - date modified
+      - description
+      - source_note
+  - type: table
+    name: Not continued
+    filters:
+      and:
+        - status != "Active"
+    order:
+      - initiative_link
+    properties:
+      - initiative_link
+      - status
+      - stage
+      - date modified
+      - description
+      - source_note
+  - type: table
+    name: All
+    groupBy:
+      property: status
+      direction: ASC
+    order:
+      - formula.initiative_link
+      - status
+      - description
+    sort:
+      - property: status
+        direction: DESC
+    properties:
+      - initiative_link
+      - status
+      - stage
+      - parent_initiative
+      - date modified
+      - description
+      - source_note
+  - type: table
+    name: Backlog
+    filters:
+      and:
+        - status == "Backlog"
+        - '!file.tags.contains("template")'
+    order:
+      - formula.initiative_link
+      - status
+      - description
+    sort:
+      - property: date modified
+        direction: DESC
+    properties:
+      - initiative_link
+      - status
+      - stage
+      - date modified
+      - description
+      - source_note
+  - type: table
+    name: View

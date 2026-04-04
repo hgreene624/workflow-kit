@@ -1,0 +1,85 @@
+{
+  "t3_4": {
+    "cycles": [
+      {
+        "cycle": 1,
+        "skill_name": "cron",
+        "baseline_pass_rate": 1.0,
+        "baseline_stddev": 0.0,
+        "variants": [],
+        "winner": null,
+        "promoted": false,
+        "tokens_used": 70208,
+        "duration_ms": 34817,
+        "terminated_early": false,
+        "termination_reason": "no_variants_generated",
+        "notes": "Mutation engine correctly refused to generate variants at 100% baseline - no failure signal"
+      },
+      {
+        "cycle": 2,
+        "skill_name": "cron",
+        "baseline_pass_rate": 1.0,
+        "baseline_stddev": 0.0,
+        "variants": [],
+        "winner": null,
+        "promoted": false,
+        "tokens_used": 70200,
+        "duration_ms": 32031,
+        "terminated_early": false,
+        "termination_reason": "no_variants_generated",
+        "notes": "Same behavior - haiku also correctly refused mutation with no failure signal"
+      },
+      {
+        "cycle": 3,
+        "skill_name": "cron",
+        "baseline_pass_rate": 1.0,
+        "baseline_stddev": 0.0,
+        "variants": [
+          {"strategy": "conservative", "pass_rate": 0.143, "golden_pass": false, "hash": "93d9de0b00b9a26b"},
+          {"strategy": "structural", "pass_rate": 0.143, "golden_pass": false, "hash": "cb056a9d7f231043"},
+          {"strategy": "creative", "pass_rate": 0.286, "golden_pass": false, "hash": "77ecfa45510a1de2"}
+        ],
+        "winner": null,
+        "promoted": false,
+        "tokens_used": 88732,
+        "duration_ms": 179581,
+        "terminated_early": false,
+        "termination_reason": null,
+        "notes": "On 3rd call haiku generated 3 variants - all correctly rejected (below 100% baseline, golden gate fail)"
+      }
+    ],
+    "db_row_count": 5,
+    "all_cycles_completed": true,
+    "registry_not_updated": true,
+    "notes": {
+      "model_substitution": "Only claude-haiku-4-5-20251001 works via OAuth token - claude-sonnet-4-20250514 and claude-opus-4-20250514 return 400 invalid_request_error. Likely Claude Max OAuth subscription restriction on Claude 4 API models.",
+      "cache_hit_floor": "Set to 0.0 to disable circuit breaker (correct - on fresh run cache rate is naturally 0%)",
+      "no_variant_exceeds_baseline": "Expected: cron skill is at 100% baseline, no variant can exceed it. Safety gates correctly prevent regressions. This is correct behavior.",
+      "variant_evaluation_confirmed": "Cycle 3 verified the full variant generation+evaluation pipeline works end-to-end"
+    }
+  },
+  "t3_5": {
+    "selected_skill": "cron",
+    "selection_reason": "First skill with null last_optimized in registry (all 5 skills are null)",
+    "cycle_result": {
+      "skill_name": "cron",
+      "baseline_pass_rate": 1.0,
+      "baseline_stddev": 0.0,
+      "variants": [
+        {"strategy": "structural", "pass_rate": 0.143, "golden_pass": false, "hash": "3a725d508d41f3a5"},
+        {"strategy": "creative", "pass_rate": 0.714, "golden_pass": false, "hash": "6d9c2b9284016d5b"}
+      ],
+      "winner": null,
+      "promoted": false,
+      "tokens_used": 83068,
+      "duration_ms": 183042,
+      "terminated_early": false,
+      "termination_reason": null,
+      "selected_skill": "cron"
+    },
+    "dedup_worked": true,
+    "dedup_note": "Hash 93d9de0b from T3.4 cycle 3 was skipped as duplicate - only 2 new variants evaluated",
+    "registry_not_updated": true,
+    "passed": true
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "skill": "plan-spec",
+  "version": "1.0",
+  "cases": [
+    {
+      "id": "plan-spec-001",
+      "query": "create a plan from this spec: 01_Work/03_Projects/{{ORG}} Work Intelligence System/{{ORG}} Hub/SPC - Admin Alert Management System.md",
+      "should_trigger": true,
+      "expectations": [
+        "The skill reads the spec at the provided path before producing any output",
+        "A plan document named 'PL - Admin Alert Management System Implementation Plan.md' is created in the same directory as the spec",
+        "The plan contains a Phase 0 (prerequisites/setup) section with tasks in Todo state and all other phases in Backlog state"
+      ],
+      "golden": true,
+      "notes": "Golden — core identity test: spec path argument → read → produce PL doc + Plane project"
+    },
+    {
+      "id": "plan-spec-002",
+      "query": "set up the Plane project for SPC - Unified Auth Architecture",
+      "should_trigger": true,
+      "expectations": [
+        "The skill creates a Plane project (or reuses existing) and creates work items for each task in the plan",
+        "Work item names use phase-prefixed format: 'P0.1 — ...', 'P1.1 — ...', etc.",
+        "Phase 0 issues are placed in Todo state; all other phase issues are placed in Backlog state"
+      ],
+      "golden": true,
+      "notes": "Golden — Plane setup trigger: 'set up the Plane project' is a canonical invocation phrase"
+    },
+    {
+      "id": "plan-spec-003",
+      "query": "I just finished reviewing the spec. Let's plan SPC - {{ORG}} KB Platform.md",
+      "should_trigger": true,
+      "expectations": [
+        "The skill checks for review artifacts in the Reviews/ directory alongside the spec",
+        "If review artifacts exist (scope-analysis.md, context-brief.md, spec-review.md), they are incorporated into the plan",
+        "A PL document is produced before creating the Plane project, and user approval is requested before Plane creation"
+      ],
+      "golden": true,
+      "notes": "Golden — post-review-spec workflow: review artifacts must be consumed when present"
+    },
+    {
+      "id": "plan-spec-004",
+      "query": "turn SPC - Lead Scoring Engine.md into actionable work items",
+      "should_trigger": true,
+      "expectations": [
+        "The skill reads the spec and produces a plan document with phases, tasks, and dependencies",
+        "Each task row in the plan has an ID (T0.1, T1.1, etc.), description, status, and dependency column",
+        "A module is created in the Plane project for this feature with all tasks linked to it"
+      ],
+      "golden": false,
+      "notes": "Positive — 'actionable work items' phrasing maps to plan-spec, not implement"
+    },
+    {
+      "id": "plan-spec-005",
+      "query": "let's make the inbox triage spec into a plan with phases",
+      "should_trigger": true,
+      "expectations": [
+        "The skill locates the SPC file for inbox triage (under {{ORG}} Work Intelligence System/Inbox Triage/)",
+        "The plan document is placed in the same directory as the spec",
+        "Phase labels are created in Plane using the format '{IDENTIFIER} Phase N - {Phase Name}'"
+      ],
+      "golden": false,
+      "notes": "Positive — 'make into a plan with phases' is a natural paraphrase for plan-spec"
+    },
+    {
+      "id": "plan-spec-006",
+      "query": "plan this spec: SPC - Prompt Library System.md",
+      "should_trigger": true,
+      "expectations": [
+        "The skill warns the user if no review artifacts exist and offers to proceed anyway",
+        "A Progress Overview table is included in the plan document showing all phases with task counts",
+        "A Risk Register section is included, drawing on risks from the spec or scope analysis"
+      ],
+      "golden": false,
+      "notes": "Positive — 'plan this spec' is the canonical short invocation"
+    },
+    {
+      "id": "plan-spec-007",
+      "query": "create a Plane project from SPC - Universal RBAC System.md with modules and issues",
+      "should_trigger": true,
+      "expectations": [
+        "The skill checks the Project Registry in the Plane Development Workflow doc before creating a new project",
+        "Module view is enabled on the project (module_view: true)",
+        "States are queried dynamically via GET /projects/{pid}/states/ — not hardcoded"
+      ],
+      "golden": false,
+      "notes": "Positive — explicit Plane project creation request"
+    },
+    {
+      "id": "plan-spec-008",
+      "query": "review this spec and tell me what needs to be fixed before we implement",
+      "should_trigger": false,
+      "expectations": [
+        "The skill does NOT produce a PL plan document or create Plane issues",
+        "The response does not invoke plan-spec — it redirects to review-spec for spec review"
+      ],
+      "golden": false,
+      "notes": "Negative — review request belongs to review-spec, not plan-spec"
+    },
+    {
+      "id": "plan-spec-009",
+      "query": "start implementing the unified auth plan — let's build phase 1",
+      "should_trigger": false,
+      "expectations": [
+        "The skill does NOT create a new PL document or Plane project",
+        "The response does not invoke plan-spec — implementation belongs to the implement skill"
+      ],
+      "golden": false,
+      "notes": "Negative — implementation request belongs to implement skill, not plan-spec"
+    },
+    {
+      "id": "plan-spec-010",
+      "query": "can you write a spec for the new notification system? I want push alerts when a signal fires.",
+      "should_trigger": false,
+      "expectations": [
+        "The skill does NOT produce a PL implementation plan document",
+        "The response does not invoke plan-spec — spec creation belongs to create-spec skill"
+      ],
+      "golden": false,
+      "notes": "Negative — spec creation request belongs to create-spec, not plan-spec"
+    }
+  ]
+}

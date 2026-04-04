@@ -1,0 +1,85 @@
+{
+  "max_proxy_status": "UNAVAILABLE \u2014 connection refused at localhost:3456. Max Proxy runs on VPS only.",
+  "import_check": {
+    "status": "PASS",
+    "detail": "mutate_body module imports cleanly"
+  },
+  "parse_test": {
+    "count": 3,
+    "variants": [
+      {
+        "letter": "A",
+        "strategy": "conservative",
+        "body_non_empty": true,
+        "rationale_non_empty": true,
+        "strategy_valid": true,
+        "hash": "6a70ad2bda8dc1d1a65d...",
+        "hash_unique": true,
+        "frontmatter_absent": true
+      },
+      {
+        "letter": "B",
+        "strategy": "structural",
+        "body_non_empty": true,
+        "rationale_non_empty": true,
+        "strategy_valid": true,
+        "hash": "8f4c81abcad1cf389f27...",
+        "hash_unique": true,
+        "frontmatter_absent": true
+      },
+      {
+        "letter": "C",
+        "strategy": "creative",
+        "body_non_empty": true,
+        "rationale_non_empty": true,
+        "strategy_valid": true,
+        "hash": "e584b8e7e6ca54599179...",
+        "hash_unique": true,
+        "frontmatter_absent": true
+      }
+    ],
+    "all_checks_pass": true
+  },
+  "mock_test": {
+    "variants": [
+      {
+        "letter": "A",
+        "strategy": "conservative",
+        "status": "ACCEPTED",
+        "hash": "6a70ad2bda8dc1d1a65d...",
+        "rationale_length": 554,
+        "body_length": 4198
+      },
+      {
+        "letter": "B",
+        "strategy": "structural",
+        "status": "ACCEPTED",
+        "hash": "8f4c81abcad1cf389f27...",
+        "rationale_length": 696,
+        "body_length": 2886
+      },
+      {
+        "letter": "C",
+        "strategy": "creative",
+        "status": "ACCEPTED",
+        "hash": "e584b8e7e6ca54599179...",
+        "rationale_length": 977,
+        "body_length": 2135
+      }
+    ],
+    "accepted_count": 3,
+    "all_3_accepted": true
+  },
+  "deduplication_test": {
+    "status": "PASS",
+    "detail": "Variant A correctly identified as duplicate when its hash is in experiment_history"
+  },
+  "overall": "PASS",
+  "checks_summary": {
+    "import_ok": true,
+    "3_variants_parsed": true,
+    "all_variant_checks_pass": true,
+    "all_3_accepted_after_validation": true,
+    "deduplication_works": true
+  }
+}
