@@ -11,7 +11,7 @@ description: >-
 
 # Update WFK — Kit Distribution Sync
 
-Sync core Workflow Kit skills, templates, and conventions with the `YOUR_USERNAME/workflow-kit` GitHub repo. This is the distribution channel - you push improvements, users pull updates.
+Sync core Workflow Kit skills, templates, and conventions with the `hgreene624/workflow-kit` GitHub repo. This is the distribution channel - you push improvements, users pull updates.
 
 **Arguments:** $ARGUMENTS
 
@@ -35,6 +35,7 @@ The manifest declares:
 | Component | Repo Path | Local Source | Push Behavior | Pull Behavior |
 |-----------|-----------|--------------|---------------|---------------|
 | Core skills | `skills/` | `~/.claude/skills/` | Only `core_skills` from kit.json | Replace SKILL.md + references/ |
+| Scripts | `scripts/` | `~/.claude/scripts/` | Push all scripts | Install + chmod +x |
 | Templates | `05_System/Templates/` | Work Vault `05_System/Templates/` | Push generalized versions | Show diff, user chooses |
 | CLAUDE.md | `CLAUDE.md` | Work Vault `CLAUDE.md` | **Never overwrite repo version** | Section-marker merge |
 | agents.md | `agents.md` | Work Vault `agents.md` | **Never overwrite repo version** | Section-marker merge |
@@ -44,7 +45,7 @@ The manifest declares:
 
 ## Configuration
 
-- **Repo:** `YOUR_USERNAME/workflow-kit`
+- **Repo:** `hgreene624/workflow-kit`
 - **Branch:** `main`
 - **Clone cache:** `/tmp/flora-skills-repo`
 - **Active skills:** `~/.claude/skills/`
@@ -61,7 +62,7 @@ The manifest declares:
         |
    push v  ^ fetch
         |
-github.com/YOUR_USERNAME/workflow-kit
+github.com/hgreene624/workflow-kit
 ```
 
 ## Default Action Detection
@@ -100,7 +101,7 @@ The sync manifest at `~/.claude/skills/.sync-manifest.json` tracks content hashe
      cd /tmp/flora-skills-repo && git pull --quiet
    else
      rm -rf /tmp/flora-skills-repo
-     git clone https://github.com/YOUR_USERNAME/workflow-kit.git /tmp/flora-skills-repo
+     git clone https://github.com/hgreene624/workflow-kit.git /tmp/flora-skills-repo
    fi
    ```
 
@@ -137,62 +138,25 @@ The sync manifest at `~/.claude/skills/.sync-manifest.json` tracks content hashe
    4. Edit the repo version (without org-specific content)
    5. Preserve all section markers
 
+   **Scripts:**
+   ```bash
+   mkdir -p /tmp/flora-skills-repo/scripts
+   cp ~/.claude/scripts/*.sh /tmp/flora-skills-repo/scripts/
+   ```
+
    **Obsidian config** (selective):
    ```bash
    cp ~/Documents/Vaults/Work\ Vault/.obsidian/community-plugins.json /tmp/flora-skills-repo/.obsidian/community-plugins.json
    ```
 
-4. **Scrub org-specific content:**
-
-   Read the scrub map at `~/.claude/skills/update-wfk/scrub-map.json`. This file maps org-specific values to public placeholders. It never gets synced to the repo.
-
-   For every `.md`, `.py`, `.sh`, `.json`, `.yaml`, `.yml`, `.toml` file in the repo clone:
-   - Apply each replacement from `scrub-map.json` (longest match first to avoid partial replacements)
-   - Skip files matching `skip_files` patterns
-
-   Also verify no `flora_only_skills` from the scrub map exist in the repo's `skills/` directory. If any are present, delete them before proceeding.
-
-   ```bash
-   # Example: apply replacements using sed (order matters - longest patterns first)
-   find /tmp/flora-skills-repo/skills -type f \( -name "*.md" -o -name "*.py" -o -name "*.sh" -o -name "*.json" \) | while read f; do
-     # Apply each replacement from scrub-map.json
-     sed -i '' 's|YOUR_PLANE_URL|YOUR_PLANE_URL|g' "$f"
-     sed -i '' 's|YOUR_ADMIN_URL|YOUR_ADMIN_URL|g' "$f"
-     sed -i '' 's|YOUR_DOMAIN|YOUR_DOMAIN|g' "$f"
-     # ... (all patterns from scrub-map.json)
-   done
-   ```
-
-5. **Validate - no secrets remaining:**
-
-   Run a pattern scan against the staged repo. This is the gate that prevents leaks.
-
-   ```bash
-   cd /tmp/flora-skills-repo
-   grep -r "myarroyo\|flora-farms\|holdengreene\|YOUR_USERNAME\|31\.220\|192\.168\|fce258\|plane_api\|YOUR_DB_PASSWORD\|{{PROJECT_DB}}\|{{DB_CONTAINER}}\|{{SESSION_COOKIE}}" \
-     --include="*.md" --include="*.py" --include="*.sh" --include="*.json" --include="*.yaml" --include="*.yml" --include="*.toml" \
-     | grep -v ".git/"
-   ```
-
-   **If ANY hits are found: STOP.** Show the findings to the user. Ask them to either:
-   - Add the pattern to `scrub-map.json` and re-run
-   - Reclassify the skill as `flora_only_skills` in scrub-map.json (it won't be synced)
-
-   **Only proceed if the scan returns zero hits.**
-
-   If `gitleaks` is installed, also run:
-   ```bash
-   gitleaks detect --source /tmp/flora-skills-repo --no-git --config /tmp/flora-skills-repo/.gitleaks.toml
-   ```
-
-6. **Show what changed:**
+4. **Show what changed:**
    ```bash
    cd /tmp/flora-skills-repo && git status --short
    ```
 
-7. **Ask the user to confirm.** Show changed files grouped by component. Flag skipped org_skills. Note that scrub-map replacements were applied.
+5. **Ask the user to confirm.** Show changed files grouped by component. Flag skipped org_skills.
 
-8. **Commit and push:**
+6. **Commit and push:**
    ```bash
    cd /tmp/flora-skills-repo
    git add -A
@@ -200,7 +164,7 @@ The sync manifest at `~/.claude/skills/.sync-manifest.json` tracks content hashe
    git push origin main
    ```
 
-9. Update sync manifest. Report what was pushed and skipped.
+7. Update sync manifest. Report what was pushed and skipped.
 
 ### `pull` - Pull latest from the WFK repo
 
@@ -238,7 +202,20 @@ The sync manifest at `~/.claude/skills/.sync-manifest.json` tracks content hashe
 
 10. **Update sync manifest**
 
-11. Report what was updated. "Backup at `~/.claude/skills/.backup/<timestamp>/`"
+11. **Scripts** - copy all scripts from `scripts/` to `~/.claude/scripts/`, `chmod +x` each.
+
+12. **Post-pull setup hooks** - detect the environment and run setup scripts:
+    ```bash
+    # iTerm2 auto-setup (macOS only)
+    if mdfind "kMDItemKind == 'Application'" 2>/dev/null | grep -qi "iTerm.app"; then
+      ~/.claude/scripts/iterm-setup.sh
+    fi
+    ```
+    Report any manual steps the setup script identifies.
+
+13. **Update sync manifest**
+
+14. Report what was updated. "Backup at `~/.claude/skills/.backup/<timestamp>/`"
 
 ### `status` - Show sync status
 

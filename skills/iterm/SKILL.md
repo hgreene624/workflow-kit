@@ -14,7 +14,21 @@ Set the iTerm2 tab title and color so the user can visually distinguish work con
 
 ## Setup (New Machine)
 
-Run these steps once per machine to enable all features.
+### Automatic setup
+
+Run the setup script — it handles everything it can programmatically:
+
+```bash
+~/.claude/scripts/iterm-setup.sh
+```
+
+This is also triggered automatically by `/update-wfk pull` when iTerm2 is detected.
+
+The script will report which manual steps remain (typically: restart iTerm2, confirm the Python API consent dialog, and verify the Title dropdown is set to "Session Name").
+
+### Manual reference
+
+If you need to set things up by hand, here are the individual steps:
 
 ### 1. iTerm2 Settings (UI)
 
