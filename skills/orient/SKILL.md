@@ -21,18 +21,26 @@ Do all of these before responding to the user:
 
 1. **Date/time** — Run `date` to anchor your context temporally
 
-2. **Root agent config** — Read `AGENTS.md` in the workspace root. This is the master configuration that defines how all agents should behave in this vault. Follow any "read this first" directives it contains.
+2. **Root agent config** — The workspace root config is `CLAUDE.md` (loaded automatically by Claude Code). Read `Work Vault/agents.md` for vault-wide behavioral rules (daily note formatting, pickup verification, closeout and EOD procedures) and `Work Vault/CLAUDE.md` for vault structure and routing. Follow any directives they contain.
 
-3. **Style guardrails** — Read whatever interaction preference files AGENTS.md points to. These contain mandatory interaction rules (question format, response style, tool usage patterns), not optional suggestions.
+3. **Style guardrails** — Read whatever interaction preference files are referenced (e.g., `04_Reference/Agents/General Style Guardrails.md`). These contain mandatory interaction rules (question format, response style, tool usage patterns), not optional suggestions.
 
-4. **Vault/project structure** — Read any structure reference doc to understand the file tree and folder purposes. This prevents you from creating files in wrong locations or missing existing work.
+4. **Vault/project structure** — Read the vault structure and routing table in `Work Vault/CLAUDE.md` to understand the file tree and folder purposes. This prevents you from creating files in wrong locations or missing existing work.
 
-5. **Local agent config** — If your current working directory is different from the vault root, check for a local `agents.md`. Project-level configs add constraints and context on top of the root config.
+5. **Project agent configs** — Discover project-specific agents.md files:
+   a. If your current working directory is inside a project, read its `agents.md` directly.
+   b. If at the vault root (common), check the SOD's "Open Work" section (loaded in step 7) for project names, then read `agents.md` for those projects under `Work Vault/02_Projects/`.
+   c. If the user states what they want to work on before orient completes, read that project's `agents.md` immediately.
+   Do not enumerate all 30+ project agents.md files — only load the ones relevant to today's likely work.
 
-6. **Lessons files** — Read the general lessons file (cross-project lessons) and any local `lessons.md` in the current project. These are hard-won knowledge from past sessions — ignoring them means repeating the same mistakes.
+6. **Lessons files** — Read `Work Vault/04_Reference/REF - Agent Lessons.md` (cross-project lessons) and any project-specific `lessons.md` for active projects (from step 5). For each lesson:
+   - Check if its trigger condition matches today's likely work (based on SOD priorities and open PICs)
+   - If it matches, flag it as an **active constraint** — not background reading
+   List activated lessons in your response as "Active constraints: L#, L#" with one-line summaries.
 
 7. **Period reports** — Read these from `Work Vault/01_Notes/Reports/` to understand what's been happening and what Holden's priorities are. Read in parallel:
    - **SOD** (daily context): Most recent file in `Reports/SOD/`. Check today first, fall back to most recent. This has the WTD summary, priorities, open PICs, and suggested start.
+   - **Stale SOD check**: If the most recent SOD is more than 1 workday old (e.g., it's Wednesday but the latest SOD is from Monday), warn: "⚠️ SOD is stale ({date}). The EOD/closeout chain may have been skipped. Today's context may be incomplete — check daily notes for {missing dates} to fill gaps."
    - **EOW** (last week): Most recent file in `Reports/EOW/`. This is the weekly rollup — what shipped, goal progress, retro findings, and next-week setup.
    - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has Holden's monthly objectives that should frame all work.
    - **EOM** (last month): Most recent file in `Reports/EOM/`. This has the prior month's retrospective and carry-forwards.
@@ -46,37 +54,6 @@ Do all of these before responding to the user:
 
    This exists because agents repeatedly waste time re-discovering systems that were built days ago. The reports already contain the context — the failure is in not connecting it to the current task. (See L18 in Agent Lessons.)
 
-   **8a. Recent Infrastructure Changes** — Scan the EOW and SOD for any infrastructure-changing events and produce a compact checklist block in your orient summary. Extract:
-   - Containers added, removed, renamed, or replaced
-   - Apps migrated or sunset (old location -> new location)
-   - Routes changed (new paths, removed paths, domain changes)
-   - Compose files modified or relocated
-
-   Format as a reference block the agent can check when encountering VPS artifacts:
-
-   ```
-   ## Recent Infrastructure Changes (from EOW/SOD)
-   - [container] added/removed/replaced — [context]
-   - [app] migrated from [old] to [new] — old artifacts are stale
-   - [route] changed: [description]
-   ```
-
-   If no infrastructure changes are found in the reports, omit this block. This prevents the "investigate unknown system from scratch" failure mode — anything listed here is already known context, not a mystery to solve.
-
-   **8b. REF doc staleness check** — After building the infrastructure changes list, spot-check `REF - VPS Work Rules.md` against the EOW for obvious drift:
-   - Does the App Location Map list containers that the EOW says were sunset or replaced?
-   - Does the Docker Compose Projects table reference paths that were removed or relocated?
-   - Are there entries for services that no longer exist per the EOW?
-
-   If mismatches are found, flag them prominently in the orient summary:
-   ```
-   ⚠ VPS Work Rules drift detected:
-   - [container X] listed in App Location Map but sunset per EOW W[n]
-   - [path Y] in Docker Compose Projects table but removed per EOW
-   ```
-
-   This catches documentation drift proactively at session start, before the agent encounters stale artifacts during work and wastes time investigating them.
-
 9. **Vault health** _(optional)_ — If an Obsidian CLI is available, run health checks (unresolved links, orphan notes, tag distribution) and note any findings.
 
 ## Response Format
@@ -86,10 +63,13 @@ After loading, give a short summary:
 - Current date
 - Active projects or context from local agent configs
 - **Report ↔ PIC cross-references** — any open PICs that touch systems the EOW says were recently built/deployed (flag these prominently — they're likely deployment regressions, not new investigations)
-- **Recent Infrastructure Changes** — the checklist from Step 8a (if any infrastructure changes were found in reports)
-- **REF doc drift warnings** — any staleness mismatches found in Step 8b
-- Key lessons that seem relevant to whatever work is coming
+- **Active constraints** — lessons whose trigger conditions match today's work (L#: one-line summary for each)
+- Any stale SOD warnings
 - Any vault health issues found
 - Ask what the user wants to work on
 
 Keep the summary concise — the user doesn't need a recitation of everything you read, just confirmation you loaded context and any standout items.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

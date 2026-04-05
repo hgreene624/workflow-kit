@@ -17,16 +17,6 @@ Implementation sprints (run via `/implement`) have user test gates after every d
 - The `/chawdys` skill must be available for Telegram escalation
 - If no team exists, tell the user: "No active implementation team found. Run `/implement` first to start a sprint, then `/step-away` when you're ready to leave."
 
-## Step 0 — Write Step-Away Flag to Plan File (MANDATORY)
-
-This is the most important step. Context instructions fade over long sessions. The plan file is re-read at every phase transition, so the flag persists reliably.
-
-1. Find the active plan file (from the implement session context)
-2. Add `step_away: true` to the plan's YAML frontmatter
-3. This flag is checked by implement-execute at every phase transition (Step 5)
-
-When the user returns and step-away is reverted, set `step_away: false` in the frontmatter.
-
 ## Step 1 — Notify PM Tracker
 
 Send this message to `pm-tracker`:
@@ -166,7 +156,10 @@ When the sprint completes (all phases Done, all QG gates passed by auditor):
 ## Reverting Step-Away Mode
 
 If the user returns mid-sprint ("I'm back", "what's the status"), revert to normal protocol:
-- **Set `step_away: false` in the plan file frontmatter** — this is the durable flag that implement-execute checks
 - Re-enable user test gates for remaining work
 - Present current status + the partial review checklist
 - QA auditor returns to standard audit posture
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

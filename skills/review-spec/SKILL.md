@@ -34,7 +34,7 @@ Before dispatching the team:
 1. Read the spec file to understand what's being proposed
 2. Infer the project from the spec's location in the vault directory tree:
    - `01_Work/03_Projects/<ProjectName>/` → that's your project
-   - Also check for sub-projects (e.g., `{{ORG}} Hub/`, `Inbox Triage/`, `Signal Engine/` under FWIS)
+   - Also check for sub-projects (e.g., `Flora Hub/`, `Inbox Triage/`, `Signal Engine/` under FWIS)
 3. Check for `agents.md` and `lessons.md` in that project directory
 4. Read the vault-root `AGENTS.md` file, then the project-level `agents.md` if one exists — these contain critical context about how work should be done in that project
 
@@ -97,7 +97,7 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 >
 > 5. **Workflow docs** — Read relevant workflows from `Documentation/Agent Workflows/` (Feature Development Workflow, Project Spec Workflow, Project Plan Workflow).
 >
-> 6. **Memory** — Check `~/.claude/projects/{{PERSONAL_VAULT_PROJECT_PATH}}/memory/` for any memory files relevant to this project.
+> 6. **Memory** — Check `~/.claude/projects/-Users-holdengreene-Library-Mobile-Documents-iCloud-md-obsidian-Documents-Personal-Vault/memory/` for any memory files relevant to this project.
 >
 > **Output:** Write a context brief to `{workspace}/ARE - {spec_name} Context Brief.md` with sections:
 > - **Applicable Lessons** (lesson ID, source file, relevance to this spec)
@@ -265,3 +265,7 @@ When the user is ready to plan, they run:
 ```
 
 The plan-spec skill will automatically look for review artifacts in `Reviews/{date}/` and use them to inform the plan. Clarification answers from the log directly shape phase structure, task dependencies, and risk mitigations in the plan.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

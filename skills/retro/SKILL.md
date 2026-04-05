@@ -38,16 +38,6 @@ Phase 3: APPLY ─── Execute the proposed changes
                    Commit and confirm
 ```
 
-## Artifact Naming — Mandatory
-
-ALL files produced by this skill MUST use the correct vault prefix:
-
-- **Audit artifact:** `ARE - {Project Name} - {Scope} Retro Audit.md` (goes in `reviews/{date}/`)
-- **Retro report:** `RET - {Project Name} - {Scope}.md` (goes in project reports directory)
-- **Any other artifact** produced during the retro (cleanup plans, action items, etc.) MUST use `ARE -` prefix if it's an agent report or `RET -` prefix if it's a retrospective document.
-
-**NEVER** use slugified names like `post_sprint_cleanup.md`, `retro-audit.md`, or `action-items.md`. Every file in the vault uses a prefix convention — no exceptions.
-
 ## Phase 1 — Audit
 
 Dispatch a read-only Opus agent to gather evidence. The agent writes its findings to the project's `reviews/{date}/` directory as `ARE - {Project Name} - {Scope} Retro Audit.md` with frontmatter `category: Agent Report`. All vault files use prefixed names — never use slugified names like `retro-audit.md`.
@@ -154,3 +144,7 @@ Accepts an optional path to:
 - Make architectural decisions (proposes, doesn't decide)
 - Skip user approval before applying changes
 - Run without evidence (every proposed change must cite specific incidents)
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

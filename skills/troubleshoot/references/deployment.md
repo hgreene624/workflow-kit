@@ -112,10 +112,10 @@ ssh <YOUR_VPS> "ssh -T github-<alias> 2>&1"
 
 ## Post-Deploy Verification — QA Suite
 
-After deploying, verify with the Playwright QA suite at `~/Repos/{{MONOREPO_NAME}}/tests/qa/`:
+After deploying, verify with the Playwright QA suite at `~/Repos/flora-monorepo/tests/qa/`:
 
 ```bash
-cd ~/Repos/{{MONOREPO_NAME}}
+cd ~/Repos/flora-monorepo
 
 # Quick check — all services still up? (~7s)
 npx playwright test --config tests/qa/playwright.config.ts --project=smoke

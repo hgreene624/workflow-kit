@@ -5,41 +5,9 @@ description: Recap the current conversation — surface the main topic, identify
 
 # Recap
 
-Long conversations branch. Your job is to scan the **full conversation history**, present a compact dashboard of where things stand, then immediately start an interactive triage session to close out loose ends — quick fixes first, PICs only as a last resort.
+Long conversations branch. Your job is to scan the conversation, present a compact dashboard of where things stand, then immediately start an interactive triage session to close out loose ends — quick fixes first, PICs only as a last resort.
 
 The recap has two phases: a read-only **dashboard** (you present), then an interactive **triage loop** (you ask, user decides, you act).
-
-## Step 0 — Load Full Session History
-
-Context compaction loses detail. Before scanning, load the **full JSONL session log** so you can see everything that happened, including compacted messages.
-
-1. **Find the current session's JSONL.** Session logs live at:
-   ```
-   ~/.claude/projects/<project-slug>/<session-id>.jsonl
-   ```
-   The project slug is derived from the working directory path (slashes become dashes). To find the right file, list `*.jsonl` in the project directory sorted by modification time — the current session is typically the most recently modified file whose first user message matches this conversation.
-
-2. **Extract user and assistant messages.** Run a script to pull all `type: "user"` and `type: "assistant"` entries. For each, extract the text content:
-   ```bash
-   python3 -c "
-   import json, os, glob
-   project_dir = os.path.expanduser('~/.claude/projects/')
-   # Find project dirs, pick the one matching cwd
-   # Then find most recent .jsonl
-   # Extract messages...
-   "
-   ```
-   The message structure: each line is JSON with `{"type": "user"|"assistant", "message": {"role": "...", "content": ...}}`. Content can be a string or an array of content blocks (text, tool_use, tool_result, etc.).
-
-3. **Build a conversation summary.** From the full JSONL, extract:
-   - Every user request/instruction (what they asked for)
-   - Every significant action taken (tool calls, file writes, decisions made)
-   - Every question asked by either party and whether it was answered
-   - Every topic/thread that was started
-
-4. **Cross-reference with live context.** The JSONL gives you what happened; the live context gives you what's still active. Items from the JSONL that are no longer in context may be resolved or may be dropped — check.
-
-**Performance note:** JSONL files can be large (1MB+). Don't read the whole file into context. Use a Python script to extract a structured summary (topics, decisions, open questions, actions) and read that summary. Target < 2000 lines of extracted content.
 
 ## Asking Good Questions
 
@@ -186,4 +154,8 @@ Closeout will detect the recap was just run and use its findings. Don't re-scan.
 - If the conversation was linear with no branches: "No loose ends. Main thread: [topic]. Continuing."
 - Be honest about your own dropped balls. "I asked about X but moved on without waiting for your answer."
 - If the conversation is short (< 10 messages), a recap is overkill. Say so and skip it.
-- After context compaction, the JSONL still has the full history. Always load it in Step 0 so you don't miss compacted branches.
+- After context compaction, some details may be summarized. Flag if you can't reconstruct a branch.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

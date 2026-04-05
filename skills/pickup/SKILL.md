@@ -1,123 +1,206 @@
 ---
 name: pickup
-description: Start-of-day pickup — load context from a PIC document and get oriented for work. Use this skill when the user says "pickup", "pick up", "start of day", "what's on my plate", "what do I need to do", "get started", "load the pickup", "continue where I left off", "resume work", or points at a specific PIC document. Also trigger when the user opens a new session and says something like "ok what am I doing today" or "what was I working on". Even "what's in my TODOs" at the start of a session should trigger this if there are PIC-linked TODOs in today's daily note.
+description: >-
+  Load pickup documents (PICs) and resume work. Handles both single-PIC loading and
+  full backlog triage. Use this skill when the user says "pickup", "pick up", "start
+  of day", "what's on my plate", "what do I need to do", "get started", "load the
+  pickup", "continue where I left off", "resume work", "triage pickups", "which
+  pickups are easiest", "work through my pickups", "clear out pickups", "pickup
+  backlog", "how many open pickups", "rank my pickups", "what's the quickest pickup
+  to close", "batch my pickups", "group pickups by project", or points at a specific
+  PIC document. Also trigger when the user opens a new session and says something like
+  "ok what am I doing today" or "what was I working on".
 ---
 
 # Pickup
 
-You are starting a work session by loading context from a pickup document. The goal is to get oriented quickly so the user can start working without having to re-explain everything from yesterday.
+Resume work by loading context from pickup documents. Routes automatically: if the user points at a specific PIC, load it directly. Otherwise, triage all open PICs and help the user choose.
 
 ## Pre-flight: Orient Check
 
-Before doing anything else, check whether `/orient` has already been run in this session. Look for evidence in the conversation history — if you've already read the SOD, EOW, vault agents.md, and lessons.md earlier in this conversation, orient has been done.
+Before doing anything else, check whether `/orient` has been run in this session. Look for evidence in the conversation history - if you've already read the SOD, vault agents.md, and lessons.md earlier, orient has been done.
 
-If orient has NOT been run yet, run `/orient` first (invoke the Skill tool with skill: "orient"). This ensures vault config, style guardrails, lessons, and period reports are loaded before you start loading PIC context. Do not skip this — pickup without orient means you'll miss project rules and lessons.
-
-After orient completes, continue with the pickup steps below.
+If orient has NOT been run yet, run `/orient` first (invoke the Skill tool with skill: "orient"). Do not skip this - pickup without orient means you'll miss project rules and lessons.
 
 ## PIC Lifecycle
 
-PICs have four statuses:
-- **`open`** — created by closeout, waiting to be picked up
-- **`picked-up`** — actively being worked on in a session
-- **`parked`** — context deferred to a project's agents.md via `/park`. Not active work, but not done — the context will surface when future agents work on that project.
-- **`closed`** — work is complete, no longer shown in the daily note Pickups section
+PICs have three statuses:
+- **`open`** - created by closeout, waiting to be picked up
+- **`picked-up`** - actively being worked on in a session
+- **`closed`** - work is complete
 
-You are responsible for managing these transitions. When you pick up a PIC, mark it `picked-up` immediately. When the work described in the PIC is done, ask the user if you can close it. Don't let PICs linger in `picked-up` forever — if the topic has been fully addressed during the session, proactively ask: "The work from [PIC topic] looks complete. Can I close that pickup?"
+You are responsible for managing these transitions throughout the session.
 
-## Step 1: Find the Pickup
+---
 
-**If the user pointed at a specific PIC file:** Read it directly.
+## Route A: Specific PIC Given
 
-**If no specific PIC was given:** Find all open PICs across the vault.
+If the user pointed at a specific PIC file or named one explicitly, skip triage and go directly to **Load and Work** below.
 
-1. Search for all PIC files using Glob: `**/PIC - *.md` across `Work Vault/02_Projects` and `Work Vault/01_Notes`
-2. Read each PIC file's frontmatter and filter to `status: open` only — skip `picked-up`, `closed`, and `parked`
-3. If there are multiple open pickups, present them to the user and ask which one to work on (one question at a time — use AskUserQuestion). Show the topic name, the project, and the first item from "What Needs to Happen Next" so the user can choose quickly.
-4. If there's exactly one open pickup, confirm with the user: "I found one open pickup: [topic]. Want me to load it?"
-5. If there are no open pickups, tell the user: "No open pickups found. Starting fresh — what would you like to work on?"
+## Route B: Triage (No Specific PIC)
 
-## Step 2: Load Context
+### Step 1: Find All Open PICs
 
-Once you have the PIC to work from:
+1. Glob for `**/PIC - *.md` under `Work Vault/02_Projects/` and `Work Vault/01_Notes/`
+2. Read each PIC's frontmatter and filter to `status: open` and `status: picked-up`
+3. Report the count: "Found N open pickups (and M in-progress)."
+
+If there are no open PICs, tell the user: "No open pickups found. Starting fresh - what would you like to work on?"
+
+If there's exactly one open PIC, confirm: "One open pickup: [topic]. Want me to load it?" Then proceed to Load and Work.
+
+### Step 2: Assess Each Open PIC
+
+For each open PIC, read the full file and extract:
+
+- **Project**: from `project` frontmatter or inferred from file path
+- **Created**: from `date created` frontmatter
+- **Summary**: one sentence from the `## Context` section
+- **Next steps count**: items in `## What Needs to Happen Next`
+- **Has blockers**: whether `## Blockers or Dependencies` lists anything substantive
+- **Complexity**: LOW / MEDIUM / HIGH
+
+**LOW** - Under 30 minutes: single file change, config tweak, running a documented script, closing stale issues, investigation with clear diagnostic steps.
+
+**MEDIUM** - Meaningful but self-contained: changes across 2-5 files, migrating code to an existing pattern, setting up a documented integration, multi-step diagnostics.
+
+**HIGH** - Multi-system or architectural: cross-service changes, multiple repos/deployment targets, requires user decisions or external input, phase 2+ of a multi-phase plan, large data migrations.
+
+### Step 3: Supersession Check
+
+When multiple PICs exist for the same project area:
+- Check if a newer PIC's "What Was Done" covers what an older PIC's "What Needs to Happen Next" listed
+- If so, recommend closing the older PIC as superseded
+- Flag these explicitly - closing stale PICs is a quick win
+
+### Step 4: Project Clustering
+
+Group PICs by project. For clusters with 2+ PICs, evaluate batch compatibility:
+
+1. **Shared context?** Same codebase, database, or deployment target - loading context once saves ramp-up time
+2. **Shared workstream?** Sequential phases or subtasks of the same effort
+3. **Compatible complexity?** LOW + MEDIUM batches well. Two HIGHs risk fatigue.
+4. **Containment?** Does one PIC's next-steps include the other? Work the parent, close both.
+
+Assign batch verdicts:
+- **BATCH** - shared context makes working them together faster
+- **PARTIAL BATCH** - some PICs in the cluster batch, others don't
+- **SPLIT** - same project label but independent workstreams
+
+### Step 5: Present the Triage
+
+Present two views:
+
+**Project Cluster View** (for multi-PIC projects):
+
+```
+| Project | PICs | Complexity Mix | Batch Verdict |
+|---------|------|---------------|---------------|
+```
+
+**Ranked List** (all PICs, grouped by complexity):
+
+```
+### Quick Wins (LOW)
+| # | PIC | Project | Created | Summary | Blockers |
+
+### Medium Effort
+| # | PIC | Project | Created | Summary | Blockers |
+
+### Heavy Lifts (HIGH)
+| # | PIC | Project | Created | Summary | Blockers |
+```
+
+**Recommended Session Order:**
+1. Superseded PICs first - close with no work
+2. Standalone quick wins (LOW, no batch)
+3. Batch clusters with a LOW member - enter via the quick win
+4. Batch clusters, all MEDIUM
+5. Solo MEDIUMs
+6. Solo HIGHs
+7. Blocked PICs last
+
+Within each tier, prefer older PICs and PICs aligned with current priorities (check SOD if loaded).
+
+Then ask which PIC or cluster the user wants to start with.
+
+---
+
+## Load and Work
+
+Once a PIC is selected (from triage or directly):
+
+### Load Context
 
 1. Read the full PIC document
-2. Read every file listed in the `## Key Files` section — these are the files the previous session identified as essential context
+2. Read every file listed in `## Key Files` - these are essential context from the previous session
 3. Read the project's `agents.md` and `lessons.md` if they exist
 4. If the PIC references a spec or plan, read those too
-5. Explore beyond the PIC if context feels incomplete — PICs are written at end-of-session when things may have been rushed. If a next step references code or systems you don't fully understand from the PIC alone, read the relevant files until you do.
 
-Build your understanding of:
-- What project this is and its scope
-- What was already done
-- What the concrete next steps are
-- Any blockers or dependencies
-- Any user preferences or decisions from the previous session
+Build understanding of: project scope, what was done, concrete next steps, blockers, and any user preferences from the previous session.
 
-## Step 3: Mark as Picked Up
+### Mark as Picked Up
 
-Update the PIC document's frontmatter immediately:
+Update the PIC's frontmatter immediately:
 - Change `status: open` to `status: picked-up`
 - Add `picked_up_date: YYYY-MM-DD`
 
-This moves the PIC from "open" to "picked-up" in the daily note's Pickups dataview, showing the user it's actively being worked on. Do this before presenting the plan — don't wait.
+Do this before presenting the plan.
 
-After marking the PIC, set the WezTerm tab title so the user can identify which PIC this session is working on. Run:
+### Present the Plan
 
-```bash
-wezterm cli set-tab-title "PK - SHORT_NAME"
-```
-
-Where `SHORT_NAME` is a short all-caps label derived from the PIC title (e.g., "PIC - FWIS Pipeline Quality Remediation" becomes `PK - FWIS PIPELINE REMEDIATION`, "PIC - KB Approval Workflow for Briefs" becomes `PK - KB APPROVAL WORKFLOW`). Drop filler words like "Implementation", "System", and prepositions when they make the name too long. Keep it under ~30 characters so it fits in a tab. The WezTerm config will automatically color the tab teal when it detects the `PK - ` prefix.
-
-## Step 4: Prep Brief
-
-Before jumping into work, present a **prep brief** that orients the user on the *why* and *what* of this PIC. This is especially valuable when the user is choosing from multiple PICs — they need context to confirm they want to commit to this one.
-
-The prep brief should cover:
-
-1. **The problem** — why does this PIC exist? What's the underlying issue or motivation? Don't just restate the PIC title — explain what's wrong or missing and why it matters.
-2. **What was already done** — the key outcome from the previous session (1-2 sentences)
-3. **What's left** — the numbered next steps from the PIC, presented as a proposed sequence
-4. **Observations** — anything you noticed while loading context that the PIC didn't capture: discrepancies between the PIC's assumptions and current state, risks, scope questions, or decisions the user needs to make before work begins. This is where you add value beyond just reading the PIC back.
-5. **Blockers** — anything that might get in the way (or "none" if clear)
+1. **One-line context** - what project, what we're continuing
+2. **Where we left off** - key outcome from the previous session (1-2 sentences)
+3. **Today's plan** - the numbered next steps from the PIC
+4. **Blockers** - anything that might get in the way (or "none")
 
 Then ask: "Ready to start, or do you want to adjust the plan?"
 
-Once the user confirms, begin working on the first step. You now have full context — treat this like a continuation of the previous session.
+Once confirmed, begin working on the first step.
 
-## Step 5: Close When Done
+---
 
-As you work through the PIC's next steps, track progress against them. When all the steps have been completed (or the user indicates they're done with this topic), ask:
+## Closing PICs
 
-"The work from [PIC topic] looks complete — [brief summary of what was accomplished]. Can I close this pickup?"
+As you work through a PIC's next steps, track progress. When all steps are complete (or the user says they're done), ask:
 
-If the user confirms, update the PIC frontmatter:
+"The work from [PIC topic] looks complete - [brief summary]. Can I close this pickup?"
+
+If confirmed, update frontmatter:
 - Change `status: picked-up` to `status: closed`
 - Add `closed_date: YYYY-MM-DD`
 
-This removes the PIC from the daily note's Pickups section entirely.
-
-### Closing Update
-
-Before flipping status to `closed`, append a closing update section to the PIC document:
+Append a closing update:
 
 ```markdown
 ## Closing Update
 **Closed:** YYYY-MM-DD
-**Outcome:** [1-2 sentences: what was accomplished relative to the PIC's original next steps]
-**Artifacts:** [wikilinks to anything produced — commits, specs, plans, deployed services, work logs]
-**Carry-forward:** [Anything not completed that needs a new PIC or was deferred, or "None — fully resolved"]
+**Outcome:** [1-2 sentences: what was accomplished]
+**Artifacts:** [wikilinks to anything produced]
+**Carry-forward:** [Anything not completed that needs a new PIC, or "None - fully resolved"]
 ```
 
-This creates an audit trail — when reviewing closed PICs, you can see what actually happened, not just that the status changed.
+Update the daily note: add a brief entry under `## Worked on` noting the PIC closure and outcome.
 
-Also update the daily note: add a brief entry under `## Worked on` noting the PIC closure and outcome (e.g., `- Closed [[PIC - Topic Name]] — [one-line outcome]`). This ensures the daily note reflects completed pickups, not just new work.
+### Batch Continuation
+
+If the user chose a batch cluster and just finished one PIC, prompt: "Context is still warm for [next PIC in cluster]. Continue with that, or switch to something else?"
+
+After each PIC closure, update the running tally: "Closed N/M pickups this session. X remaining."
 
 ### Lingering PIC Detection
 
-If during a session you notice PICs in `picked-up` status that haven't been actively worked on (e.g., loaded at session start but the user pivoted to other work), proactively ask before the session ends: "[[PIC - Topic]] is still marked as picked-up. Should I close it, carry it forward, or leave it for next session?"
+If during a session you notice PICs in `picked-up` status that haven't been actively worked on, proactively ask before the session ends: "[[PIC - Topic]] is still marked as picked-up. Should I close it, carry it forward, or leave it for next session?"
 
-Don't let PICs accumulate in `picked-up` status across multiple sessions — that defeats the purpose of the lifecycle.
+Don't let PICs accumulate in `picked-up` status across multiple sessions.
 
-If the work isn't fully done and needs to carry forward again, don't close it — leave it as `picked-up` and let the next `/closeout` either update it or create a new PIC that supersedes it.
+## Tips
+
+- Some PICs may be closeable just by verifying work was already done in a later session. Check git history or current state before assuming work is needed.
+- If a PIC's next steps have been partially completed, note which items remain.
+- Ask one question at a time when clarifying with the user.
+- Don't force batching - if the user wants to cherry-pick across projects, that's fine. Batch analysis is a recommendation, not a constraint.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

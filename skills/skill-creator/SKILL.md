@@ -45,7 +45,7 @@ When the selected mode's flow completes, mark it completed in the manifest and v
 The modes often chain naturally:
 - After **create**, the user often wants to **eval**
 - After **eval** iterations stabilize, the user often wants to **optimize**
-- After **optimize**, back up via `/update-skills push <skill-name>`
+- After **optimize**, back up via `/update-workflow push <skill-name>`
 
 When one mode completes, check if the user wants to continue to the next natural mode. Don't assume — ask.
 
@@ -65,3 +65,7 @@ Pay attention to context cues about the user's technical familiarity. Terms like
 - `agents/grader.md` — Assertion evaluation against outputs
 - `agents/comparator.md` — Blind A/B comparison
 - `agents/analyzer.md` — Benchmark analysis and pattern detection
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -201,7 +201,7 @@ Files processed: <N> copied, <N> skipped, <N> warnings
 | Source | Destination | Prefix | Frontmatter Added | Notes |
 |--------|-------------|--------|-------------------|-------|
 | `/path/to/source/Budget Q1.xlsx` | `Projects/Operations/BDG - Budget Q1.xlsx` | `BDG` | `date created`, `category`, `tags` | — |
-| `/path/to/source/Weekly Sync.md` | `Projects/{{ORG}} Apps/MN - Weekly Sync.md` | `MN` | `tags` only (had existing frontmatter) | — |
+| `/path/to/source/Weekly Sync.md` | `Projects/Flora Apps/MN - Weekly Sync.md` | `MN` | `tags` only (had existing frontmatter) | — |
 
 ## Skipped
 

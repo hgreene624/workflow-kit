@@ -86,7 +86,8 @@ When `git status` shows uncommitted changes or untracked files:
 3. If it's a real file (source code, config, data): **ask the user** or move it to a temp location
 4. **Never** blindly `rm` an untracked file just because git told you to
 
-*See `references/incidents.md` → "vitest.config.ts incident" for why this rule is strict.*
+### The `vitest.config.ts` incident
+An agent deleted an untracked `vitest.config.ts` just because git said "untracked working tree files would be overwritten by merge." That file existed because remote had added it — the right move was `git stash --include-untracked`, not `rm`.
 
 ## Rule 4: Worktree and Agent Work Must Be Pushed
 
@@ -97,7 +98,7 @@ If you are working in a git worktree (isolation mode) or as a background agent:
 3. **Name branches clearly**: `agent/<task-description>` (e.g., `agent/add-widget-to-hub`)
 4. **Verify the push succeeded**: `git log origin/<branch> --oneline -1`
 
-If you don't push, the branch exists only in the worktree's local state. When the worktree is cleaned up, everything is gone. *See `references/incidents.md` → "Worktree Migration Loss".*
+If you don't push, the branch exists only in the worktree's local state. When the worktree is cleaned up, everything is gone. This has happened multiple times — three parallel agents lost their migration work this way.
 
 ### Checkpoint commits for long tasks
 If your task will take more than 5 minutes or involve multiple files:
@@ -198,7 +199,7 @@ These repos often need coordinated deploys:
 
 ### After committing
 - **Always** run `git status` after the commit to verify nothing was left behind
-- If you fixed the same pattern across multiple files, double-check that ALL files are included. *See `references/incidents.md` → "The L16 Commit".*
+- If you fixed the same pattern across multiple files, double-check that ALL files are included — the L16 incident: 5 files fixed, only 4 committed, deployed broken
 
 ### Commit messages
 - End with `Co-Authored-By: Claude <model> <noreply@anthropic.com>` as required by system instructions
@@ -245,7 +246,8 @@ If unsure: `ls /root/.ssh/*deploy*` to find the right key.
 
 **This is the #1 VPS git error.** Every agent that does git operations on VPS hits this at least once. Always use the deploy key — never bare `git push/pull`.
 
-*See `references/incidents.md` → "Portal Home Page Optimization Loss" for why this rule is non-negotiable.*
+### Why this rule exists (2026-03-17 incident)
+The portal home page optimization (2.3s → 260ms) was committed on VPS but never pushed. A container rebuild triggered a `git pull` which merged remote changes on top, and the rebuild used the merged (un-optimized) code. The fix was lost and had to be re-applied the next day.
 
 ## Rule 10: Destructive Operations Are Banned Without Explicit Approval
 
@@ -294,9 +296,14 @@ Feature branches that are "done" but not merged to main are a ticking time bomb.
    git push origin main
    ```
 2. If it's not ready to merge (needs review, testing, etc.), create a PR and note it in the handoff report.
-3. **Never leave completed feature branches unmerged.** *See `references/incidents.md` → "Sprint 3 Unmerged Feature Branches".*
+3. **Never leave completed feature branches unmerged.** Sprint 3 had 3 completed feature branches (`feature/shared-packages`, `feature/mailbox-viewer`, `feature/fwis-audit`) that were pushed but never merged — main was still at the initial commit.
 
 **For orchestrators/PM trackers:** Verify all worker feature branches are merged as part of phase completion. Add "branches merged to main" to your phase-done checklist.
+
+### Why this matters
+- `main` should always reflect the current state of the project
+- Future agents checking out `main` get stale code if feature branches aren't merged
+- Feature branches that sit unmerged accumulate conflicts with other feature branches
 
 ## Rule 13: Repo Routing — New Work Goes to the Monorepo
 
@@ -309,7 +316,10 @@ git remote -v
 
 If the remote is NOT `<YOUR_ORG>/<YOUR_MONOREPO>.git`, you are in an old repo. **STOP.** The work should go in the monorepo instead.
 
-**Exception:** Hotfixes to currently-deployed services that haven't been migrated yet. These can go to the old repo but must be noted for porting to the monorepo later. *See `references/incidents.md` → "Sprint 3 Repo Routing".*
+**Exception:** Hotfixes to currently-deployed services that haven't been migrated yet. These can go to the old repo but must be noted for porting to the monorepo later.
+
+### Why this rule exists (2026-03-20 audit)
+Sprint 3 work landed across 3 different repos (monorepo, <SIGNAL_ENGINE>, feature branches) instead of consolidating in the monorepo. The signal engine reorganization was done in the old repo because "it hadn't been copied yet" — but this creates a porting step and risks the work being forgotten.
 
 ## Rule 14: VPS Files Must Be Committed Before Modifying
 
@@ -325,7 +335,8 @@ git status  # verify clean
 git diff --stat  # if dirty, commit immediately
 ```
 
-*See `references/incidents.md` → "VPS Uncommitted Production Code" for why this rule exists.*
+### Why this rule exists (2026-03-20 audit)
+42 modified files in the VPS signal engine had no commits. `ai-gateway/` and `limitless-sync/` directories had production code with zero git tracking.
 
 ## Quick Reference: The 30-Second Checklist
 
@@ -340,3 +351,7 @@ Before any git operation, mentally run through:
 7. Did I verify after the operation? → `git status` again
 8. Is my feature branch done? → Merge to main before shutting down (Rule 12)
 9. Am I in the right repo? → Check remote URL, new work goes to monorepo (Rule 13)
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -20,7 +20,7 @@ This skill manages a theme system for the Flora monorepo. Themes are scraped fro
 
 | Path | Purpose |
 |------|---------|
-| `~/Repos/{{MONOREPO_NAME}}` | Flora monorepo root |
+| `/Volumes/Dock Storage/Repos/flora-monorepo` | Flora monorepo root |
 | `packages/ui/src/themes/` | Theme files (CSS, meta, types, registry) |
 | `packages/ui/src/themes/previews/` | Generated preview screenshots |
 | `packages/ui/src/themes/types.ts` | ThemeMeta TypeScript interface |
@@ -44,7 +44,7 @@ Trigger: URL + intent to capture styles ("scrape from", "capture the look of", "
 
 1. **Run the scraper** — Execute the Playwright script against the target URL:
    ```bash
-   cd "~/Repos/{{MONOREPO_NAME}}"
+   cd "/Volumes/Dock Storage/Repos/flora-monorepo"
    node scripts/scrape-theme.mjs <url> <theme-name>
    ```
    This produces `packages/ui/src/themes/<name>-scraped.json` with computed styles (colors, fonts, spacing, layout) and `<name>-reference.png` (full-page screenshot).
@@ -104,26 +104,26 @@ Trigger: "preview", "show me", "mockup", "how does [name] look"
 
 2. **Determine variant** — Default is light. If user says "dark" or "--dark", use dark.
 
-3. **Always use `--external` mode with auth.** This hits the live VPS site (`YOUR_DOMAIN`) with the saved auth state, so pages render with real data. The auth state file lives at `tests/qa/.auth-state.json` — check it exists before running.
+3. **Always use `--external` mode with auth.** This hits the live VPS site (`myarroyo.com`) with the saved auth state, so pages render with real data. The auth state file lives at `tests/qa/.auth-state.json` — check it exists before running.
 
    ```bash
    # Verify auth state exists
-   ls -la "~/Repos/{{MONOREPO_NAME}}/tests/qa/.auth-state.json"
+   ls -la "/Volumes/Dock Storage/Repos/flora-monorepo/tests/qa/.auth-state.json"
    ```
 
    If the file is missing or older than ~24 hours, tell the user to re-run auth setup:
    ```bash
-   cd "~/Repos/{{MONOREPO_NAME}}" && ./scripts/qa-auth-setup.sh
+   cd "/Volumes/Dock Storage/Repos/flora-monorepo" && ./scripts/qa-auth-setup.sh
    ```
 
 4. **Run the preview script with `--external`:**
    ```bash
-   cd "~/Repos/{{MONOREPO_NAME}}"
+   cd "/Volumes/Dock Storage/Repos/flora-monorepo"
    node scripts/preview-theme.mjs <theme-id> --external --app=<app> [--dark]
    ```
 
    The script supports these flags:
-   - `--external` — Use live VPS URLs (`YOUR_DOMAIN`) with auth state injection
+   - `--external` — Use live VPS URLs (`myarroyo.com`) with auth state injection
    - `--app=portal|home|admin` — Target app (determines routes + port)
    - `--dark` — Use dark variant
    - `--port=PORT` — Override port (only for local dev, not external)
@@ -218,3 +218,7 @@ export const themes = { ..., <name>: <name>Theme };
 - When creating dark variants from a light-only source site (or vice versa), invert the color relationships — lightest background becomes darkest, etc.
 - The Flora monorepo uses Tailwind v4 + DaisyUI v5 with `data-theme` attribute switching.
 - Custom `--theme-*` tokens extend beyond DaisyUI — they control typography, spacing, shape, and layout. The preview script injects these as `!important` overrides.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

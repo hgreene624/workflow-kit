@@ -4,7 +4,7 @@
 
 | App | Framework | Base Path | Key Gotchas |
 |-----|-----------|-----------|-------------|
-| {{ORG}} Hub | SvelteKit (Svelte 5) | `/hub` | Hydration timing, `base` config |
+| Flora Hub | SvelteKit (Svelte 5) | `/hub` | Hydration timing, `base` config |
 | Flora Portal | SvelteKit (Svelte 5) | `/portal` | Same hydration concerns |
 | MyArroyo Gateway | SvelteKit | `/` | Auth gateway, ForwardAuth provider |
 | Flora KB | SvelteKit | `/kb` | Widget loading needs delayed init |
@@ -47,116 +47,9 @@ scp vps:/tmp/debug.png /tmp/debug.png
 open /tmp/debug.png
 ```
 
-### 2b. Authenticated Browser Simulation (MANDATORY for ForwardAuth-protected apps)
+**For auth-protected pages:** Use request interception to bypass ForwardAuth or serve needed resources.
 
-**The container-direct screenshot (step 2) bypasses auth entirely. It proves the app renders but NOT that the user can access it.** You MUST also test through the real Traefik + ForwardAuth path.
-
-**Method: Playwright with session cookie through the real URL**
-
-```bash
-# 1. Get a valid session from the DB
-SESSION=$(ssh vps "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -t -c \"SELECT id FROM auth.sessions WHERE user_id = (SELECT id FROM auth.users WHERE email = 'user@YOUR_DOMAIN') AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1;\"" | tr -d ' \n')
-
-# 2. Write a Playwright script that uses the session cookie
-ssh vps "cat > /tmp/auth-screenshot.mjs << 'SCRIPT'
-import { chromium } from '/docker/{{MONOREPO_NAME}}/node_modules/playwright/index.mjs';
-const browser = await chromium.launch();
-const context = await browser.newContext({
-  viewport: { width: 1280, height: 900 },
-  extraHTTPHeaders: { 'Cookie': '{{SESSION_COOKIE}}=SESSION_PLACEHOLDER' }
-});
-const page = await context.newPage();
-
-// Collect console errors and network failures
-const errors = [];
-page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
-page.on('requestfailed', req => errors.push('NETWORK FAIL: ' + req.url() + ' ' + req.failure().errorText));
-
-// Track 403s and 302s on sub-resources
-const blocked = [];
-page.on('response', res => {
-  if (res.status() === 403) blocked.push('403: ' + res.url());
-  if (res.status() === 302 && !res.url().includes('/auth/')) blocked.push('302: ' + res.url());
-});
-
-await page.goto('https://YOUR_DOMAIN/PATH_PLACEHOLDER', { waitUntil: 'networkidle', timeout: 30000 });
-await page.waitForTimeout(3000);
-await page.screenshot({ path: '/tmp/auth-debug.png' });
-
-console.log('=== BLOCKED RESOURCES ===');
-blocked.forEach(b => console.log(b));
-console.log('=== CONSOLE ERRORS ===');
-errors.forEach(e => console.log(e));
-console.log('=== SCREENSHOT SAVED ===');
-await browser.close();
-SCRIPT
-"
-
-# 3. Replace placeholders and run
-ssh vps "sed -i 's/SESSION_PLACEHOLDER/${SESSION}/' /tmp/auth-screenshot.mjs && sed -i 's|PATH_PLACEHOLDER|<path>|' /tmp/auth-screenshot.mjs && cd /docker/{{MONOREPO_NAME}} && node /tmp/auth-screenshot.mjs 2>&1"
-
-# 4. Download and show the user
-scp vps:/tmp/auth-debug.png /tmp/auth-debug.png && open /tmp/auth-debug.png
-```
-
-**What this catches that container-direct misses:**
-- 403 from missing permissions (white screen)
-- 302 on static assets from ForwardAuth blocking CSS/JS (white screen)
-- 404 on fetch() calls missing basePath prefix (page loads, no data)
-- CORS or cookie issues through Traefik
-
-**If Playwright ESM import fails** (no node_modules context), use the CLI:
-```bash
-ssh vps "cd /docker/{{MONOREPO_NAME}} && npx playwright screenshot --browser chromium --wait-for-timeout 5000 'http://CONTAINER_IP:3000/<path>' /tmp/debug.png"
-```
-Note: this bypasses auth. Only use as fallback when the authenticated method fails.
-
-**Rule: Never declare a fix verified unless you've tested through Traefik with auth.** Container-direct tests are useful for isolating whether the issue is in the app vs the routing/auth layer, but they are NOT proof the user can see it.
-
-**Cross-ref:** Agent L21 (verify visually), FWIS L9 (browser-level verification), flora-app debug-checklist.md
-
-### 2c. Capture Client-Side JS Errors (MANDATORY for "Application error" screens)
-
-**Server-side tests (wget, curl, docker exec) cannot detect client-side JS crashes.** A Next.js page can return HTTP 200 with valid HTML while the client-side React app crashes during hydration, showing a black "Application error" screen. The ONLY way to detect this is with a real browser.
-
-**Use Playwright with `pageerror` event capture:**
-
-```bash
-SESSION=$(ssh vps "docker exec -i {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -t -A -c \"SELECT id FROM auth.sessions WHERE expires_at > NOW() AND deleted_at IS NULL ORDER BY last_active_at DESC LIMIT 1;\"")
-
-ssh vps "cd /tmp && node -e \"
-const { chromium } = require('playwright');
-(async () => {
-  const browser = await chromium.launch({ headless: true, args: ['--no-sandbox', '--ignore-certificate-errors'] });
-  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-  await ctx.addCookies([{ name: '{{SESSION_COOKIE}}', value: '${SESSION}', domain: '.YOUR_DOMAIN', path: '/' }]);
-  const pg = await ctx.newPage();
-  const errors = [];
-  pg.on('pageerror', (err) => errors.push(err.message.slice(0, 500)));
-
-  await pg.goto('https://YOUR_DOMAIN/fwis/<path>', { waitUntil: 'networkidle', timeout: 25000 });
-  await pg.waitForTimeout(3000);
-  await pg.screenshot({ path: '/tmp/debug.png', fullPage: false });
-  const hasAppError = await pg.locator('text=Application error').count();
-  console.log(hasAppError > 0 ? 'APP_ERROR' : 'OK');
-  if (errors.length > 0) errors.forEach(e => console.log('JS ERROR: ' + e));
-  await browser.close();
-})();
-\""
-```
-
-**Why this works when other tests don't:**
-- `pageerror` captures the EXACT JS exception message the browser throws
-- This caught "AG Charts - No modules have been registered" and "Unknown chart type" -- errors invisible to any server-side test
-- The screenshot proves what the user actually sees (not what the server renders)
-
-**Critical: verify the cookie name from source FIRST.** Read the app's cookie utility to get the exact name. Using the wrong name makes all pages show the login screen with HTTP 200, and text checks report "OK" because the login page doesn't contain "Application error". (See L45.)
-
-**Cookie name lookup:**
-```bash
-ssh vps "grep 'COOKIE_NAME' /docker/{{MONOREPO_NAME}}/apps/home/src/lib/server/cookie.ts"
-# Returns: const COOKIE_NAME = '{{SESSION_COOKIE}}';
-```
+**Cross-ref:** Agent L21 (verify visually), FWIS L9 (browser-level verification)
 
 ### 3. Verify the build contains your changes
 
@@ -199,10 +92,6 @@ Before adding `overflow`, `scroll`, or rendering HTML content, trace the full ch
 | Email HTML leaks global styles | `<style>` tags in dangerouslySetInnerHTML | Sanitize/scope all injected HTML | Frontend L5 |
 | Panels reset to equal width | Client hydration overrides SSR layout | Verify final rendered state | Frontend L4 |
 | Ant Design server component crash | Next.js standalone SSR + antd | ALL pages must be `'use client'` | (Reservations Dashboard rule) |
-| Black "Application error" screen | Client-side JS crash during hydration | Capture `pageerror` event via Playwright | L44, L45 |
-| All pages show 200 but user sees error | Server renders HTML fine, client JS crashes | Server-side tests (wget/curl) cannot catch client-side errors | L44 |
-| AG Charts "No modules registered" | Missing `AgChartsEnterpriseModule.setup()` | Call setup() synchronously at module scope | L44 |
-| Playwright tests all pass but user sees errors | Wrong auth cookie name | Read cookie.ts source, verify with screenshot | L45 |
 
 ## SvelteKit-Specific
 
@@ -242,7 +131,7 @@ document.head.appendChild(s);
 
 ## Playwright QA Suite
 
-A validated test suite at `~/Repos/{{MONOREPO_NAME}}/tests/qa/` can quickly isolate frontend issues. All commands run from the monorepo root.
+A validated test suite at `~/Repos/flora-monorepo/tests/qa/` can quickly isolate frontend issues. All commands run from the monorepo root.
 
 ```bash
 # Quick health check — are all 7 services loading?

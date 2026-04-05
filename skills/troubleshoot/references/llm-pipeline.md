@@ -10,14 +10,14 @@ Email fetch (Graph API) → classify.py → signal_builder.py → DB insert
 
 - **Container:** `fwis-api` (Flora compose)
 - **Source:** `/docker/flora/<SIGNAL_ENGINE>/`
-- **DB:** `{{PROJECT_DB}}` (PostgreSQL 17, `{{DB_CONTAINER}}`)
+- **DB:** `flora_signal` (PostgreSQL 17, `flora-postgres`)
 - **API:** `api.<YOUR_DOMAIN>` (FastAPI, basic auth)
 
 ## Prompt Library
 
 **ALL prompts must live in the Prompt Library.** No hardcoded prompts.
 
-- **Table:** `public.prompt_templates` in `{{PROJECT_DB}}` DB
+- **Table:** `public.prompt_templates` in `flora_signal` DB
 - **Admin UI:** `admin.<YOUR_DOMAIN>/prompts`
 - **Key format:** `project.module.function` (e.g., `inbox-triage.classifier.system`)
 - **Client:** `prompt_client.py` (Python) or `prompt-client.ts` (TypeScript)
@@ -25,10 +25,10 @@ Email fetch (Graph API) → classify.py → signal_builder.py → DB insert
 
 ```bash
 # List all prompts
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT key, version, updated_at FROM prompt_templates ORDER BY key\""
+ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c \"SELECT key, version, updated_at FROM prompt_templates ORDER BY key\""
 
 # Check a specific prompt
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT content FROM prompt_templates WHERE key = '<key>'\""
+ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c \"SELECT content FROM prompt_templates WHERE key = '<key>'\""
 ```
 
 **Cross-ref:** FWIS L6 (regenerate prompts.json after DB updates)
@@ -49,7 +49,7 @@ ssh <YOUR_VPS> "docker exec fwis-api curl -s http://localhost:8000/api/prompts >
 
 ```bash
 # Run with verbose + dry-run
-ssh <YOUR_VPS> "docker exec fwis-api python3 {{PROJECT_DB}}.py --mailbox <email> --verbose --dry-run --limit 5"
+ssh <YOUR_VPS> "docker exec fwis-api python3 flora_signal.py --mailbox <email> --verbose --dry-run --limit 5"
 
 # Check recent pipeline logs
 ssh <YOUR_VPS> "docker logs fwis-api 2>&1 | grep -i 'pipeline\|error\|signal' | tail -20"
@@ -68,10 +68,10 @@ When a prompt outputs structured JSON that maps to a DB table:
 
 ```bash
 # Verify data was actually written
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT id, signal_type, created_at FROM signals ORDER BY created_at DESC LIMIT 5\""
+ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c \"SELECT id, signal_type, created_at FROM signals ORDER BY created_at DESC LIMIT 5\""
 
 # Check for NULL columns that should have data
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT COUNT(*) FILTER (WHERE signal_type IS NULL) as null_signal_type FROM signals\""
+ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c \"SELECT COUNT(*) FILTER (WHERE signal_type IS NULL) as null_signal_type FROM signals\""
 ```
 
 **Cross-ref:** FWIS L7 (INSERT SQL missing column in list)
@@ -106,16 +106,16 @@ ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c 
 
 ```bash
 # Standard run (today's emails only)
-docker exec fwis-api python3 {{PROJECT_DB}}.py --mailbox user@domain.com
+docker exec fwis-api python3 flora_signal.py --mailbox user@domain.com
 
 # Date range with limit
-docker exec fwis-api python3 {{PROJECT_DB}}.py --mailbox user@domain.com --start-date 2026-03-01 --end-date 2026-03-14 --limit 20
+docker exec fwis-api python3 flora_signal.py --mailbox user@domain.com --start-date 2026-03-01 --end-date 2026-03-14 --limit 20
 
 # Skip email fetch (reprocess cached)
-docker exec fwis-api python3 {{PROJECT_DB}}.py --mailbox user@domain.com --skip-fetch
+docker exec fwis-api python3 flora_signal.py --mailbox user@domain.com --skip-fetch
 
 # Dry run (no DB writes)
-docker exec fwis-api python3 {{PROJECT_DB}}.py --mailbox user@domain.com --dry-run --verbose
+docker exec fwis-api python3 flora_signal.py --mailbox user@domain.com --dry-run --verbose
 ```
 
 ## Lessons Files

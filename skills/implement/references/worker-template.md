@@ -12,9 +12,6 @@ You are **{worker_name}** — executing {task_id}: {task_title}.
 ## BEFORE ANY GIT OPERATIONS
 Read `~/.claude/skills/git-safe/SKILL.md` and follow it.
 
-## TEST DISCIPLINE
-Read `~/.claude/skills/test-check/SKILL.md` — find affected tests before changing code, run them after.
-
 ## Context Files (read these first)
 - Plan: {plan_path} ({relevant section})
 - Spec: {spec_path}
@@ -43,18 +40,6 @@ Shared service fixes are collected and applied as a coordinated batch between ph
 
 **Why this exists (Sprint 5):** D-6 (Chawdys batch fix) collected integration issues during P8/P9 and fixed them as one coordinated batch before Sprint 5. Zero disruptions during complex rewrites. Inline fixes to shared services during migration work risk breaking other consumers.
 
-## Task Artifact Routing
-
-If your task produces a written artifact (audit, design doc, analysis, review), it is an **agent-generated report** and must follow vault file conventions:
-
-- **Prefix:** `ARE -` (Agent Report)
-- **Location:** `<project>/reports/YYYY-MM-DD/` (NOT the plans directory)
-- **Frontmatter:** `category: Report`
-
-**NEVER save task artifacts directly into the `plans/` directory.** Plans contain only `PL -` files and `WL -` work logs. Everything else goes to `reports/`.
-
-Example: Task T0.4 "Skill Structure Design" produces → `reports/2026-03-29/ARE - T0.4 Skill Structure Design.md`
-
 ## When Done
 1. **Merge your feature branch to main** (if work is complete and tested):
    ```
@@ -77,7 +62,7 @@ Skip this section if your task doesn't deploy to VPS.
 
 ```bash
 # Standard service replacement (stops old, starts new, verifies)
-ssh <YOUR_VPS> "cd /docker/{{MONOREPO_NAME}} && ./scripts/safe-swap.sh <old-service> <new-service>"
+ssh <YOUR_VPS> "cd /docker/flora-monorepo && ./scripts/safe-swap.sh <old-service> <new-service>"
 ```
 
 If `safe-swap.sh` doesn't exist yet for this service, follow this EXACT sequence:

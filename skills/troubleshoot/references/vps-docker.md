@@ -111,7 +111,7 @@ ssh <YOUR_VPS> "docker cp /tmp/fix.py CONTAINER:/tmp/fix.py && docker exec CONTA
 
 ## Post-Deploy Verification — QA Suite
 
-After any container rebuild or service restart, run the Playwright smoke tests from `~/Repos/{{MONOREPO_NAME}}/`:
+After any container rebuild or service restart, run the Playwright smoke tests from `~/Repos/flora-monorepo/`:
 
 ```bash
 npx playwright test --config tests/qa/playwright.config.ts --project=smoke

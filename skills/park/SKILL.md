@@ -79,19 +79,17 @@ Each entry should be:
 - **Summarized in 1-2 sentences** focusing on what to *do* with the information, not a full recap
 - **Tagged with relevance** in italics so a future agent can quickly judge whether it applies to their current task
 
-## Step 4: Park the Source PIC (if applicable)
+## Step 4: Close the Source PIC (if applicable)
 
-If the source is a PIC (Pickup document), update its frontmatter to mark it as parked:
+If the source is a PIC (Pickup document) and the user wants it closed, update its frontmatter:
 
 ```yaml
-status: parked
-parked_date: "YYYY-MM-DD"
-parked_to: "[project name]"
+status: closed
+closed_date: "YYYY-MM-DD"
+closed_reason: "Parked to [project name] agents.md"
 ```
 
-The `parked` status means the PIC's context has been embedded in the target project's agents.md and will surface automatically when future agents work on that project. Parked PICs are excluded from `/pickup` listings and `/pickup-triage` active counts — they're neither open work nor closed work, they're deferred context.
-
-Ask the user before parking — they may want the PIC to remain open if there's other work in it beyond what was parked. If only part of the PIC's context is being parked, leave it as `open` and note in the agents.md entry which items were parked.
+Ask the user before closing — they may want the PIC to remain open if there's other work in it beyond what was parked.
 
 ## Step 5: Confirm
 
@@ -101,3 +99,7 @@ Tell the user what you did:
 - Whether the source PIC was closed (if applicable)
 
 That's it. Keep it simple.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.
