@@ -147,9 +147,25 @@ With the project brief and the video summary in hand, assess each active project
 
 ### 3c. Decision gate
 
-- If ANY project scores **3**: Proceed to Phase 4 (full deep dive)
-- If highest score is **2**: Present the TLDR and relevance notes. Ask if the user wants a deep dive anyway.
-- If all scores are **1 or 0**: Present the TLDR, note the weak connections, save the summary, done.
+- If ANY project scores **3**: Proceed to Phase 3d, then Phase 4 (full deep dive)
+- If highest score is **2**: Proceed to Phase 3d, then present the TLDR and relevance notes. Ask if the user wants a deep dive anyway.
+- If all scores are **1 or 0**: Present the TLDR, note the weak connections, save the summary, done. Skip Phase 3d.
+
+### 3d. Project Backlinks
+
+For each project that scored **2 or higher**, write a backlink into that project's `agents.md` under a `## Queued Context` section.
+
+1. Read the project's `agents.md`
+2. Find or create the `## Queued Context` section (place it at the end of the file, before any `## Lessons` section if one exists)
+3. Check if a backlink to this TS file already exists (dedup by filename)
+4. If not present, append:
+   ```
+   - [[TS - <Video Title>]] — <one-line reason this matters to the project> (YYYY-MM-DD)
+   ```
+5. Also update `04_Reference/REF - Topic Index.md` if the video introduces a new topic not yet listed
+6. Also update `06_Media/Transcripts/Index.md` with the new TS entry under the appropriate topic heading
+
+This ensures that when an agent loads a project's context via `/orient` or `/pickup`, relevant ingested content surfaces automatically.
 
 ## Phase 4: Deep Dive Team Dispatch
 

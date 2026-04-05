@@ -210,6 +210,33 @@ This feeds Monday's SOW.}
 
 Save to `01_Notes/Reports/EOW/EOW - {YYYY}-W{ww}.md` (ISO week number format, e.g. `EOW - 2026-W13.md`). This matches the Periodic Notes plugin config so the calendar's week numbers link directly to EOW reports.
 
+### Knowledge Synthesis (EOW sub-step)
+
+After the EOW report is written, consolidate ingested content from the week into topic-based reference docs.
+
+1. **Scan this week's ingested content** — glob for TS and ARE files created this week:
+   - `06_Media/Transcripts/{this week's dates}/*/TS - *.md`
+   - `06_Media/Transcripts/{this week's dates}/*/ARE - *.md`
+   - Any article summaries (`AS - *.md`) created this week
+
+2. **Group by topic** — use the `tags` frontmatter field from each file. Common topics: claude-code, rag, agents, deployment, frontend, database, etc.
+
+3. **For topics with 2+ sources this week:**
+   - Check if `04_Reference/REF - <Topic> (Synthesis).md` already exists
+   - If exists: update it with new sources, adding a `## Week of {date}` section summarizing the new material and linking to the source TS/ARE files
+   - If new: create `04_Reference/REF - <Topic> (Synthesis).md` with standard REF frontmatter, a summary paragraph, and wikilinks to all source files
+
+4. **For topics with 1 source:** skip (not enough to consolidate)
+
+5. **Update indexes:**
+   - Add any new entries to `04_Reference/REF - Topic Index.md` under the appropriate heading
+   - Update `06_Media/Transcripts/Index.md` with any new TS files under their topic headings
+
+6. **Report in EOW:** Add a `## Knowledge Synthesis` section at the end of the EOW with:
+   - Count of ingested items this week
+   - Topics synthesized (with links to REF docs)
+   - Topics with only 1 source (noted but not synthesized)
+
 ## Step 5: EOM (last workday of month only)
 
 If today is the last workday of the month, also produce an EOM.
@@ -251,6 +278,15 @@ period: {YYYY-MM}
 ```
 
 Save to `01_Notes/Reports/EOM/EOM - {YYYY-MM}.md`.
+
+### Knowledge Audit (EOM sub-step)
+
+After the EOM report is written, audit the month's knowledge accumulation.
+
+1. **Cross-reference monthly synthesis docs** — read all `REF - * (Synthesis).md` files that were created or updated this month
+2. **Flag active learning areas** — topics with 3+ sources this month signal sustained interest. Note these in the EOM under `## Knowledge Audit`
+3. **Prune stale entries** — check `04_Reference/REF - Topic Index.md` for links to files that no longer exist. Remove dead links.
+4. **Update Master Project Index** — check `04_Reference/REF - Master Project Index.md` for accuracy (new projects, status changes, archived projects)
 
 ## Step 6: Dream (memory consolidation)
 
