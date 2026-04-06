@@ -147,25 +147,9 @@ With the project brief and the video summary in hand, assess each active project
 
 ### 3c. Decision gate
 
-- If ANY project scores **3**: Proceed to Phase 3d, then Phase 4 (full deep dive)
-- If highest score is **2**: Proceed to Phase 3d, then present the TLDR and relevance notes. Ask if the user wants a deep dive anyway.
-- If all scores are **1 or 0**: Present the TLDR, note the weak connections, save the summary, done. Skip Phase 3d.
-
-### 3d. Project Backlinks
-
-For each project that scored **2 or higher**, write a backlink into that project's `agents.md` under a `## Queued Context` section.
-
-1. Read the project's `agents.md`
-2. Find or create the `## Queued Context` section (place it at the end of the file, before any `## Lessons` section if one exists)
-3. Check if a backlink to this TS file already exists (dedup by filename)
-4. If not present, append:
-   ```
-   - [[TS - <Video Title>]] — <one-line reason this matters to the project> (YYYY-MM-DD)
-   ```
-5. Also update `04_Reference/REF - Topic Index.md` if the video introduces a new topic not yet listed
-6. Also update `06_Media/Transcripts/Index.md` with the new TS entry under the appropriate topic heading
-
-This ensures that when an agent loads a project's context via `/orient` or `/pickup`, relevant ingested content surfaces automatically.
+- If ANY project scores **3**: Proceed to Phase 4 (full deep dive)
+- If highest score is **2**: Present the TLDR and relevance notes. Ask if the user wants a deep dive anyway.
+- If all scores are **1 or 0**: Present the TLDR, note the weak connections, save the summary, done.
 
 ## Phase 4: Deep Dive Team Dispatch
 
@@ -330,7 +314,3 @@ Follow the standard playlist path (Phase 0 → playlist routing). This makes `/v
 - **Large playlist (50+ videos)**: Warn the user about credit cost (1 credit per transcript + 1 per playlist page). Suggest processing in batches or filtering by title keywords.
 - **Mixed playlist (some already processed)**: Only process new videos. The batch report should still mention the total count and how many were skipped as "previously scanned."
 - **Playlist pagination**: Some playlists exceed 100 videos. Always check `has_more` and paginate with `continuation` tokens until all videos are collected before presenting the batch summary.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

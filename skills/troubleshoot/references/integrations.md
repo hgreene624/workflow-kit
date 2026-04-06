@@ -68,7 +68,7 @@ ssh <YOUR_VPS> "docker ps --filter name=reservation-scraper --format '{{.Status}
 
 ```bash
 # Check recent sync
-ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c \"SELECT id, created_at FROM limitless_lifelogs ORDER BY created_at DESC LIMIT 5\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT id, created_at FROM limitless_lifelogs ORDER BY created_at DESC LIMIT 5\""
 
 # Check sync logs
 ssh <YOUR_VPS> "cat /var/log/limitless-sync.log | tail -20"
@@ -83,7 +83,7 @@ Runs every 30 min (7 AM–9 PM Mazatlán). Pipeline: `sync_lifelogs.py` → `con
 ssh <YOUR_VPS> "curl -s http://$(docker inspect <YOUR_ADMIN_APP> --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' | head -c 15):3000/api/ai/health"
 
 # Check session count
-ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c \"SELECT COUNT(*) FROM chat_sessions\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT COUNT(*) FROM chat_sessions\""
 ```
 
 ## Common Failure Modes
@@ -142,11 +142,11 @@ ssh <YOUR_VPS> "docker exec chawdys openclaw cron list"
 ## Email Safety
 
 **ALWAYS verify emails against `monitored_mailboxes` table** before use:
-- `patrick@flora-farms.com` = Patrick (owner/executive)
-- `pdelagarza@flora-farms.com` = Pablo de la Garza (Odoo consultant, NOT Patrick)
+- `admin@YOUR_DOMAIN` = Patrick (owner/executive)
+- `consultant@YOUR_DOMAIN` = Pablo de la Garza (Odoo consultant, NOT Patrick)
 
 ```bash
-ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c 'SELECT email, display_name FROM monitored_mailboxes'"
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c 'SELECT email, display_name FROM monitored_mailboxes'"
 ```
 
 **Cross-ref:** FWIS L1

@@ -20,7 +20,7 @@ Run forensic analysis on Claude Code's own token consumption using the cc-analyt
 All commands are run via:
 
 ```bash
-cd "/Volumes/Dock Storage/Repos/cc-analytics" && npx tsx src/cli.ts <command> <args>
+cd "~/Repos/cc-analytics" && npx tsx src/cli.ts <command> <args>
 ```
 
 The output is already formatted markdown — present it directly to the user without reformatting.
@@ -74,7 +74,3 @@ After presenting results, if the output reveals issues, offer to drill deeper:
 ## JSON Output
 
 All commands support `--json` for machine-readable output. Use this if you need to do further analysis on the data programmatically.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

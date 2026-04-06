@@ -183,7 +183,3 @@ All gates must pass before a variant can be promoted:
 | `scripts/evaluate.py` | Runs binary eval suite against a variant; returns score and per-case pass/fail |
 | `scripts/promote.py` | Overwrites the target SKILL.md with the winner and commits to `workflow-kit` |
 | `scripts/budget.py` | Tracks per-run LLM spend and enforces cost caps |
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

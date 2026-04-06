@@ -111,9 +111,10 @@ Quality gates (format: `QG-N`) are explicit work items in the plan, separate fro
 
 When all tasks in a phase are Done:
 
-1. **Run the quality gate** — actually validate against spec acceptance criteria
-2. **If passes** → run the code quality gate (see below)
-3. **If fails** → document failure, create fix tasks, dispatch workers, re-run gate
+1. **Vertical slice check** — verify the phase deliverable is user-testable end-to-end, not just code-complete. If the output is a horizontal slice (e.g., "all DB tables created" with no working feature), the phase is NOT done — create a task to connect the slice vertically before proceeding.
+2. **Run the quality gate** — actually validate against spec acceptance criteria
+3. **If passes** → run the code quality gate (see below)
+4. **If fails** → document failure, create fix tasks, dispatch workers, re-run gate
 
 ### Code Quality Gate (Post-Phase)
 
@@ -124,9 +125,10 @@ After functional quality gates pass, mark QG Done, update Plane, announce to use
 ## Step 5 — Phase Transitions
 
 Between phases:
-1. Confirm with user before starting next phase (unless pre-approved)
-2. Promote next phase's tasks from Backlog → Todo (only unblocked tasks)
-3. Check if any new lessons were learned — offer `/learn`
+1. **Check `step_away` flag in plan frontmatter.** If `step_away: true`, skip user confirmation — chain directly to the next phase. This flag is set by `/step-away` and persists across context compaction. Do NOT stop to summarize or ask "ready for Phase N?" when this flag is set.
+2. If `step_away` is false or absent, confirm with user before starting next phase (unless pre-approved)
+3. Promote next phase's tasks from Backlog → Todo (only unblocked tasks)
+4. Check if any new lessons were learned — offer `/learn` (skip in step-away mode)
 
 ## Step 6 — Completion
 

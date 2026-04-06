@@ -140,7 +140,7 @@ ssh <YOUR_VPS> "cd <vps_repo_path> && git status --short"
 - **Flag if:** Any container is unhealthy, restarting, or exited
 - **Flag if:** Any env var resolves to empty that shouldn't
 - **Flag if:** Any password/secret is hardcoded instead of using `${VAR}` reference
-- **Flag if:** Container name conflicts exist between `/docker/flora/` and `/docker/flora-monorepo/` compose files
+- **Flag if:** Container name conflicts exist between `/docker/flora/` and `/docker/{{MONOREPO_NAME}}/` compose files
 
 #### 9. Worker Model Appropriateness
 - Check which model each worker used vs what the task required

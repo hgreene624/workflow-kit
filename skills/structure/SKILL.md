@@ -33,7 +33,7 @@ If no path is given, ask the user which spec to structure.
 
 5. **Read project agents.md** — look for `02_Projects/<project>/agents.md` to understand codebase context, conventions, and constraints.
 
-6. **Explore the codebase** — if agents.md references a repo path, explore relevant source code to understand existing module boundaries, patterns, and interfaces. Focus on files the spec will touch.
+6. **Explore the codebase** — if agents.md references a repo path, explore until you can confidently define module boundaries and key signatures. Don't limit yourself to files the spec explicitly mentions — adjacent modules, shared utilities, and existing patterns inform where new code should land.
 
 7. **Read the SO template** from `~/.claude/skills/structure/references/so-template.md`.
 
@@ -52,7 +52,3 @@ If no path is given, ask the user which spec to structure.
 12. **Save the SO document** to `02_Projects/<project>/structures/{today}/SO - {Spec Name}.md`. Create the directory if it doesn't exist.
 
 13. **Handoff** — end with: "Structure outline complete. Ready for `/plan-spec` to create the detailed implementation plan."
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

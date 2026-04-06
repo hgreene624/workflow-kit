@@ -15,7 +15,7 @@ A reflective pass over your memory files. Synthesize what you've learned recentl
 | `user` | User-level (all projects) | `~/.claude/memory/` | `MEMORY.md` in that directory |
 | `all` | Both scopes | Both directories | Both index files |
 
-Where `<encoded-cwd>` is the current working directory with `/` replaced by `-` and leading `-` (e.g., `-Users-holdengreene-Documents-Vaults-Work-Vault`).
+Where `<encoded-cwd>` is the current working directory with `/` replaced by `-` and leading `-` (e.g., `-Users-username-Documents-Vaults-Work-Vault`).
 
 Session transcripts are JSONL files in the **project directory** (sibling to `memory/`, not inside it): `~/.claude/projects/<encoded-cwd>/*.jsonl`
 
@@ -117,7 +117,3 @@ Return a brief summary structured like this:
 ```
 
 If nothing changed, say: "Memory is already clean — no changes needed."
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

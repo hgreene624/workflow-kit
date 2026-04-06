@@ -4,8 +4,8 @@
 
 | Database | Container | Type | Access |
 |----------|-----------|------|--------|
-| `flora_signal` | `flora-postgres` | PostgreSQL 17 | `ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal"` |
-| Plane DB | `plane-plane-db-1` | PostgreSQL | `ssh <YOUR_VPS> "docker exec -e PGPASSWORD=fce258a5ac2fc85d3c5e0246 plane-plane-db-1 psql -U plane -d plane"` |
+| `{{PROJECT_DB}}` | `{{DB_CONTAINER}}` | PostgreSQL 17 | `ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}}"` |
+| Plane DB | `{{PLANE_DB_CONTAINER}}` | PostgreSQL | `ssh <YOUR_VPS> "docker exec -e PGPASSWORD=YOUR_PLANE_DB_PASSWORD {{PLANE_DB_CONTAINER}} psql -U plane -d plane"` |
 | IK Buckets search | `ik-buckets` | SQLite | `/app/db/search.db` (bind-mounted from host) |
 | IK Buckets data | `ik-buckets` | SQLite | `/app/db/ik_buckets.db` (bind-mounted) |
 | IK Buckets users | `ik-buckets` | SQLite | `/app/db/users.db` (bind-mounted) |
@@ -29,14 +29,14 @@
 ### 2. Verify the right database
 
 ```bash
-# flora_signal (main app DB)
-ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c '\dt public.*'"
+# {{PROJECT_DB}} (main app DB)
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c '\dt public.*'"
 
-# Sales schema (inside flora_signal)
-ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c '\dt sales.*'"
+# Sales schema (inside {{PROJECT_DB}})
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c '\dt sales.*'"
 
 # Plane DB
-ssh <YOUR_VPS> 'docker exec -e PGPASSWORD=fce258a5ac2fc85d3c5e0246 plane-plane-db-1 psql -U plane -d plane -c "\dt"'
+ssh <YOUR_VPS> 'docker exec -e PGPASSWORD=YOUR_PLANE_DB_PASSWORD {{PLANE_DB_CONTAINER}} psql -U plane -d plane -c "\dt"'
 ```
 
 ### 3. Check for schema mismatches in agent-generated code
@@ -74,7 +74,7 @@ FROM table GROUP BY 1;
 | Heredoc INSERT over SSH returns 0 rows | Heredoc feeds local stdin to ssh | Use `-c` with escaped quotes | VPS L16 |
 | SyntaxError in python3 -c over SSH | Bash history expansion mangles `!=` | Use single-quoted python or temp script | VPS L17 |
 
-## flora_signal Key Schemas
+## {{PROJECT_DB}} Key Schemas
 
 - `public.*` — signals, work_items, initiatives, meetings, email data
 - `sales.*` — sales pipeline (profiles, contacts, classifications)
@@ -84,18 +84,18 @@ FROM table GROUP BY 1;
 
 ## PostgreSQL Connection Details
 
-- **Host:** `flora-postgres` (internal network) or `127.0.0.1:5432` (VPS host)
+- **Host:** `{{DB_CONTAINER}}` (internal network) or `127.0.0.1:5432` (VPS host)
 - **User:** `flora`
-- **DB:** `flora_signal`
+- **DB:** `{{PROJECT_DB}}`
 - **Password:** In env vars of connected containers
-- **Backups:** `/docker/flora/backups/flora_signal_YYYY-MM-DD.sql.gz` (7-day retention, nightly at 2:30 AM)
+- **Backups:** `/docker/flora/backups/{{PROJECT_DB}}_YYYY-MM-DD.sql.gz` (7-day retention, nightly at 2:30 AM)
 
 ## Key Gotchas
 
 - **Passwords with special chars break DATABASE_URL.** Use individual params instead of connection string URI. (VPS L8)
 - **Never hardcode entity ID lists.** Query the DB for current IDs. (Agent L9)
 - **Sales tables are NOT in db.py SCHEMA_SQL** — managed via direct DDL
-- **`flora_signal.db` is a legacy artifact at 0 bytes** — the active DB is PostgreSQL
+- **`{{PROJECT_DB}}.db` is a legacy artifact at 0 bytes** — the active DB is PostgreSQL
 
 ## Lessons Files
 - `04_ Tools/Reference/REF - Agent Lessons.md` — L7 (schema inspection), L9 (query for IDs), L11 (validate agent SQL), L18 (audit all queries)

@@ -62,7 +62,7 @@ ssh <YOUR_VPS> "curl -s https://<YOUR_DOMAIN>/<api-path> | head -5"
 ## FastAPI-Specific (FWIS API)
 
 - **Catch-all routes:** `{param:path}` greedily matches everything including `/`. Order specific sub-routes BEFORE catch-alls.
-- **Pipeline CLI:** `flora_signal.py --mailbox EMAIL [--skip-fetch] [--verbose] [--dry-run] [--start-date YYYY-MM-DD --end-date YYYY-MM-DD] [--limit N]`
+- **Pipeline CLI:** `{{PROJECT_DB}}.py --mailbox EMAIL [--skip-fetch] [--verbose] [--dry-run] [--start-date YYYY-MM-DD --end-date YYYY-MM-DD] [--limit N]`
 - **Run pipeline serially** — concurrent instances not supported
 - **Basic auth** on `api.<YOUR_DOMAIN>` — not ForwardAuth
 - **DB connection:** psycopg3 ConnectionPool via env vars
@@ -90,11 +90,11 @@ ssh <YOUR_VPS> "curl -s https://<YOUR_DOMAIN>/<api-path> | head -5"
 
 ## Prompt Library
 
-All LLM prompts live in `public.prompt_templates` (flora_signal DB), managed at `admin.<YOUR_DOMAIN>/prompts`.
+All LLM prompts live in `public.prompt_templates` ({{PROJECT_DB}} DB), managed at `admin.<YOUR_DOMAIN>/prompts`.
 
 ```bash
 # Check a prompt exists
-ssh <YOUR_VPS> "docker exec flora-postgres psql -U flora -d flora_signal -c \"SELECT key, version FROM prompt_templates WHERE key LIKE '%keyword%'\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT key, version FROM prompt_templates WHERE key LIKE '%keyword%'\""
 ```
 
 **Cross-ref:** FWIS L6 (regenerate prompts.json after DB updates)

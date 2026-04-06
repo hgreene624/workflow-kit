@@ -48,7 +48,7 @@ Options: List the detected roles individually + "Yes, both" + "Neither — I'll 
 For ambiguous file assignments, ask where the file belongs. Example:
 
 ```
-I found "API Design Notes.md" — it could belong to Flora Apps or Infrastructure. Where should it go?
+I found "API Design Notes.md" — it could belong to {{ORG}} Apps or Infrastructure. Where should it go?
 ```
 
 Options: List candidate projects + "Skip this file"

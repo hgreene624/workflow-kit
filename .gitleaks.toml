@@ -7,13 +7,13 @@ title = "WFK Secret Scan"
 [[rules]]
 id = "org-domain"
 description = "Organization domain leak"
-regex = '''myarroyo\.com'''
+regex = '''YOUR_DOMAIN'''
 tags = ["org-specific"]
 
 [[rules]]
 id = "org-email-domain"
 description = "Organization email domain"
-regex = '''@flora-farms\.com'''
+regex = '''@YOUR_ORG_DOMAIN\.com'''
 tags = ["org-specific"]
 
 [[rules]]

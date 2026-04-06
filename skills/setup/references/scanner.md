@@ -138,16 +138,48 @@ ls /Applications/ 2>/dev/null | grep -iE 'slack|teams|zoom|notion|linear|figma|e
 
 ---
 
-### 5. Scan Recent Files
+### 5. Detect Cloud Storage Directories
 
-**Try Spotlight first:**
+Before scanning recent files, discover mounted cloud storage:
+
 ```bash
-mdfind 'kMDItemContentModificationDate >= $time.today(-30)' -onlyin ~/Documents -onlyin ~/Desktop 2>/dev/null | grep -iE '\.(md|docx|xlsx|pptx|pdf|csv)$' | head -100
+# OneDrive (Windows and Mac)
+ls -d ~/OneDrive* "$HOME/OneDrive - "* 2>/dev/null
+# Google Drive
+ls -d ~/Google\ Drive "$HOME/Library/CloudStorage/GoogleDrive-"* 2>/dev/null
+# Dropbox
+ls -d ~/Dropbox 2>/dev/null
+# iCloud Documents
+ls -d "$HOME/Library/Mobile Documents/com~apple~CloudDocs" 2>/dev/null
 ```
 
-**Fallback if mdfind fails or returns nothing:**
+**Windows-specific (PowerShell):**
+```powershell
+Get-ChildItem "$env:USERPROFILE\OneDrive*" -Directory -ErrorAction SilentlyContinue
+```
+
+Record discovered cloud dirs in `cloud_storage`:
+```json
+{
+  "cloud_storage": [
+    {"provider": "OneDrive", "path": "/Users/name/OneDrive - Flora Farms"},
+    {"provider": "GoogleDrive", "path": "/Users/name/Google Drive"}
+  ]
+}
+```
+
+### 6. Scan Recent Files
+
+Include cloud storage directories in the scan paths alongside Documents and Desktop.
+
+**Try Spotlight first (macOS):**
 ```bash
-find ~/Documents ~/Desktop -maxdepth 4 -type f \( -name "*.md" -o -name "*.docx" -o -name "*.xlsx" -o -name "*.pptx" -o -name "*.pdf" -o -name "*.csv" \) -mtime -30 2>/dev/null | head -100
+mdfind 'kMDItemContentModificationDate >= $time.today(-30)' -onlyin ~/Documents -onlyin ~/Desktop <for each cloud_storage path: -onlyin "path"> 2>/dev/null | grep -iE '\.(md|docx|xlsx|pptx|pdf|csv)$' | head -100
+```
+
+**Fallback if mdfind fails, returns nothing, or on Windows:**
+```bash
+find ~/Documents ~/Desktop <cloud_storage paths> -maxdepth 4 -type f \( -name "*.md" -o -name "*.docx" -o -name "*.xlsx" -o -name "*.pptx" -o -name "*.pdf" -o -name "*.csv" \) -mtime -30 2>/dev/null | head -100
 ```
 
 **Filter out** files already inside discovered vaults. For each file, check if its path starts with any vault path — if so, exclude it.
@@ -166,7 +198,18 @@ Record each recent file:
 
 ---
 
-### 6. Blank-Slate Detection (FR-10)
+### 7. Detect System Language
+
+```bash
+# macOS
+defaults read NSGlobalDomain AppleLanguages 2>/dev/null | head -3
+# Windows (PowerShell)
+# (Get-Culture).Name
+```
+
+Record as `system_language` (e.g., "es", "en", "fr"). This is used during profile generation to set the user's preferred language.
+
+### 8. Blank-Slate Detection (FR-10)
 
 After all scanning, check:
 - `vaults` is empty AND
@@ -197,7 +240,9 @@ Subtract the start time from Step 0 to get `scan_duration_ms`.
   "dev_tools": ["node", "python3", "docker", "git"],
   "ides": ["Visual Studio Code", "Cursor"],
   "productivity_apps": ["Slack", "Teams", "Obsidian"],
+  "cloud_storage": [{"provider": "OneDrive", "path": "..."}],
   "recent_files": [ ... ],
+  "system_language": "es",
   "scan_duration_ms": 18400,
   "scan_timeout": false,
   "blank_slate": false,

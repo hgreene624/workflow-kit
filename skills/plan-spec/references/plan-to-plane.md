@@ -8,11 +8,11 @@ This reference is auto-chained from `/plan-spec` after the user approves the pla
 
 | Item | Value |
 |:-----|:------|
-| External URL | `https://projects.myarroyo.com` |
-| API base | `https://projects.myarroyo.com/api/v1/workspaces/flora-ai-dev` |
-| Workspace slug | `flora-ai-dev` |
-| API key | `plane_api_f64aa84708e84684927347d764006082` |
-| Auth header | `X-Api-Key: plane_api_f64aa84708e84684927347d764006082` |
+| External URL | `https://YOUR_PLANE_URL` |
+| API base | `https://YOUR_PLANE_URL/api/v1/workspaces/YOUR_WORKSPACE` |
+| Workspace slug | `YOUR_WORKSPACE` |
+| API key | `YOUR_PLANE_API_KEY` |
+| Auth header | `X-Api-Key: YOUR_PLANE_API_KEY` |
 
 ## Step 1 — Check Registry
 
@@ -72,7 +72,7 @@ After everything is created:
 
 1. Confirm the plan document path and link to it
 2. Report Plane project details:
-   - Project URL: `https://projects.myarroyo.com/flora-ai-dev/projects/{pid}/`
+   - Project URL: `https://YOUR_PLANE_URL/YOUR_WORKSPACE/projects/{pid}/`
    - Module created, issue count, phase label count
 3. Remind the user of any Critical/Warning issues from the review that are still unresolved
 

@@ -15,16 +15,22 @@ Set up a fresh Workflow Kit vault in 6 steps. This should take about 5 minutes.
 ## Step 1 — Check Prerequisites
 
 Verify silently (don't ask the user):
-- `uname` returns Darwin (macOS)
-- `which claude` succeeds
-- `which git` succeeds
-- `/Applications/Obsidian.app` exists (warn if missing but continue)
+- `uname` returns Darwin (macOS) or detect Windows via `$env:OS` or `OSTYPE`
+- `which claude` or `where claude` succeeds
+- `which git` or `where git` succeeds
+- Obsidian installed (warn if missing but continue)
 
-If Claude Code or git is missing, tell the user what to install and stop.
+If a prerequisite is missing, **guide the user** instead of just failing:
+- **Git missing (macOS):** "Run `xcode-select --install` to install git, then restart your terminal."
+- **Git missing (Windows):** "Download git from https://git-scm.com, install it, then restart your terminal."
+- **Claude Code not in PATH:** "Claude Code is installed but not in your system PATH. Try restarting your terminal. On Windows, you may need to add it to your PATH manually."
+- **Obsidian missing:** Warn but continue. "You can install Obsidian from https://obsidian.md to browse your vault."
 
 ## Step 2 — Auto-Discovery
 
 Use `AskUserQuestion` to ask: **"What's your name?"**
+
+Then check the scanner's `system_language` result. If the system language is not English, ask: **"Your system language is [language]. Would you like me to communicate in [language]?"** If yes, save the preference to `agents.md` and switch immediately. Continue the rest of setup in the user's preferred language.
 
 Then read `references/scanner.md` and follow its instructions.
 Store the scan output as `SCAN_RESULT`.
@@ -45,10 +51,13 @@ If the user rejected the report and chose "start over":
 
 Now execute vault scaffolding:
 
-1. Read `references/scaffolder.md` and follow its instructions (uses `APPROVED_PROFILE`).
-2. Read `references/bases-generator.md` and follow its instructions (uses `APPROVED_PROFILE`).
-3. If `APPROVED_PROFILE.approved_migrations` is non-empty:
+1. **Confirm project folder names** before scaffolding. Show the user the proposed project list with names and ask: "I'm going to create these project folders. Want to rename any before I set them up?" Present them as a numbered list. If names are abbreviations or unclear, suggest a clearer name: "I found 'ORF' - should I name this 'Operations - Restaurant Finance' or something else?" Always lead with your recommendation.
+2. Read `references/scaffolder.md` and follow its instructions (uses `APPROVED_PROFILE`).
+3. Read `references/bases-generator.md` and follow its instructions (uses `APPROVED_PROFILE`).
+4. If `APPROVED_PROFILE.approved_migrations` is non-empty:
    Read `references/migrator.md` and follow its instructions.
+
+**Presentation rule (applies to all user-facing choices in setup):** When presenting options, lead with a recommendation and a concrete example. Not "Option A: Date-based. Option B: Topic-based." Instead: "I'd suggest date-based folders (like `reports/2026-04-01/`) because it prevents version confusion. You can also do topic-based if you prefer. Which works better for you?"
 
 ## Step 3 — Generate Config
 
@@ -64,7 +73,7 @@ Create `workflow-kit.config.json` in the vault root:
   "role_confidence": <from APPROVED_PROFILE.role_confidence>,
   "vault_root": "<absolute path to vault>",
   "setup_date": "<today YYYY-MM-DD>",
-  "repo_url": "https://github.com/hgreene624/workflow-kit",
+  "repo_url": "https://github.com/YOUR_USERNAME/workflow-kit",
   "profile_ref": "<from APPROVED_PROFILE.profile_report_path>",
   "projects": ["<from APPROVED_PROFILE.approved_projects[].name>"],
   "tools": ["<detected tools from scan>"],
@@ -83,17 +92,82 @@ for skill_dir in <vault_root>/skills/*/; do
 done
 ```
 
-Skip these (user/hardware-specific): `ssh-win`, `dad-eod`, `chawdys`
-
 Count and report: "Installed {N} skills."
+
+## Step 4.5 — Save Onboarding Preferences Log
+
+Create a preferences log at `<vault_root>/04_Reference/REF - Onboarding Preferences.md` that captures every preference expressed during setup:
+
+```markdown
+---
+date created: <today>
+tags: [reference, onboarding, preferences]
+category: Reference
+---
+
+# Onboarding Preferences
+
+Captured during setup on <today>. Future sessions should read this file to avoid re-asking.
+
+## Language
+- Preferred language: <language or "English (default)">
+
+## Role
+- Role: <APPROVED_PROFILE.role>
+- Confidence: <APPROVED_PROFILE.role_confidence>
+
+## Projects
+<list of approved project names>
+
+## File Organization
+- Cloud storage: <provider and path, or "local only">
+- Naming: <any preferences expressed during folder confirmation>
+
+## Other Preferences
+<any other preferences expressed during the session>
+```
+
+This file is the solution to the "preferences lost between sessions" problem. Future `/orient` sessions should read it.
 
 ## Step 5 — Create Onboarding Pickups
 
 Create files in `<vault_root>/Notes/Pickups/`:
 
+**Priority order matters.** `/pickup` should offer these in order. The first PIC should match the user's most immediate need, not a generic tutorial.
+
+### PIC - Review and Organize Your Files.md
+
+**Only create this PIC if** the scan found files to migrate or the user has cloud storage with work files. This is the most common first-day need - users want to tame existing chaos before creating new content. **This should be priority 1 when it applies.**
+
+```markdown
+---
+date created: <today>
+tags: [pickup, onboarding]
+category: Pickup
+status: open
+priority: 1
+---
+
+# Review and Organize Your Files
+
+Setup found files across your system. Let's get them organized before diving into new work.
+
+## What to Do
+
+Tell Claude: "Let's organize my files" or run `/intake`.
+
+Point Claude at a folder (Documents, OneDrive, etc.) and it will:
+1. **Scan** for work files (docs, spreadsheets, notes, PDFs)
+2. **Propose** where each belongs in your vault's project structure
+3. **Copy** files into the right location (originals are never moved)
+4. **Add metadata** so Obsidian can track them
+
+Start with one folder. See how it feels. Then do more.
+```
+
 ### PIC - Customize Your Role Profile.md
 
-Always create this PIC.
+Always create this PIC. **Priority 1 if no files to organize, otherwise priority 2.**
 
 ```markdown
 ---
@@ -129,49 +203,9 @@ This pickup closes automatically when your profile is saved. You'll notice Claud
 **Next:** Work through "PIC - Migrate Existing Work" (if created) or jump straight to "PIC - Your First Spec."
 ```
 
-### PIC - Migrate Existing Work.md
-
-**Only create this PIC if** migration was deferred by the user (they rejected the migration section during discovery report approval, but files were available to migrate). Skip if:
-- `APPROVED_PROFILE.approved_migrations` was non-empty AND migration ran during Step 2
-- No files were available to migrate (nothing in `PROFILE.proposed_migrations`)
-
-```markdown
----
-date created: <today>
-tags: [pickup, onboarding]
-category: Pickup
-status: open
-priority: 2
----
-
-# Migrate Existing Work
-
-If you have existing files — documents, notes, spreadsheets, project files — you can bring them into the vault.
-
-## What to Do
-
-Tell Claude: "I want to bring in some existing files" or run `/intake`.
-
-Point Claude at a folder or specific files. It will:
-1. **Copy** files into the right vault location (never moves originals)
-2. **Add frontmatter** (metadata) so Obsidian can track them
-3. **Rename** with the appropriate prefix (SPC, RE, REF, etc.)
-4. **Log** what was migrated
-
-## Tips
-
-- Start small — bring in one project's files, see how it feels
-- Claude will ask where things belong if it's not obvious
-- Your originals are never touched — everything is copied
-
-## Skip This If
-
-You're starting fresh with no existing files. Just close this pickup and move to "Your First Spec."
-```
-
 ### PIC - Your First Spec.md
 
-Always create this PIC. If `APPROVED_PROFILE.approved_projects` is non-empty, reference the first project as a suggested spec target.
+Always create this PIC. Priority is always last (2 or 3 depending on whether the file review PIC was created). If `APPROVED_PROFILE.approved_projects` is non-empty, reference the first project as a suggested spec target.
 
 ```markdown
 ---
@@ -226,7 +260,3 @@ Next steps:
 1. Open this folder in Obsidian (if you haven't already) and click Trust
 2. Type /pickup to start your first onboarding task
 ```
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

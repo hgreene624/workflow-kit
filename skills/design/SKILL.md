@@ -29,7 +29,7 @@ If no path is given, ask the user which spec to work from.
 
 3. Read the project's `agents.md` and `lessons.md` if they exist. Read the vault-root `AGENTS.md` as well.
 
-4. If `agents.md` specifies a repo path, explore the relevant codebase to understand current state and existing patterns. Focus on files/modules the spec will touch. Document patterns in the Patterns Found table.
+4. If `agents.md` specifies a repo path, explore the codebase until you can confidently fill the Current State and Patterns Found sections. Don't limit yourself to files the spec explicitly mentions — adjacent modules, shared utilities, and existing patterns in the same domain all matter. If a question about current behavior can be answered by reading the code, read the code instead of leaving it as an Open Question.
 
 5. Estimate the implementation LOC. If under 500 LOC, inform the user: "This implementation is estimated at ~{N} LOC. Design discussions are optional under 500 LOC. Want to proceed or skip to `/structure`?" Use AskUserQuestion for this.
 
@@ -50,7 +50,3 @@ If no path is given, ask the user which spec to work from.
 10. After all questions are resolved (or the user defers them), save the DD document to: `02_Projects/<project>/designs/{today}/DD - {Spec Name}.md` — create the directory if needed. Set frontmatter fields: today's date, category "Design Discussion", source wikilink to the spec, and status "Draft".
 
 11. Print the path to the saved DD document and end with: "Design discussion complete. Ready for `/structure` to create the implementation outline."
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

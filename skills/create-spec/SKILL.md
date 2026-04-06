@@ -100,7 +100,7 @@ Agent mode: skip to Step 4.
 
 ### Phase C: Requirements Deep-Dive
 
-Ask 1-3 targeted domain-specific follow-ups. Don't ask more than 3 — the review gate catches gaps.
+Walk down the design tree one branch at a time — explore dependencies, edge cases, integration points, and user experience decisions until you can confidently draft all 11 spec sections. One question at a time, adapting based on answers. If a question can be answered by exploring the codebase or project context, do that instead of asking. Stop when you have enough to draft, not after an arbitrary count.
 
 ### Phase D: Confirm Understanding
 
@@ -177,8 +177,8 @@ Write the file. Add today's daily note entry under `## Worked on` with a wiki-li
    > - **Open decisions:** [count or "all resolved"]
    > - **Review verdict:** [from review]
 
-2. **Offer plan-spec handoff** via `AskUserQuestion`:
-   1. Yes, run /plan-spec now
+2. **Offer plan-spec handoff** via `AskUserQuestion`. Plan-spec now includes built-in design exploration and structure verification — no need to run `/design` or `/structure` separately.
+   1. Yes, run /plan-spec now (Recommended)
    2. Not yet — more changes first
    3. Done for now
 
@@ -217,7 +217,3 @@ Write the file. Add today's daily note entry under `## Worked on` with a wiki-li
 - [ ] Plan updated (if exists): new phase or superseded items cancelled
 - [ ] Plane updated (if exists): new issues created, cancelled issues marked
 - [ ] Daily note updated with wiki-link noting the update
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

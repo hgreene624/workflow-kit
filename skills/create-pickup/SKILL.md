@@ -155,7 +155,7 @@ without explicit status will fail"]
 [Wikilinks and paths to essential context files. Only list files you've
 confirmed exist. Group by type:]
 - Specs/Plans: [[SPC - Name]], [[PL - Name]]
-- Code: `~/Repos/flora-monorepo/path/to/file.py`
+- Code: `~/Repos/{{MONOREPO_NAME}}/path/to/file.py`
 - Reports: [[RE - Name]]
 - Project context: `agents.md`, `lessons.md` paths
 
@@ -236,7 +236,3 @@ If called from `/closeout` with multiple PICs, show all summaries in a compact l
 Write the file. Confirm: "Created [[PIC - Topic Name]] at `<path>`."
 
 If this PIC supersedes an older PIC on the same topic, ask: "This covers the same ground as [[PIC - Older Topic]]. Should I close that one as superseded?"
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

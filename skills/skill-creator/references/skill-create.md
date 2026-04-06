@@ -13,6 +13,22 @@ Instructions for creating a new skill from scratch. You were routed here by the 
 3. Proactively ask about edge cases, input/output formats, example files, success criteria, and dependencies. Wait to write test prompts until this is ironed out.
 4. Check available MCPs — if useful for research, research in parallel via subagents if available, otherwise inline.
 
+## Design Principles
+
+Apply these when writing the skill. They come from empirical observation of what makes skills effective vs bloated.
+
+**Constraint-based > procedure-based.** Tell the agent *what to achieve*, not *every step to take*. "Interview the user relentlessly until you can draft all sections" outperforms a 50-step interview script. Constraints adapt to context; procedures break when the situation deviates. Reserve step-by-step procedures only for sequences where order truly matters (deploy checklists, safety protocols).
+
+**Deep module pattern.** A skill should have a simple interface (short trigger, minimal parameters) and complex behavior (rich internal logic driven by exploration and judgment). The `grill` skill is 3 sentences and drives 50-question design interviews. If your skill needs 2,000 tokens to explain what it does, the design is wrong.
+
+**Examples and reference material belong in `references/`.** The SKILL.md should contain operational instructions — the minimum the agent needs to act. Examples, templates, incident history, and edge case catalogs lazy-load from `references/` only when needed. This keeps the per-invocation token cost low.
+
+**Explore the codebase instead of asking.** When a skill needs context about existing code, infrastructure, or project state, instruct the agent to read the relevant files rather than asking the user. The user shouldn't have to describe their own codebase to the agent.
+
+**Every skill should hand off clearly.** After completing its work, a skill should tell the user what the natural next step is and offer to invoke it. Broken handoff chains mean capabilities get skipped.
+
+**Token budget is a design constraint.** Measure the SKILL.md in approximate tokens (1 token ≈ 4 chars). Under 1,500t is excellent. Under 3,000t is acceptable. Over 4,000t needs justification — consider whether content should move to references/.
+
 ## Phase 2: Write the SKILL.md
 
 5. Fill in these components based on the user interview:
@@ -74,6 +90,18 @@ Instructions for creating a new skill from scratch. You were routed here by the 
     - **YELLOW** (30-40 instructions): Approaching budget. Consider whether any instructions can be consolidated.
     - **RED** (>40 instructions): Over budget. Warn the user and suggest splitting into sub-skills with a router pattern.
 17. If >60 instructions: refuse to save without explicit user override — display: "This skill has {N} instructions. The CRISPY budget is 40. Split into sub-skills or confirm override."
+
+### Token Budget Lint
+
+17b. Estimate SKILL.md token count (file size in bytes ÷ 4).
+    - **GREEN** (<1,500t): Excellent — lean and focused.
+    - **YELLOW** (1,500-3,000t): Acceptable. Check if any content could move to references/.
+    - **RED** (>3,000t): Heavy. Flag specific sections that could be extracted (examples, edge cases, templates, incident history).
+    Display: "SKILL.md is ~{N}t. {status}."
+
+### Constraint vs Procedure Check
+
+17c. Scan for procedural patterns that could be constraint-based: numbered step sequences with >5 steps where the order doesn't strictly matter, fixed question counts ("ask 3 questions"), or rigid caps that prevent adaptive behavior. Flag them: "Steps X-Y look procedural — could a constraint achieve the same result with more flexibility?"
 
 ### Control Flow Detection
 

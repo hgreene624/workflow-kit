@@ -34,11 +34,11 @@ The spec path can be relative to the vault root or absolute. If no path is given
 1. **Read the spec** at `{spec_path}`
 2. **Infer the project** from the spec's location:
    - `01_Work/03_Projects/<ProjectName>/` → that's your project
-   - Check for sub-projects (e.g., `Flora Hub/`, `Inbox Triage/`, `Signal Engine/`)
-3. **Check for review artifacts** — look for a `Reviews/` directory in the project folder, find the most recent date subfolder, and read:
-   - `scope-analysis.md` — what the spec touches (from Scope Analyst)
-   - `context-brief.md` — lessons, references, related work (from Context Researcher)
-   - `spec-review.md` — critical evaluation and clarification log (from Critical Reviewer)
+   - Check for sub-projects (e.g., `{{ORG}} Hub/`, `Inbox Triage/`, `Signal Engine/`)
+3. **Check for review artifacts** — look for a `reviews/` directory in the project folder, find the most recent date subfolder, and read:
+   - `ARE - {spec_name} Scope Analysis.md` — what the spec touches (from Scope Analyst)
+   - `ARE - {spec_name} Context Brief.md` — lessons, references, related work (from Context Researcher)
+   - `ARE - {spec_name} Spec Review.md` — critical evaluation and clarification log (from Critical Reviewer)
 
    If review artifacts exist, they are your primary input alongside the spec. The clarification log contains user decisions that must be reflected in the plan.
 
@@ -49,7 +49,31 @@ The spec path can be relative to the vault root or absolute. If no path is given
    - `lessons.md` in the project directory (what's gone wrong before)
    - The Plane Development Workflow at `Documentation/Agent Workflows/Plane Development Workflow.md` (project registry, API details, conventions)
 
-## Step 0.5 — Classify Complexity (L23)
+## Step 0.5 — Design Exploration
+
+Before planning, understand how the spec maps to the actual codebase. This replaces the need to run `/design` separately.
+
+1. **If agents.md references a repo path**, explore the codebase until you can confidently describe: the current state of modules the spec will touch, existing patterns you should follow, and any gaps between the spec's assumptions and reality. Don't limit yourself to files the spec names — adjacent modules and shared utilities matter.
+
+2. **If the estimated implementation is >500 LOC or touches multiple modules**, produce a Design Discussion artifact: read `references/dd-template.md`, fill the 6 sections (Current State, Desired End State, Patterns Found, Approach Options, Resolved Decisions, Open Questions), and save to `02_Projects/<project>/designs/{today}/DD - {Spec Name}.md`.
+
+3. **For each Open Question**, present it to the user one at a time via AskUserQuestion. Record answers as Resolved Decisions. If a question can be answered by reading the code, read the code instead of asking.
+
+4. **For smaller implementations** (<500 LOC, single module), skip the formal DD artifact but still do a quick codebase scan to verify the spec's assumptions hold. Note any discrepancies.
+
+## Step 0.6 — Structure Verification
+
+Define module boundaries and enforce vertical slicing before creating tasks. This replaces the need to run `/structure` separately.
+
+1. **Define module boundaries** — which files/services/modules will be created or modified. Read `references/so-template.md` for the structure template.
+
+2. **For implementations with 3+ phases**, produce a Structure Outline artifact: fill the template (Module Boundaries, Key Signatures, Data Flow, Phase Order) and save to `02_Projects/<project>/structures/{today}/SO - {Spec Name}.md`.
+
+3. **Enforce vertical slicing** — every phase must deliver a user-testable outcome. If any proposed phase is purely horizontal ("set up all DB tables"), restructure it into vertical slices that each deliver end-to-end functionality for a feature subset.
+
+4. **Present the phase order to the user** before proceeding to full task planning. They may want to reorder, split, or merge phases.
+
+## Step 0.7 — Classify Complexity (L23)
 
 Before drafting, assess the work complexity to determine plan shape. This prevents over-engineering simple projects with heavyweight ceremony designed for production infrastructure.
 
@@ -109,7 +133,11 @@ ceremony:
 
 ## Step 1 — Draft the Plan
 
-Create the plan document in the same directory as the spec.
+Create the plan document in the project's `plans/YYYY-MM-DD/` directory (using today's date). Create the directory if it doesn't exist. Plans NEVER go in the `specs/` directory — specs and plans have separate locations.
+
+```
+{project_dir}/plans/{today}/PL - {spec_name_without_SPC_prefix} Implementation Plan.md
+```
 
 **Filename:** `PL - {spec_name_without_SPC_prefix} Implementation Plan.md`
 
@@ -130,7 +158,7 @@ status: Draft — Pending Review
 ## Metadata
 
 - **Source Spec:** [[{spec_filename}]]
-- **Review:** [[Reviews/{date}/spec-review.md]] (if exists)
+- **Review:** [[ARE - {spec_name} Spec Review]] (if exists)
 - **Repo:** {from agents.md}
 - **VPS Path:** {from agents.md, if applicable}
 
@@ -233,7 +261,3 @@ This step is auto-chained — do not ask the user whether to proceed. They alrea
 - It does not start any work items — Phase 0 goes to Todo, **everything else goes to Backlog**. Only `/implement` promotes items to Todo when their phase starts.
 - It does not push code or make infrastructure changes
 - It does not create issues without phase-prefixed names — every issue name starts with `P{phase}.{number} —`
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

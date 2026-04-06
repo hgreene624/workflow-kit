@@ -32,7 +32,7 @@ Browser → Traefik → ForwardAuth middleware (<YOUR_GATEWAY_APP> gateway) → 
 
 | Auth Type | Services |
 |-----------|----------|
-| ForwardAuth (`flora-auth`) | Flora Hub, Portal, IK Buckets, Inbox Triage, Email Portal, KB, DocGen, Admin |
+| ForwardAuth (`flora-auth`) | {{ORG}} Hub, Portal, IK Buckets, Inbox Triage, Email Portal, KB, DocGen, Admin |
 | Basic auth | FWIS API (`api.<YOUR_DOMAIN>`), Dossier Builder, Chawdys |
 | MS Entra (oauth2-proxy) | Uptime Kuma (`status.<YOUR_DOMAIN>`) |
 | No auth | `/ai/widget.js` (public), Plane (`projects.<YOUR_DOMAIN>`) |

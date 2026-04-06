@@ -112,7 +112,3 @@ All sub-skills live in `references/` alongside existing templates:
 | `auditor-prompts.md` | QA auditor template | — |
 | `tracker-prompts.md` | PM tracker template | — |
 | `handoff-template.md` | Handoff document template | — |
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.
