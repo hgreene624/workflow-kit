@@ -39,11 +39,40 @@ If the user pointed at a specific PIC file or named one explicitly, skip triage 
 
 ## Route B: Triage (No Specific PIC)
 
+### Step 0: Check for Cached Triage (TRI)
+
+Before scanning PICs, check for an existing triage report:
+
+1. Look for `Work Vault/01_Notes/Reports/Triage/TRI - {today}.md`
+2. **If today's TRI exists:** load it, then run a **light scan** (Step 0a) to catch changes since it was written. Skip to Step 5 (Present the Triage) with the updated data.
+3. **If today's TRI is missing:** check for the most recent `TRI - *.md` in the same directory.
+   - **If a previous TRI exists:** use it as a seed. Carry forward assessments (complexity, summary, batch verdicts) for PICs that are still open. Only run the full scan (Steps 1-4) on PICs that are **new** since that TRI was written (no matching entry in the previous report). Merge results and write today's TRI.
+   - **If no TRI exists at all:** run the full scan (Steps 1-5), then write today's TRI.
+
+#### Step 0a: Light Scan (TRI refresh)
+
+When loading a cached TRI, validate it against current PIC state:
+
+1. **Find ALL open and picked-up PICs using Grep, not Glob.** Glob truncates results when there are many PIC files, which causes missed PICs. Instead, run these two Grep calls in parallel with `head_limit: 0` (unlimited results) to guarantee complete coverage:
+   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+2. For each PIC listed in the TRI, check whether it appears in the grep results (still open/picked-up) or is absent (now closed).
+3. Update the cached triage data:
+   - PICs that no longer appear in grep results: mark as closed in the triage (confirm by reading frontmatter if unsure)
+   - PICs found in grep results but not listed in the TRI (filter to files whose basename starts with `PIC - ` -- discard IRs, delegated tasks, templates): these are **new** -- run the full assessment (Step 2) on just those PICs and add them
+   - PICs in the TRI that no longer exist on disk: remove them
+4. Report changes: "TRI loaded from {time}. Changes since then: N closed, M picked up, P new."
+
+This light scan uses grep to find open PICs by content rather than globbing all files, so it completes in seconds and never misses PICs due to truncation.
+
 ### Step 1: Find All Open PICs
 
-1. Glob for `**/PIC - *.md` under `Work Vault/02_Projects/` and `Work Vault/01_Notes/`
-2. Read each PIC's frontmatter and filter to `status: open` and `status: picked-up`
-3. Report the count: "Found N open pickups (and M in-progress)."
+1. **Use Grep, not Glob, to find PICs by status.** Glob truncates results when there are many PIC files (50+), which silently drops PICs from the triage. Run these two Grep calls in parallel with `head_limit: 0`:
+   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+2. From the results, keep only files whose basename starts with `PIC - `. The grep may also match IRs, delegated tasks, or templates that share the `status: open` frontmatter pattern -- discard those.
+3. The filtered results ARE the complete set of open/picked-up PICs.
+4. Report the count: "Found N open pickups (and M in-progress)."
 
 If there are no open PICs, tell the user: "No open pickups found. Starting fresh - what would you like to work on?"
 
@@ -89,40 +118,102 @@ Assign batch verdicts:
 
 ### Step 5: Present the Triage
 
-Present two views:
+**Presentation rules (mandatory):**
+- Present ONE grouped-by-cluster table — not three separate views.
+- Clusters are themes (e.g. "FWIS / Signal Engine", "DocGen / Patrick-facing", "Admin / Infra", "Restaurant Ops / Tourism (blocked)"). Pull the theme from the SOD priorities when possible.
+- A "Validate first" cluster always comes first if there are picked-up PICs flagged in the SOD.
+- Within each cluster, order PICs **low → high effort** (LOW → MED → HIGH). Blocked PICs sink to the bottom of their cluster.
+- Cluster order: validate-first → SOD priority order → blocked clusters last.
+- Every PIC gets a global selection number (`#`), assigned by walking the clusters top-to-bottom so #1 is the top of the first cluster.
+- Use a single table with cluster headers as separator rows, OR one small table per cluster — either is fine, but no separate "by complexity" or "session order" tables.
 
-**Project Cluster View** (for multi-PIC projects):
+**Format:**
 
 ```
-| Project | PICs | Complexity Mix | Batch Verdict |
-|---------|------|---------------|---------------|
+### ⚠ Validate first (if applicable)
+| # | PIC | Tier | Blockers | Note |
+|---|-----|------|----------|------|
+
+### {Cluster 1 — e.g. FWIS / Signal Engine}
+| # | PIC | Tier | Blockers | Note |
+|---|-----|------|----------|------|
+
+### {Cluster 2 — e.g. DocGen / Patrick-facing}
+...
+
+### {Blocked cluster, last}
+...
 ```
 
-**Ranked List** (all PICs, grouped by complexity):
+The `Note` column is one short phrase: SOD priority, batch hint, or blocker reason. Skip the Project column — the cluster header makes it redundant.
 
+End with: "Pick a number to load, or tell me which cluster to batch."
+
+### Step 6: Write the TRI
+
+After completing triage (whether full scan or seeded), write the results to `Work Vault/01_Notes/Reports/Triage/TRI - {today}.md`. See the TRI format specification below.
+
+**When to update the TRI during the session:**
+- When a PIC is picked up: update its status row to `picked-up` and add the agent/session that claimed it
+- When a PIC is closed: update its status row to `closed`
+- When a new PIC is created (via closeout): add it to the appropriate complexity tier
+
+This keeps the TRI as a live document that other agents can read for current state.
+
+---
+
+## TRI File Format
+
+```yaml
+---
+date created: YYYY-MM-DD
+tags: [report, triage]
+category: Report
+type: TRI
+scan_time: "HH:MM"
+total_scanned: N
+seeded_from: "TRI - YYYY-MM-DD.md"  # or "full scan" if no seed
+---
 ```
-### Quick Wins (LOW)
-| # | PIC | Project | Created | Summary | Blockers |
 
-### Medium Effort
-| # | PIC | Project | Created | Summary | Blockers |
+```markdown
+# TRI - Day, Month DD, YYYY
 
-### Heavy Lifts (HIGH)
-| # | PIC | Project | Created | Summary | Blockers |
+## Triage Summary
+- **Open:** N | **Picked-up:** M | **Parked:** P | **Closed since last TRI:** C
+- **New since last TRI:** list of new PIC names (or "none" / "first scan")
+
+## Recommended Session Order
+| # | PIC | Project | Tier | Blockers | Why this order |
+|---|-----|---------|------|----------|----------------|
+
+> Numbers in this table are the canonical selection IDs. Reuse them in every other table below.
+
+## Project Clusters
+| Cluster | PIC #s | PICs | Complexity Mix | Batch Verdict |
+|---------|--------|------|----------------|---------------|
+
+## Supersession Findings
+- [list, or "None detected"]
+
+## Quick Wins (LOW)
+| # | PIC | Project | Created | Summary | Blockers | Status |
+|---|-----|---------|---------|---------|----------|--------|
+
+## Medium Effort
+| # | PIC | Project | Created | Summary | Blockers | Status |
+|---|-----|---------|---------|---------|----------|--------|
+
+## Heavy Lifts (HIGH)
+| # | PIC | Project | Created | Summary | Blockers | Status |
+|---|-----|---------|---------|---------|----------|--------|
+
+## Claim Log
+| Time | PIC | Agent/Session | Action |
+|------|-----|---------------|--------|
 ```
 
-**Recommended Session Order:**
-1. Superseded PICs first - close with no work
-2. Standalone quick wins (LOW, no batch)
-3. Batch clusters with a LOW member - enter via the quick win
-4. Batch clusters, all MEDIUM
-5. Solo MEDIUMs
-6. Solo HIGHs
-7. Blocked PICs last
-
-Within each tier, prefer older PICs and PICs aligned with current priorities (check SOD if loaded).
-
-Then ask which PIC or cluster the user wants to start with.
+The Claim Log tracks which agent picked up which PIC and when, so other agents can see what's already being worked on without re-reading PIC frontmatter.
 
 ---
 
@@ -180,7 +271,7 @@ Append a closing update:
 **Carry-forward:** [Anything not completed that needs a new PIC, or "None - fully resolved"]
 ```
 
-Update the daily note: add a brief entry under `## Worked on` noting the PIC closure and outcome.
+**Log work to the daily note** by invoking `/log-work` with the PIC's closing context. The log-work skill handles merge logic, formatting, and WL file creation if needed. Pass it: the project name, what was done (from the Closing Update), and any artifacts. Do not manually write to the daily note - let log-work handle it so formatting stays consistent.
 
 ### Batch Continuation
 
