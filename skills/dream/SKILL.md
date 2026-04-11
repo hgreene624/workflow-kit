@@ -117,3 +117,7 @@ Return a brief summary structured like this:
 ```
 
 If nothing changed, say: "Memory is already clean — no changes needed."
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -116,3 +116,7 @@ After the fix is verified, evaluate whether a new lesson should be captured usin
 - **Screenshots are mandatory for UI issues.** Never declare a UI fix complete without visual proof.
 - **Lessons exist for a reason.** If a lessons file covers your scenario, follow it.
 - **Stop the spiral.** If you feel the urge to "just try one more thing," run the diagnostic protocol instead.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

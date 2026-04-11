@@ -340,3 +340,7 @@ Before any git operation, mentally run through:
 7. Did I verify after the operation? → `git status` again
 8. Is my feature branch done? → Merge to main before shutting down (Rule 12)
 9. Am I in the right repo? → Check remote URL, new work goes to monorepo (Rule 13)
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

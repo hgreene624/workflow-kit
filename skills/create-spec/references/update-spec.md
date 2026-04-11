@@ -128,7 +128,7 @@ If a Plane project exists for this spec (check the plan file for a Plane project
 ### No Plan or Plane Project
 
 If no downstream artifacts exist yet, just note it in the TLDR:
-> "No plan or Plane project exists yet for this spec. Run `/plan-spec` when you're ready to plan."
+> "No plan or Plane project exists yet for this spec. Run `/create-plan` when you're ready to plan."
 
 ---
 
@@ -145,6 +145,6 @@ Same as Create mode Step 5, but tailored for updates:
    > - **Plane:** 5 new issues created in module "Phase 4 — Scheduling"
 
 2. **Offer next steps** using `AskUserQuestion`:
-   > 1. Run /plan-spec to create/update the plan
+   > 1. Run /create-plan to create/update the plan
    > 2. Done for now
    > 3. I want to make more changes to the spec

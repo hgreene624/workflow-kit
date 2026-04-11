@@ -187,3 +187,7 @@ Closeout will detect the recap was just run and use its findings. Don't re-scan.
 - Be honest about your own dropped balls. "I asked about X but moved on without waiting for your answer."
 - If the conversation is short (< 10 messages), a recap is overkill. Say so and skip it.
 - After context compaction, the JSONL still has the full history. Always load it in Step 0 so you don't miss compacted branches.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

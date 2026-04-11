@@ -32,7 +32,7 @@ Context compaction loses detail. The live conversation context may be missing ea
 Session logs live at `~/.claude/projects/<project-slug>/`. The project slug is derived from the working directory path (slashes become dashes). Find the most recent `.jsonl` file:
 
 ```bash
-ls -lt ~/.claude/projects/-Users-username-Documents-Vaults/*.jsonl 2>/dev/null | head -5
+ls -lt ~/.claude/projects/<project-slug>/*.jsonl 2>/dev/null | head -5
 ```
 
 The current session is typically the most recently modified file.
@@ -108,31 +108,88 @@ Group by project/topic. For each topic, determine:
 
 Present your summary to the user and ask if it looks right before proceeding. Keep it brief -- a few bullets per topic showing what you'd log and which topics need pickups.
 
-## Step 1.5: Infrastructure Documentation Gate
+## Step 1.5: Verify What You're About to Log
 
-Check whether this session modified infrastructure. Indicators:
-- Docker compose file changes (new services, removed services, renamed containers)
-- Container creation, removal, or rebuild
-- Route or Traefik label changes (new paths, removed paths, domain changes)
-- Deploy path changes (app moved to a different directory)
-- Service migration (old system replaced by new system)
+Before writing anything to the daily note, verify the claims you're about to make. The daily note is read by future agents as ground truth — a false entry causes cascading mistakes.
 
-If **any** infrastructure changes occurred, verify these REF docs are still accurate:
-1. `REF - VPS Work Rules.md` — App Location Map, Docker Compose Projects table
-2. `REF - VPS Service Route Map.md` — route entries for affected services
-3. Relevant project `agents.md` — architecture descriptions, container references
+### Deployment and state claims
 
-For each doc, spot-check the sections that would be affected by this session's changes. If a doc is stale (references old containers, removed paths, or pre-migration architecture), either:
+If the session involved deploying, publishing, or modifying a live system, verify the outcome before logging it:
+
+1. **Check git state.** Did the code get committed and pushed? Run `git status` and `git log @{u}..HEAD` in each repo this session touched. If commits are unpushed, log "committed (not yet pushed)" — not "shipped."
+
+2. **Check deployment state.** If the user has deployment targets (production servers, staging environments, CI/CD pipelines), verify the change is actually running. The method depends on the user's setup:
+   - CI/CD: check the workflow run status
+   - Manual deploy: check if the deploy command was actually run in this session
+   - Container-based: verify the running version matches what was committed
+   
+   If code was committed but not deployed, say so explicitly in the log: "(committed, not deployed to production)". Never log "deployed" or "shipped" unless you verified the change is live.
+
+3. **If you can't verify**, ask the user. Don't guess.
+
+This matters because the most dangerous closeout failure is logging "deployed the fix" when the change is sitting in git undeployed. The next session reads the daily note, assumes production is updated, and the bug stays live.
+
+### Documentation drift
+
+Check whether this session changed how a system works. Indicators:
+- Config file or infrastructure changes (Docker, CI, routing, environment variables)
+- Service creation, removal, migration, or renaming
+- Architecture decisions that affect how future agents should approach the system
+
+If any of these occurred, scan the vault's `04_Reference/` directory for REF docs that describe the affected system. Also check the relevant project's `agents.md`. If any doc now describes the old state:
 - **Update it now** as part of closeout, or
-- **Create a PIC** specifically for the doc update, flagging what's stale and what the correct state is
+- **Create a PIC** to hand off the documentation update, noting what's stale and what the correct state is
 
-Do not skip this step. Migrations and sunsets are high-drift-risk events — the session that makes the change must also update the docs or explicitly hand off that responsibility via a PIC.
+The session that makes the change owns the documentation update. Don't leave it for a future session to discover the drift.
+
+## Step 1.6: Session Git Audit
+
+Before writing to the daily note, audit this session's git work to catch anything that didn't make it to the remote.
+
+**Critical scoping rule:** Only act on changes from THIS session. Other agent sessions may have their own uncommitted work that you must NOT touch.
+
+### Find this session's repos
+
+Walk the JSONL tool_use entries and extract every file path that was edited. Map each to its parent git repo. Then for each repo:
+
+```bash
+cd <repo>
+git fetch origin --quiet
+echo "branch: $(git branch --show-current)"
+git status --short -- <files this session touched>
+echo "unpushed:"
+git log @{u}..HEAD --oneline 2>/dev/null
+```
+
+### Handle findings
+
+- **Uncommitted changes from this session** — ask the user: "I have uncommitted changes in `<repo>`: [files]. Commit before closeout?"
+- **Unpushed commits from this session** — ask: "I have unpushed commits in `<repo>`. Push to remote?"
+- **Changes from other sessions** — flag but don't touch: "Note: `<repo>` has uncommitted changes not from this session."
+
+Present a summary table before proceeding. Resolve all this-session items before logging work — otherwise the daily note may misrepresent what was actually pushed/deployed.
 
 ## Step 2: Log Work
 
-Use the `/log-work` skill's conventions to update today's daily note (`01_Notes/Daily/DN - YYYY-MM-DD.md`). Follow the same formatting rules — action-oriented bullets, bold key stats, wikilinks to artifacts, max 5 bullets per topic heading.
+**PJL cross-reference:** Before invoking `/log-work`, check each project touched this session for an existing PJL file (`02_Projects/<project>/PJL - <Project Name>.md`). If one exists, read its most recent entry to confirm consistency with what you're about to log and to avoid duplicate entries if another closeout already ran. Pass the PJL path to `/log-work` so it can update the PJL in detailed mode. `/log-work` handles PJL writing — closeout does not write PJL entries directly.
 
-If there's already an entry for a topic in the daily note's `## Worked on` section, append to it rather than creating a duplicate heading.
+Use the `/log-work` skill's conventions to update today's daily note (`01_Notes/Daily/DN - YYYY-MM-DD.md`). Follow the same formatting rules — action-oriented bullets, bold key stats, wikilinks to artifacts, max 4 bullets per project heading.
+
+If there's already an entry for a project in the daily note's `## Worked on` section, append to it rather than creating a duplicate heading.
+
+## Step 2.5: PJL Validation Gate (MANDATORY)
+
+Before creating any PICs, verify that `/log-work` wrote PJL entries for every project touched this session. This gate prevents the most common closeout failure: PICs created with no PJL record of what was actually built.
+
+1. List projects touched this session (from Step 1's topic identification)
+2. For each project, check for a PJL file at `02_Projects/<project>/PJL - <Project Name>.md`
+3. If the PJL exists, verify it has a `## YYYY-MM-DD` heading for today
+4. **If any project is missing a PJL entry for today: STOP.** Do not proceed to PIC creation. Instead:
+   - Re-invoke `/log-work` for the missing project
+   - Verify the PJL entry was created
+   - Then continue
+
+This gate exists because PIC creation (Step 3) is independent of PJL logging. Without this check, an agent can create a detailed PIC carrying forward context while the PJL - the only machine-readable implementation record - has no entry for the day's work. The PIC tells the next agent what to do; the PJL tells them what was done. Both are required.
 
 ## Step 3: Create Pickup Documents
 
@@ -156,6 +213,8 @@ Tell the user what you created:
 - Which daily note entries were added/updated
 - Which PIC docs were created and where
 
-PICs automatically appear in the "Pending Pickups" dataview section on every daily note (filtered to `status: open`). No need to manually add TODOs — the pickup skill finds open PICs from the dataview query.
-
 Keep it brief — just a table or short list so they can verify at a glance.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

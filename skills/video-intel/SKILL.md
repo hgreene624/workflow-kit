@@ -314,3 +314,7 @@ Follow the standard playlist path (Phase 0 → playlist routing). This makes `/v
 - **Large playlist (50+ videos)**: Warn the user about credit cost (1 credit per transcript + 1 per playlist page). Suggest processing in batches or filtering by title keywords.
 - **Mixed playlist (some already processed)**: Only process new videos. The batch report should still mention the total count and how many were skipped as "previously scanned."
 - **Playlist pagination**: Some playlists exceed 100 videos. Always check `has_more` and paginate with `continuation` tokens until all videos are collected before presenting the batch summary.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

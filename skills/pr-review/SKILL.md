@@ -5,7 +5,7 @@ description: >-
   generates a review artifact. Use after /implement completes or when the user wants a
   code review. Trigger on "review the code", "PR review", "code review", "check the
   implementation", "review what was built", or at the end of an /implement sprint.
-  Do NOT use this for spec review (use /review-spec) or planning (use /plan-spec).
+  Do NOT use this for spec review (use /review-spec) or planning (use /create-plan).
 ---
 
 # PR Review Skill
@@ -82,3 +82,7 @@ If there are non-controversial fixes (dead imports, unused variables, naming inc
 3. Update the review artifact's Issues section to mark applied fixes as `[FIXED]`.
 
 Do NOT auto-fix logic changes, architectural decisions, or anything that changes behavior. Those require human judgment.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -65,3 +65,7 @@ Pay attention to context cues about the user's technical familiarity. Terms like
 - `agents/grader.md` — Assertion evaluation against outputs
 - `agents/comparator.md` — Blind A/B comparison
 - `agents/analyzer.md` — Benchmark analysis and pattern detection
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

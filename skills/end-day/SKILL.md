@@ -11,6 +11,80 @@ After producing the EOD, this skill also generates **tomorrow's SOD** — the ag
 
 On Fridays, this skill also produces an **EOW (End of Week)** report rolling up the week's EODs. On the last workday of the month, it also produces an **EOM (End of Month)** report rolling up the month's EOWs.
 
+## Step 0: Working Environment Health Check
+
+Before writing the EOD, scan the user's working environment for loose ends. While `/closeout` audits a single session's own work, end-day checks everything across the machine and surfaces anything that slipped through.
+
+This is a READ-ONLY audit. It reports state and asks the user what to do. It does NOT auto-fix.
+
+### 0a. Git repo audit
+
+Find all git repos the user works in:
+
+```bash
+find ~/Repos -maxdepth 2 -name .git -type d 2>/dev/null
+```
+
+Also check the vault directory if it's a git repo. For each repo:
+
+```bash
+cd <repo>
+git fetch origin --quiet 2>/dev/null
+echo "branch: $(git branch --show-current)"
+git status --short
+echo "unpushed:"
+git log @{u}..HEAD --oneline 2>/dev/null
+echo "behind:"
+git log HEAD..@{u} --oneline 2>/dev/null
+```
+
+Categorize findings:
+- **Uncommitted changes** — list files, note if they look like today's work or older
+- **Unpushed commits** — show hash, author, message, age
+- **Behind remote** — local is out of date, someone else pushed
+- **Detached HEAD or wrong branch** — flag prominently
+
+### 0b. Deployment target audit (if applicable)
+
+If the user's environment includes deployment targets (production servers, staging environments, container hosts), check whether today's code changes are actually running in those targets.
+
+**Detection:** Look for indicators in the vault's project `agents.md` files, REF docs, or CLAUDE.md for deployment infrastructure references (Docker, CI/CD pipelines, server hosts, deploy scripts). If none are found, skip this step.
+
+**If deployment targets exist:** For each service that had code changes today, verify the deployed version matches what was committed. The specific verification method depends on the user's infrastructure — check the project's `agents.md` for deploy verification commands.
+
+Not all drift needs action. Classify each finding:
+- **Real code change** (application logic, configs baked into builds) — needs deploy
+- **Doc-only change** (README, agents.md, markdown) — no deploy needed
+- **Framework auto-mods** (lock files, generated types) — usually no functional impact
+
+### 0c. Auto-memory audit
+
+Check `~/.claude/projects/*/memory/MEMORY.md` for consistency:
+- New memory files today that aren't indexed in MEMORY.md (orphan entries)
+- MEMORY.md entries pointing to files that don't exist (broken links)
+
+### 0d. Present the audit
+
+Output a summary table. For each issue, ask the user how to handle it BEFORE proceeding to Step 1:
+
+```
+Working Environment Health Check
+=================================
+
+Repos:
+  ~/Repos/my-project       branch=main  ⚠ 1 unpushed commit   → push? [y/n]
+  ~/Documents/Vaults        branch=main  clean                  ✅
+
+Memory:
+  1 new file today, indexed in MEMORY.md                        ✅
+```
+
+Do NOT auto-fix. The user decides each one. Unpushed commits may be intentional. Undeployed code may belong to another session.
+
+**If no issues:** print one line — `Environment health: clean.` — and proceed.
+
+**If issues are deferred** (user skips them): record them in the EOD report's "What Didn't" section so they're visible tomorrow morning.
+
 ## Step 1: Gather today's context
 
 Read in parallel. Skip missing files silently.
@@ -89,7 +163,7 @@ If none: omit this section entirely.
 
 Examples:
 - "Created `grill` and `test-check` skills — new capabilities from video-intel research"
-- "Restructured `plan-spec` to include design exploration and structure verification inline — previously required 3 separate skill invocations"
+- "Restructured `create-plan` to include design exploration and structure verification inline — previously required 3 separate skill invocations"
 - "Refactored `git-safe` — moved incident narratives to references/ for token savings"
 
 These entries carry forward in the SOD so future agents know what's new/experimental
@@ -360,3 +434,7 @@ Invoke the dream skill directly. No user confirmation needed — it runs automat
 - Don't duplicate closeout's work — closeout writes to the daily note and creates PICs. End-day reads what closeout wrote and synthesizes.
 - If no closeouts happened today (daily note Worked on is empty), produce a minimal EOD noting it was a light/off day.
 - Confirmed goals persist across EODs until completed or explicitly dropped.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -131,3 +131,7 @@ After filing is complete, briefly suggest logical next actions for each project 
 - **Material that raises questions**: suggest specific questions the user might want to ask the source (e.g., "App 3 is marked as a placeholder — worth asking dad for more detail before spec'ing")
 
 Keep this brief — a sentence or two per project. The user will decide what to prioritize.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

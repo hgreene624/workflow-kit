@@ -15,3 +15,7 @@ Before modifying code, identify which existing tests cover the code you're about
 3. If your change requires new test coverage (new public interface, new error path, new integration), write tests for those specific behaviors
 
 Do not write tests for implementation details. Test observable behavior at module boundaries.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

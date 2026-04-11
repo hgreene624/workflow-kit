@@ -50,3 +50,7 @@ If no path is given, ask the user which spec to work from.
 10. After all questions are resolved (or the user defers them), save the DD document to: `02_Projects/<project>/designs/{today}/DD - {Spec Name}.md` — create the directory if needed. Set frontmatter fields: today's date, category "Design Discussion", source wikilink to the spec, and status "Draft".
 
 11. Print the path to the saved DD document and end with: "Design discussion complete. Ready for `/structure` to create the implementation outline."
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

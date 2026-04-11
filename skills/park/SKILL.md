@@ -101,3 +101,7 @@ Tell the user what you did:
 - Whether the source PIC was closed (if applicable)
 
 That's it. Keep it simple.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

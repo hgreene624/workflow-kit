@@ -1,17 +1,22 @@
 {
   "$schema": "Workflow Kit manifest — declares what ships with the kit vs stays local",
+  "version": "2.0.0",
 
   "core_skills": [
+    "apikeys",
     "article-intel",
     "auto-research",
+    "best-practice",
     "closeout",
     "create-MN",
     "create-pickup",
+    "create-plan",
     "create-spec",
     "design",
     "discover",
     "dream",
     "end-day",
+    "explain",
     "frontend-design",
     "git-safe",
     "grill",
@@ -23,7 +28,7 @@
     "orient",
     "park",
     "pickup",
-    "plan-spec",
+    "pipeline-qa",
     "pr-review",
     "recap",
     "retro",
@@ -37,10 +42,7 @@
     "update-wfk",
     "usage-audit",
     "video-intel",
-    "web-theme",
-    "best-practice",
-    "apikeys",
-    "pipeline-qa"
+    "web-theme"
   ],
 
   "org_skills": [
@@ -53,15 +55,33 @@
     "update-workflow-kit",
     "yt",
     "pickup-triage",
-    "wezterm"
+    "wezterm",
+    "plan-spec"
   ],
+
+  "renamed_skills": {
+    "plan-spec": {
+      "new_name": "create-plan",
+      "reason": "Rewritten with adaptive depth (light/standard/heavy). No external PM dependency.",
+      "reference_update": "Replace /plan-spec with /create-plan in all skill files, CLAUDE.md, and agents.md"
+    }
+  },
+
+  "deprecation_context": {
+    "update-skills": "Replaced by update-wfk (same functionality, better name)",
+    "update-workflow-kit": "Replaced by update-wfk (same functionality, better name)",
+    "yt": "Replaced by video-intel (broader scope: transcription + project evaluation)",
+    "pickup-triage": "Merged into pickup (triage is now built into the pickup flow)",
+    "wezterm": "Terminal-specific automation replaced by iterm (macOS) or user's own terminal config",
+    "plan-spec": "Renamed and rewritten as create-plan (adaptive depth, inline tracking, no external PM)"
+  },
 
   "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",
 
   "sync_rules": {
     "skills": {
       "on_push": "Only push core_skills. Strip hardcoded paths and org-specific references.",
-      "on_pull": "Replace SKILL.md and references/. Never touch user's evals/ or workspace/ dirs."
+      "on_pull": "Detect user edits, offer to preserve as LOCAL.md, then replace SKILL.md + references/. Never touch evals/, *-workspace/, or user-added files."
     },
     "templates": {
       "on_push": "Push generalized versions. Strip org-specific bases, sections, or references.",

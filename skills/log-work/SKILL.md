@@ -1,17 +1,18 @@
 ---
 name: log-work
 description: >-
-  Log work to the daily note and optionally a dedicated work log file. Use this
-  skill when the user wants to record what they've been working on, says "log this",
-  "log work", "add to worked on", "update the daily note", or wants to capture
-  implementation progress. Works in two modes: simple (daily note entry only) or
-  detailed (WL file + daily note summary). Also trigger on "what did I work on"
-  if the user wants to retroactively log work from the conversation.
+  Log work to the daily note and optionally to project logs and work log files.
+  Use this skill when the user wants to record what they've been working on, says
+  "log this", "log work", "add to worked on", "update the daily note", or wants
+  to capture implementation progress. Works in two modes: simple (daily note entry
+  only) or detailed (PJL + optional WL file + daily note summary). Also trigger on
+  "what did I work on" if the user wants to retroactively log work from the
+  conversation.
 ---
 
 # Log Work
 
-Log work to the daily note's `## Worked on` section, and optionally to a dedicated work log (`WL -`) file for complex work.
+Log work to **both layers**: the daily note's `## Worked on` section (brief, human-focused) and the project log PJL file (complete, agent-focused). Both are mandatory on every invocation. There is no "simple mode" - every piece of work gets recorded in both places.
 
 **Arguments:** $ARGUMENTS — Description of work, path to a plan, or nothing (will scan conversation context).
 
@@ -25,134 +26,167 @@ If the user provided arguments, use those. Otherwise, scan the current conversat
 
 Ask the user to confirm what should be logged if it's ambiguous.
 
-## Step 2 — Determine the Mode
+### Deployment state verification
 
-**Simple mode** (daily note entry only):
-- Work fits in 2-4 bullets
-- Single task, quick fix, one-off research
-- No associated plan, or the plan work is trivial today
+If the work involved deploying or modifying a live system, verify the state before logging. Check whether code was actually pushed, whether deploys actually ran, whether the change is live. Log what's true, not what was intended:
+- Committed but not pushed: log "(committed, not yet pushed)"
+- Pushed but not deployed: log "(pushed, not yet deployed)"
+- Deployed and verified: log "(deployed - verified at <URL>)"
+- If unsure: ask the user
 
-**Detailed mode** (WL file + daily note summary):
-- Work has 5+ distinct sub-tasks
-- Work is against a plan (`PL -` file)
-- Multi-step implementation, complex debugging
-- User explicitly asks for a work log
+Never log "shipped" or "deployed" without verifying. Future agents trust these entries.
 
-If there's an associated plan, default to detailed mode. Otherwise default to simple unless the work is clearly complex.
+## Step 2 — Always Both Layers
 
-## Step 3 — Identify the Topic and Project
+Every invocation writes to:
+1. **Daily note** (DN) - brief, human-readable. Outcomes, milestones, what shipped.
+2. **Project log** (PJL) - complete, agent-readable. Commits, file paths, decisions, deployment commands, what was tried.
 
-Match the work to a topic name:
-- If plan-backed: use the plan name (e.g., "Flora Migration Orchestration Plan")
-- If project-scoped: use the project name (e.g., "Signal Engine", "IK Buckets")
-- If standalone: use a descriptive label (e.g., "Vault Maintenance", "Recipe Extraction")
+There is no mode selection. Both layers are mandatory. The only optional artifact is a **Work Log** (`WL -` file) for exceptionally heavy days where even the PJL entry would be too dense (10+ tasks, multi-phase sprints). On those days, the PJL links to the WL.
+
+## Step 3 — Identify the Project
+
+Match the work to a **project name** (not a plan name, not an activity name):
+- "My SaaS App", not "SaaS App Auth Phase 2"
+- "Data Pipeline", not "Pipeline Spec Compliance Phase 3c"
+
+The project name is the broadest stable label. Plans, phases, and activities are detail that goes in the project log.
 
 Identify the project path under `02_Projects/` if one exists.
 
-## Step 3b — Merge Check (Before Writing)
+## Step 3b — Group + Merge Check (Before Writing)
 
-Before creating a new `###` heading, scan ALL existing headings under `## Worked on` for the same underlying project or plan:
+The Worked on section uses a **three-level hierarchy**: group (`###`) > project (`####`) > bullets.
 
-1. **Match by app/project first (highest priority):** Group all work on the same app or project under ONE heading. "Mail App — Group Intelligence Spec", "Mail App — UI Polish Phase 3", "Mail App — Feature Parity Sprint" are all `### Mail App`. "MIP Phase 2", "MIP Phases 3-5", "Meeting Intelligence Pipeline" are all `### Meeting Intelligence Pipeline`. The heading is the **app or project name**, not the specific activity.
-2. **Match by plan wikilink:** If the new entry references the same `[[PL - ...|Plan]]` as an existing heading, append to it.
-3. **Common abbreviations:** MIP = Meeting Intelligence Pipeline, FAO = FWIS Activation Orchestration, CC = Claude Code. Match these to their full project names.
+### Determine the group
 
-**When merging into an existing heading:**
-- Keep the heading as the broad project/app name (e.g., `### Mail App`)
-- Use **bold sub-labels** within the bullets to distinguish different workstreams:
-  ```markdown
-  ### Mail App
-  - **UI Polish Phase 3 complete** — collapsible groups, batch summarize, toolbar consolidation
-  - **Group Intelligence spec** drafted — [[SPC - Mail Group Intelligence]], agentic analysis on category headers
-  - [[WL - Mail UI Polish|Full log]]
-  ```
-- Consolidate older bullets if the entry exceeds 6 lines — summarize, don't enumerate
-- If multiple plans are linked, put the most relevant one on the heading line and link others in bullets
+Groups come from how projects are organized under `02_Projects/`. Check the vault's project structure:
 
-**The daily note should have ONE heading per app/project, not one per activity, session, or phase.** All mail work = one `### Mail App` entry. All MIP work = one `### Meeting Intelligence Pipeline` entry.
+```bash
+ls -d 02_Projects/*/
+```
 
-## Step 4a — Simple Mode: Update Daily Note
+Umbrella directories (containing 3+ related projects) become `###` group headings. Standalone projects get a `###` heading directly with no group wrapper.
 
-1. Read today's daily note: `01_Notes/Daily/DN - YYYY-MM-DD.md`
-2. **Run the merge check (Step 3b)** — find any existing heading for this project/plan
-3. If a matching heading exists, append new bullets to it (consolidate if over 6 lines)
-4. If no match, create a new `### Topic Name` heading under `## Worked on`
-   - New topics go at the **top** of the Worked on section (below `## Worked on`)
-   - Link spec/plan on the heading line: `### Topic — [[PL - ...|Plan]]`
-5. Add concise, action-oriented bullets:
-   - Lead with what was done, not what was learned
-   - Bold key stats inline
-   - Wikilink output artifacts
-6. Done.
+### Merge into existing headings
 
-## Step 4b — Detailed Mode: Create/Update WL File + Daily Note
+Before creating a new `####` heading, scan ALL existing headings under `## Worked on`:
 
-### Work Log File
+1. **Match by project:** All work on the same project goes under ONE `####`. Different plans, phases, and activities for the same project are the same heading.
+2. **If the group `###` heading already exists**, add the new `####` project under it. If the group doesn't exist yet, create both.
 
-1. **Find or create the WL file:**
-   - Plan-backed: same directory as the plan (e.g., `02_Projects/.../plans/YYYY-MM-DD/WL - Plan Name.md`)
-   - Project-scoped, no plan: `02_Projects/<project>/work-logs/WL - Topic.md`
-   - No project: `01_Notes/Work Logs/WL - Topic.md`
+**The daily note should have ONE `####` heading per project, not one per plan, phase, activity, or session.**
+
+Every invocation writes both. Do the PJL first (it's the source of truth), then summarize to the daily note.
+
+## Step 4a — Project Log (PJL) — Agent Layer
+
+The PJL is the **knowledge compounding layer** for each project. It accumulates across sessions. When an agent picks up a project, it reads the PJL and immediately knows: what was built, what decisions were made (and why), what was tried and didn't work, what's deployed where, and what to watch out for. The more sessions that log to it, the faster future ramp-up becomes.
+
+1. **Find or create the PJL file** at the project root:
+   - `02_Projects/<project>/PJL - <Project Name>.md`
+   - No project: `01_Notes/Project Logs/PJL - Topic.md`
+   - **One PJL per project.** If one already exists, append to it.
 
 2. **If creating new:** use frontmatter:
    ```yaml
    ---
    date created: YYYY-MM-DD
-   tags: [work-log, <project-tag>]
-   category: Work Log
-   plan: "[[PL - Plan Name]]"       # if plan-backed
+   tags: [project-log, <project-tag>]
+   category: Project Log
    project: "<project name>"
    ---
    ```
 
 3. **Append entries** under today's date heading (`## YYYY-MM-DD`):
    - Create the date heading if it doesn't exist yet
-   - Each entry: `### HH:MM — Short description` with detail bullets
-   - Include: what changed, why, artifact links, key metrics, commit hashes, errors resolved
+   - **Newest date section at the top** (below frontmatter / title)
+   - **Light days:** inline bullets under the date heading
+   - **Heavy days** (major sprint, 10+ tasks, multi-phase work): write a brief summary in the PJL entry, then create a dedicated Work Log and link it: `[[WL - Topic YYYY-MM-DD|Full session log]]`
 
-### Daily Note Summary
+4. **Write for agent memory, not humans.** The daily note is the human layer; the PJL is the machine layer. Include:
+   - Exact file paths, function names, table/column names
+   - Commit hashes and migration filenames
+   - What was deployed, where, and how (environment + URL + command used)
+   - Decisions made and **why** (so future agents don't re-litigate)
+   - Known issues, blockers, and workarounds still in place
+   - What was tried and didn't work (prevents repeating failures)
+   - Wikilinks to specs, plans, PICs, IRs, ADRs
 
-1. Read today's daily note
-2. Find or create the `### Topic` heading under `## Worked on`
-3. Add **3-5 summary bullets MAX** — this is a summary, NOT a task log
-4. Add final bullet linking to the WL file: `- [[WL - Topic Name|Full log]]`
-   - If this link bullet already exists, don't duplicate it
+### Work Log File (WL) — Heavy Days Only
 
-**HARD RULE: The daily note entry for ANY topic must be ≤ 6 lines (heading + 5 bullets max).** If you need more detail, it goes in the WL file. The daily note is a scannable overview — commit hashes, file counts, component lists, and per-task descriptions belong in the WL file ONLY.
+Only create a WL when the PJL entry would be too dense:
+- `02_Projects/<project>/work-logs/WL - <Topic> <YYYY-MM-DD>.md`
+- **All granular detail goes here** -- per-task breakdowns, component lists, bug investigation notes, error messages, SQL queries run, config changes made
+- Linked from the PJL entry for that date
 
-**Good daily note entry (sprint with 16 tasks):**
+## Step 4b — Daily Note (DN) — Human Layer
+
+1. Read today's daily note: `01_Notes/Daily/DN - YYYY-MM-DD.md`
+2. **Run the group + merge check (Step 3b)** — find the group and any existing heading for this project
+3. If a matching `####` heading exists, append new bullets (consolidate if over 4 lines)
+4. If no match:
+   - Find or create the `### Group Name` heading
+   - Add a new `#### Project Name` heading under the group
+   - New groups go at the **top** of the Worked on section
+   - For standalone items (no group), create a `###` heading directly
+5. Add concise, human-friendly bullets:
+   - **Write like a progress update to yourself.** What feature was added? What bug was fixed? What shipped? What moved the project forward?
+   - Bold the key accomplishment
+   - **No technical internals in the DN.** These all belong in the PJL, never the daily note:
+     - Phase numbers, task IDs, pass/fail counts ("Phase 3a 6/7 PASS")
+     - Commit hashes, migration filenames, line numbers
+     - Function names, table/column names, container names
+     - Validation metrics, test results, row counts
+   - **Good:** "Fixed two pipeline bugs that were crashing email processing and meeting tracking"
+   - **Bad:** "Phase 3a entity resolution 6/7 PASS, 2,763 stuck runs cleaned up"
+   - **Good:** "Verified the signal pipeline works after the gateway refactor"
+   - **Bad:** "Pipeline health check after gateway refactor -- gateway integration verified working"
+   - Wikilink output artifacts (specs, plans, reports) only when they add context
+   - Link to the PJL file: `[[PJL - Project Name|Project log]]`
+6. **HARD RULE: max 4 lines per project (heading + 3 bullets).** The daily note is a table of contents for the day. Everything else is in the PJL (and WL for heavy days).
+
+**Good daily note (heavy day, multiple groups):**
 ```markdown
-### Flora Migration — [[PL - Flora Migration Orchestration Plan|Plan]]
-- Completed **Phase 14 (FWIS Viewer)** — SvelteKit → Next.js, 16 routes, 17 AG Grid instances
-- **16/17 tasks Done**, 4 post-deploy fixes, build:fix ratio **73:27**
-- Old <APP_1> sunset — **9.9 GB** reclaimed, M12 (Core Apps Live) achieved
-- [[WL - Flora Migration Orchestration Plan|Full log]]
+## Worked on
+
+### Web Apps
+#### Customer Portal
+- **Built the full authentication and dashboard** -- login, role-based access, and analytics widgets all live
+- Ran UAT with stakeholder, caught and fixed 9 bugs during testing
+- Bulk invite emails and final review still needed -- [[PJL - Customer Portal|Project log]]
+
+### Data Systems
+#### Analytics Pipeline
+- **Wired up initiative linking and meeting intelligence** -- signals auto-tag to active initiatives
+- Known limitation: dedup breaks on re-runs due to non-deterministic API -- [[PJL - Analytics Pipeline|Project log]]
+
+### Video Research
+- Watched 4 videos on context engineering for coding agents
 ```
 
-**BAD daily note entry (same sprint — too detailed):**
+**BAD daily note (build-log style):**
 ```markdown
-### Flora Migration — [[PL - ...]]
-- P14.1 Audit — 16 routes, 17 AG Grid instances...
-- P14.2 Scaffold — apps/fwis-viewer/ created...
-- P14.3 Meetings — AG Grid 8 cols...
-- P14.4 Signal Explorer — 608-line client...
-- P14.5 People Grid — dept cards...
-(15 more bullets with commit hashes and component lists)
+#### Customer Portal
+- **Portal v3 Phases 0-6 complete** (62/69 tasks) -- auth, ownership, voting, admin
+- 10 schema migrations, 9 bugs fixed
 ```
-This is a task log, not a summary. All that detail goes in the WL file.
+Phase numbers, task counts, and migration counts are for the PJL. The daily note should say what you accomplished in words a person would use.
 
 ## Formatting Rules
 
 Follow the daily note style preferences:
-- Group by `### Topic` headings with wikilinks to spec/plan
-- Short, action-oriented bullets — lead with outcomes, not per-task play-by-play
-- Bold key stats inline (totals, ratios, milestones — not per-commit details)
-- Wikilinks to output files and retro/handoff reports
+- **Three-level hierarchy:** `## Worked on` > `### Group` > `#### Project`
+- **ONE `####` heading per project** — never per plan, phase, or activity
+- **Max 4 lines per project** (heading + 3 bullets)
+- Lead with outcomes and milestones, not per-task play-by-play
+- Bold the key stat or status change
+- Wikilink output artifacts and the PJL file
+- No commit hashes, migration filenames, component lists, or file counts in the daily note
 - No prose paragraphs — bullets only
-- Newer entries at top of `## Worked on` section
-- NO "Lifelogs & Meeting Notes" subsection — those go in Meetings
-- **≤ 6 lines per topic** (heading + 5 bullets max) — link to WL file for detail
+- Newer groups at top of `## Worked on` section
+- Standalone items (no group) use `###` directly
 
-## Examples
+## Local Customizations
 
-See `references/examples.md` for good/bad daily note and work log formatting examples.
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

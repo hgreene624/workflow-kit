@@ -130,3 +130,7 @@ Show the user the generated filename and a brief summary:
 - Any content that was ambiguous or dropped (explain why)
 
 Do not ask for confirmation before writing - just write it. The user can review and request changes.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

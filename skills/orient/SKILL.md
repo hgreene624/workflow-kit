@@ -93,3 +93,7 @@ After loading, give a short summary:
 - Ask what the user wants to work on
 
 Keep the summary concise — the user doesn't need a recitation of everything you read, just confirmation you loaded context and any standout items.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

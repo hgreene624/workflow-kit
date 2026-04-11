@@ -311,3 +311,7 @@ Context hints are supported: `/article-intel <url> might be useful for the booki
 - **Non-English content**: Process as normal. Summarise in English.
 - **Very long articles (10,000+ words)**: Process normally but note the length in the summary. Consider splitting the summary into more granular topic sections.
 - **Redirect chains**: Follow redirects. Store the final URL as `source_url` and the original as `original_url` in frontmatter.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

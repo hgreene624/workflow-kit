@@ -7,7 +7,7 @@ description: >
   the user wants to review a spec, evaluate a spec before implementation, get critical feedback
   on a spec, or says anything like "review this spec", "evaluate this spec", "what are the risks
   in this spec", "is this spec ready". Also trigger when the user passes a SPC file path and
-  wants feedback before planning. This skill focuses on review only — use /plan-spec afterward
+  wants feedback before planning. This skill focuses on review only — use /create-plan afterward
   to produce the plan document and Plane project.
 ---
 
@@ -17,7 +17,7 @@ You are orchestrating a 3-agent team that critically evaluates a spec before it 
 
 This is the first half of a two-skill workflow:
 1. **`/review-spec`** (this skill) — analyze, critique, get clarification
-2. **`/plan-spec`** — produce plan document + Plane project (run after review issues are resolved)
+2. **`/create-plan`** — produce plan document + Plane project (run after review issues are resolved)
 
 ## Invocation
 
@@ -245,23 +245,27 @@ After clarifications are resolved, apply improvements efficiently. **Do NOT re-a
    ```
 
 4. **Enforce the quality gate:**
-   - **PASS** (0 Critical, score >= 8): "Spec is ready for `/plan-spec`."
-   - **CONDITIONAL** (0 Critical, score 5-7): "Spec can proceed to `/plan-spec` but has warnings worth addressing. Proceed anyway?"
-   - **FAIL** (any Critical issues OR score < 5): "Spec is not ready for planning. {N} Critical issues must be resolved first." Do NOT suggest proceeding to `/plan-spec`.
+   - **PASS** (0 Critical, score >= 8): "Spec is ready for `/create-plan`."
+   - **CONDITIONAL** (0 Critical, score 5-7): "Spec can proceed to `/create-plan` but has warnings worth addressing. Proceed anyway?"
+   - **FAIL** (any Critical issues OR score < 5): "Spec is not ready for planning. {N} Critical issues must be resolved first." Do NOT suggest proceeding to `/create-plan`.
 
 ## What This Skill Does NOT Do
 
-- It does not produce a plan document — that's `/plan-spec`
-- It does not create Plane projects or issues — that's `/plan-spec`
+- It does not produce a plan document — that's `/create-plan`
+- It does not create Plane projects or issues — that's `/create-plan`
 - It does not implement the spec
 - It does not make architectural decisions — it flags decisions that need to be made
 - It does not modify the spec without user approval
 
-## Handoff to /plan-spec
+## Handoff to /create-plan
 
 When the user is ready to plan, they run:
 ```
-/plan-spec <path-to-spec>
+/create-plan <path-to-spec>
 ```
 
 The plan-spec skill will automatically look for review artifacts in `Reviews/{date}/` and use them to inform the plan. Clarification answers from the log directly shape phase structure, task dependencies, and risk mitigations in the plan.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

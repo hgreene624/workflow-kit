@@ -218,3 +218,7 @@ export const themes = { ..., <name>: <name>Theme };
 - When creating dark variants from a light-only source site (or vice versa), invert the color relationships — lightest background becomes darkest, etc.
 - The Flora monorepo uses Tailwind v4 + DaisyUI v5 with `data-theme` attribute switching.
 - Custom `--theme-*` tokens extend beyond DaisyUI — they control typography, spacing, shape, and layout. The preview script injects these as `!important` overrides.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

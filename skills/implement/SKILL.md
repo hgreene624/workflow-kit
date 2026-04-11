@@ -22,7 +22,7 @@ This skill is a **stateless router** that classifies the current state and loads
 
 ## Step 0.5 — Classify Complexity (L23)
 
-Before classifying state, read the plan's frontmatter for the `complexity` and `ceremony` fields. These were set during `/plan-spec` based on the user's choices.
+Before classifying state, read the plan's frontmatter for the `complexity` and `ceremony` fields. These were set during `/create-plan` based on the user's choices.
 
 **Read the ceremony config:**
 ```yaml
@@ -55,13 +55,24 @@ ceremony:
 
 **If ANY ceremony is on**: continue to Step 1 below, but only spin up the agents/gates that are enabled.
 
+## Step 0.8 — Read the Project Log
+
+If a project log (PJL) exists for this project, read the most recent 3–5 date sections before classifying state or dispatching work. PJLs accumulate session-by-session history and contain critical implementation context:
+
+- **Decisions already made** — don't re-litigate what's in the PJL
+- **What was tried and failed** — don't repeat failed approaches
+- **Current deployment state** — know what's live before making changes
+- **Known issues** — avoid tripping over documented gotchas
+
+Pass relevant PJL context to workers when dispatching them. A worker building Phase 2 needs to know what Phase 1 discovered.
+
 ## Step 1 — Classify State
 
 Determine which sub-skill to load by checking these conditions in order:
 
 1. **No plan identified?**
    - If no argument provided and no plan file is obvious from context → ask the user for the plan path via `AskUserQuestion`
-   - If argument is a spec file → search for `PL - *.md` in the same directory. If none exists, suggest `/plan-spec` first.
+   - If argument is a spec file → search for `PL - *.md` in the same directory. If none exists, suggest `/create-plan` first.
 
 2. **Resuming a partial implementation?**
    - Check: does a Plane project already exist for this plan? (check plan metadata for `plane_url`)
@@ -112,3 +123,7 @@ All sub-skills live in `references/` alongside existing templates:
 | `auditor-prompts.md` | QA auditor template | — |
 | `tracker-prompts.md` | PM tracker template | — |
 | `handoff-template.md` | Handoff document template | — |
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

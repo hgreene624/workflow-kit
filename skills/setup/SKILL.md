@@ -232,7 +232,7 @@ This is where the system clicks. You're going to describe something you actually
 
 5. **(Optional) Run the review.** Tell Claude `/review-spec` and it dispatches a 3-agent team to check the spec for gaps and risks. This is powerful for complex work but optional for simple tasks.
 
-6. **(Optional) Create the plan.** Tell Claude `/plan-spec` and it breaks the spec into phases with tasks and milestones.
+6. **(Optional) Create the plan.** Tell Claude `/create-plan` and it breaks the spec into phases with tasks and milestones.
 
 ## Why This Matters
 
@@ -260,3 +260,7 @@ Next steps:
 1. Open this folder in Obsidian (if you haven't already) and click Trust
 2. Type /pickup to start your first onboarding task
 ```
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

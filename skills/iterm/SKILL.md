@@ -191,3 +191,7 @@ Examples:
 2. Title format: `Type - Brief Description` (e.g., `Feature - Email Templates`)
 3. When in doubt about type, ask the user
 4. Reset the tab when work is complete or session is ending
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

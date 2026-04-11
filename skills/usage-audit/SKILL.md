@@ -74,3 +74,7 @@ After presenting results, if the output reveals issues, offer to drill deeper:
 ## JSON Output
 
 All commands support `--json` for machine-readable output. Use this if you need to do further analysis on the data programmatically.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

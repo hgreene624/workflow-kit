@@ -261,3 +261,7 @@ This step is auto-chained — do not ask the user whether to proceed. They alrea
 - It does not start any work items — Phase 0 goes to Todo, **everything else goes to Backlog**. Only `/implement` promotes items to Todo when their phase starts.
 - It does not push code or make infrastructure changes
 - It does not create issues without phase-prefixed names — every issue name starts with `P{phase}.{number} —`
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

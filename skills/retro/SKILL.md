@@ -154,3 +154,7 @@ Accepts an optional path to:
 - Make architectural decisions (proposes, doesn't decide)
 - Skip user approval before applying changes
 - Run without evidence (every proposed change must cite specific incidents)
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

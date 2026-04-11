@@ -170,3 +170,7 @@ If the user returns mid-sprint ("I'm back", "what's the status"), revert to norm
 - Re-enable user test gates for remaining work
 - Present current status + the partial review checklist
 - QA auditor returns to standard audit posture
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -119,3 +119,7 @@ After creating a new lesson, update the Rules & Patterns Index at `Documentation
 ## Examples
 
 See `references/examples.md` for good/bad lesson and rule examples. Read it when drafting entries.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

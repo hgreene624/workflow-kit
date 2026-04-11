@@ -81,3 +81,7 @@ KEY=$(security find-generic-password -s "<service>" -a "holden" -w)
 ```
 
 If the key is not found, tell the user to run `/apikeys store <service> <key>`.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

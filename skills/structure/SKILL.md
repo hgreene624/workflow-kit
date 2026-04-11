@@ -5,7 +5,7 @@ description: >-
   key signatures, data flow, and vertical implementation phases. Like C header files:
   enough to see what the agent plans without the full implementation. Enforces vertical
   slicing — every phase must deliver a user-testable outcome. Use after /design and
-  before /plan-spec. Trigger on "structure outline", "implementation outline", "SO for
+  before /create-plan. Trigger on "structure outline", "implementation outline", "SO for
   this spec", "how should we structure this", or when /design completes.
 ---
 
@@ -51,4 +51,8 @@ If no path is given, ask the user which spec to structure.
 
 12. **Save the SO document** to `02_Projects/<project>/structures/{today}/SO - {Spec Name}.md`. Create the directory if it doesn't exist.
 
-13. **Handoff** — end with: "Structure outline complete. Ready for `/plan-spec` to create the detailed implementation plan."
+13. **Handoff** — end with: "Structure outline complete. Ready for `/create-plan` to create the detailed implementation plan."
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

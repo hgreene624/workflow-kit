@@ -49,3 +49,7 @@ Rules for the table:
 If the user is working in a specific codebase or project, check the current code/config before recommending. A best practice that contradicts an established pattern in the project needs to acknowledge the migration cost. Read `agents.md` or project context if available.
 
 If the research reveals the user's current approach IS the best practice, say so - don't invent alternatives just to fill a table.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

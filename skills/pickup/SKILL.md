@@ -221,20 +221,60 @@ The Claim Log tracks which agent picked up which PIC and when, so other agents c
 
 Once a PIC is selected (from triage or directly):
 
+### Pre-flight: Log Previous Work
+
+Before loading the new PIC, check whether there's unlogged work from earlier in this session. This matters when the user finishes one PIC and immediately picks up the next without running `/closeout` or `/log-work` in between.
+
+**Check for unlogged work:**
+1. Scan the conversation for completed tasks, file edits, deploys, or decisions since the last `/log-work` or `/closeout` invocation
+2. Check if a PIC was being worked on earlier in this session (look for a PIC that was marked `picked-up` by this session)
+
+**If unlogged work exists:**
+- Tell the user: "You have unlogged work from [previous topic]. Want me to log it before picking up the next one?"
+- If yes: invoke `/log-work` with the previous work context (this handles DN + PJL updates), then ask if the previous PIC should be closed or if it needs a new PIC via `/create-pickup`
+- If no: continue to Load Context. The work can still be captured at closeout.
+
+**If this is the first pickup of the session** (no prior work), skip this step.
+
 ### Load Context
 
 1. Read the full PIC document
 2. Read every file listed in `## Key Files` - these are essential context from the previous session
 3. Read the project's `agents.md` and `lessons.md` if they exist
 4. If the PIC references a spec or plan, read those too
+5. **Read the Project Log** if one exists at `02_Projects/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history — what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
 
 Build understanding of: project scope, what was done, concrete next steps, blockers, and any user preferences from the previous session.
+
+### Verify State Claims
+
+Before acting on the PIC's claims about system state, verify the critical ones:
+
+1. If the PIC says code was "deployed" or "shipped", verify it's actually running in the target environment. Check CI/CD workflow history, hit the live URL, or inspect the running service.
+2. If the PIC says a database migration ran, verify the schema matches.
+3. If the PIC says a service is healthy/running, check it.
+
+PICs can carry false "deployed" claims forward when the prior session committed but didn't actually deploy. Trust the PIC's *decisions* and *context*, but verify its *system state claims* before building on them.
+
+### Environment Declaration
+
+If the PIC's project involves deployable code (web apps, services, APIs), determine whether the work targets a local development environment, a production/staging environment, or both. Declare the target environment in your "Present the Plan" output before starting work. If unclear from the PIC's next steps, ask the user.
 
 ### Mark as Picked Up
 
 Update the PIC's frontmatter immediately:
 - Change `status: open` to `status: picked-up`
 - Add `picked_up_date: YYYY-MM-DD`
+
+### Log to Project Log
+
+If a PJL exists for this project, append a session-start entry under today's date heading (create the date heading if it doesn't exist, newest on top):
+
+```markdown
+- **Session start** — picked up [[PIC - Topic Name]], targeting: {first 1-2 next steps from PIC}
+```
+
+If no PJL exists yet, create one at `02_Projects/<project>/PJL - <Project Name>.md` with standard frontmatter and this first entry. The PJL will accumulate as work is logged via `/log-work` and `/create-pickup`.
 
 Do this before presenting the plan.
 
@@ -271,7 +311,7 @@ Append a closing update:
 **Carry-forward:** [Anything not completed that needs a new PIC, or "None - fully resolved"]
 ```
 
-**Log work to the daily note** by invoking `/log-work` with the PIC's closing context. The log-work skill handles merge logic, formatting, and WL file creation if needed. Pass it: the project name, what was done (from the Closing Update), and any artifacts. Do not manually write to the daily note - let log-work handle it so formatting stays consistent.
+**Log work (MANDATORY before closing).** Invoke `/log-work` with the PIC's closing context before writing the closing update. Log-work writes to both the daily note AND the project log (PJL). Pass it: the project name, what was done (from the Closing Update), and any artifacts. Do not manually write to the daily note or PJL - let log-work handle both layers so formatting stays consistent. The PIC cannot be closed until log-work has created the PJL entry for today.
 
 ### Batch Continuation
 

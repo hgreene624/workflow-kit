@@ -27,6 +27,40 @@ This skill needs two things:
 
 If called from `/closeout`, these are provided. If called directly, extract them from the conversation or ask.
 
+## Step 0.5: PJL Entry Gate (MANDATORY)
+
+Before gathering claims or writing anything, verify that a PJL entry exists for this project and today's date.
+
+1. Find the PJL file: `02_Projects/<project>/PJL - <Project Name>.md`
+2. If the PJL exists, check for a `## YYYY-MM-DD` heading matching today
+3. **If no PJL entry exists for today: STOP.** Do not create the PIC.
+   - Tell the agent/user: "Cannot create PIC for [project] - no PJL entry exists for today. Run `/log-work` first to record what was done, then retry `/create-pickup`."
+   - This is a hard gate, not a warning. PICs without PJL entries mean the next agent gets handoff context (what to do next) but no implementation record (what was done). Both layers are required.
+4. If the PJL entry exists, proceed to Step 0.
+
+**Exception:** If the PIC is for work that has no project (e.g., a cross-cutting process improvement or a one-off investigation), skip this gate. The gate applies to project-scoped PICs where a PJL should exist.
+
+## Step 0: Check for Existing Open PICs
+
+**Before creating a new PIC**, search for open PICs in the same project:
+
+```bash
+# Glob for PICs in the target project's pickups directory
+```
+
+Read the frontmatter of each match. If any PIC has `status: open` or `status: picked-up` and covers the same domain or system:
+
+1. Read its content
+2. Ask the user: "There's an open PIC that covers this area: [[PIC - Name]]. Update it with the new context, or create a separate PIC?"
+3. If updating, merge the new information into the existing PIC (add to Current State, append to Next Steps, update Key Files). Preserve what's already there -- don't overwrite prior context.
+
+**Only create a new PIC when:**
+- No open PIC exists for this project/domain
+- The user explicitly wants a separate PIC (different workstream, different scope)
+- The existing PIC is `status: closed` or `status: parked`
+
+Fragmenting related work across multiple PICs loses context and creates triage overhead. One PIC per active workstream.
+
 ## Step 1: Gather Raw Claims
 
 Scan the conversation (or accept input from closeout) and collect:
@@ -38,6 +72,13 @@ Scan the conversation (or accept input from closeout) and collect:
 - Key files referenced
 
 Don't write anything yet — this is raw material that needs verification.
+
+### Cross-reference Project Log
+
+If a PJL exists at `02_Projects/<project>/PJL - <Project Name>.md`, read the most recent date section. This helps you:
+- Avoid duplicating context already captured in the PJL
+- Ensure the PIC's "What Was Done" is consistent with what the PJL records
+- Link the PJL in the Key Files section
 
 ## Step 2: Verify Claims
 
@@ -190,7 +231,7 @@ of "it worked last week but broke" investigations — see L18 in Agent Lessons.]
 [Quick summary of what was verified and when. This tells the next agent
 which claims they can trust vs which might have drifted.
 Example:
-- "Container flora-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
+- "Container my-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
 - "activities table: 1,226 rows, 332 with type='issue' (verified 2026-03-28 15:30)"
 - "entity_links table: 13 rows (verified 2026-03-28 15:30)"
 If no system state was relevant to verify, omit this section.]
@@ -236,3 +277,32 @@ If called from `/closeout` with multiple PICs, show all summaries in a compact l
 Write the file. Confirm: "Created [[PIC - Topic Name]] at `<path>`."
 
 If this PIC supersedes an older PIC on the same topic, ask: "This covers the same ground as [[PIC - Older Topic]]. Should I close that one as superseded?"
+
+## Step 7: Log to Project Log
+
+Append a session-end entry to the project's PJL under today's date heading (create the heading if needed, newest on top):
+
+```markdown
+- **Session end** — created [[PIC - Topic Name]]; {1-line summary of what was accomplished this session}
+```
+
+If no PJL exists yet, create one at `02_Projects/<project>/PJL - <Project Name>.md` with standard frontmatter:
+
+```yaml
+---
+date created: YYYY-MM-DD
+tags: [project-log, <project-tag>]
+category: Project Log
+project: "<project name>"
+---
+```
+
+Also ensure the PIC's Key Files section includes a link to the PJL: `- Project log: [[PJL - <Project Name>]]`
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.
