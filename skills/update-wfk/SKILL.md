@@ -434,6 +434,15 @@ Classify into one of five states:
 | Yes | Yes | No | Different | **CONFLICT** - both sides changed |
 | Yes | None | - | Different | **CONFLICT** - no baseline, can't determine who changed what |
 
+**MANDATORY PRE-REPLACE GATE — agents MUST NOT skip this:**
+
+Before replacing ANY local SKILL.md with a repo version, hash both files and compare. If they differ, check whether a manifest entry exists:
+- Manifest entry exists and local matches it → safe to replace (UPSTREAM)
+- Manifest entry exists and local differs from it → CONFLICT (both changed)
+- **No manifest entry and local differs from repo → CONFLICT.** Do NOT treat this as UPSTREAM. The manifest is an optimization for detecting *who* changed what — its absence does not mean the user didn't edit the file. When in doubt, ask.
+
+This gate exists because agents historically took the fast path (silent replace) when the manifest was absent, silently overwriting user edits. That is the failure mode this gate prevents.
+
 **7b. Handle each state:**
 
 **NEW:** Ask user via AskUserQuestion:
@@ -443,7 +452,17 @@ Options: `["Install", "Skip"]`. If Install, copy the skill directory.
 
 **SYNCED:** Nothing to do. Skip silently.
 
-**UPSTREAM (repo updated, user did not edit):** Clean install. Replace `SKILL.md` and `references/` directory. Never touch `evals/`, `*-workspace/`, `LOCAL.md`, or other user-added files in the skill directory.
+**UPSTREAM (repo updated, user did not edit):** Replace `SKILL.md` and `references/` directory. Never touch `evals/`, `*-workspace/`, `LOCAL.md`, or other user-added files in the skill directory.
+
+Before replacing, show a 1-line diff summary (e.g., "+42 lines: environment verification, PJL gates, DN style rules"). If the local SKILL.md has ANY differences from the repo version — even if the manifest classifies this as UPSTREAM — offer via AskUserQuestion:
+
+> "Updating `<skill>` — want me to save your current version to LOCAL.md first?"
+
+Options: `["Update (no backup needed)", "Save to LOCAL.md first, then update"]`
+
+If "Save to LOCAL.md first": extract the full local SKILL.md content to `LOCAL.md` with a dated header, then replace SKILL.md with the repo version. If LOCAL.md already exists, append under a dated section.
+
+Batch this prompt for efficiency: group all UPSTREAM skills into one question listing the skills and their change summaries, with a single yes/no for "save any to LOCAL.md first?" Then ask which specific ones to save only if they say yes.
 
 **LOCAL EDIT (user edited, repo unchanged):** Nothing to do - user's version is ahead and repo hasn't changed. Skip silently. Note: the sync manifest hash will be updated at the end to reflect the user's current version, so next pull won't re-flag this.
 
