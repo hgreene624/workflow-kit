@@ -27,19 +27,6 @@ This skill needs two things:
 
 If called from `/closeout`, these are provided. If called directly, extract them from the conversation or ask.
 
-## Step 0.5: PJL Entry Gate (MANDATORY)
-
-Before gathering claims or writing anything, verify that a PJL entry exists for this project and today's date.
-
-1. Find the PJL file: `02_Projects/<project>/PJL - <Project Name>.md`
-2. If the PJL exists, check for a `## YYYY-MM-DD` heading matching today
-3. **If no PJL entry exists for today: STOP.** Do not create the PIC.
-   - Tell the agent/user: "Cannot create PIC for [project] - no PJL entry exists for today. Run `/log-work` first to record what was done, then retry `/create-pickup`."
-   - This is a hard gate, not a warning. PICs without PJL entries mean the next agent gets handoff context (what to do next) but no implementation record (what was done). Both layers are required.
-4. If the PJL entry exists, proceed to Step 0.
-
-**Exception:** If the PIC is for work that has no project (e.g., a cross-cutting process improvement or a one-off investigation), skip this gate. The gate applies to project-scoped PICs where a PJL should exist.
-
 ## Step 0: Check for Existing Open PICs
 
 **Before creating a new PIC**, search for open PICs in the same project:
@@ -60,6 +47,19 @@ Read the frontmatter of each match. If any PIC has `status: open` or `status: pi
 - The existing PIC is `status: closed` or `status: parked`
 
 Fragmenting related work across multiple PICs loses context and creates triage overhead. One PIC per active workstream.
+
+## Step 0.5: PJL Entry Gate (MANDATORY)
+
+Before gathering claims or writing anything, verify that a PJL entry exists for this project and today's date.
+
+1. Find the PJL file: `02_Projects/<project>/PJL - <Project Name>.md`
+2. If the PJL exists, check for a `## YYYY-MM-DD` heading matching today
+3. **If no PJL entry exists for today: STOP.** Do not create the PIC.
+   - Tell the agent/user: "Cannot create PIC for [project] -- no PJL entry exists for today. Run `/log-work` first to record what was done, then retry `/create-pickup`."
+   - This is a hard gate, not a warning. PICs without PJL entries mean the next agent gets handoff context (what to do next) but no implementation record (what was done). Both layers are required.
+4. If the PJL entry exists, proceed to Step 1.
+
+**Exception:** If the PIC is for work that has no project (e.g., a cross-cutting process improvement or a one-off investigation), skip this gate. The gate applies to project-scoped PICs where a PJL should exist.
 
 ## Step 1: Gather Raw Claims
 
@@ -196,7 +196,7 @@ without explicit status will fail"]
 [Wikilinks and paths to essential context files. Only list files you've
 confirmed exist. Group by type:]
 - Specs/Plans: [[SPC - Name]], [[PL - Name]]
-- Code: `~/Repos/{{MONOREPO_NAME}}/path/to/file.py`
+- Code: `~/Repos/flora-monorepo/path/to/file.py`
 - Reports: [[RE - Name]]
 - Project context: `agents.md`, `lessons.md` paths
 
@@ -231,7 +231,7 @@ of "it worked last week but broke" investigations — see L18 in Agent Lessons.]
 [Quick summary of what was verified and when. This tells the next agent
 which claims they can trust vs which might have drifted.
 Example:
-- "Container my-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
+- "Container flora-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
 - "activities table: 1,226 rows, 332 with type='issue' (verified 2026-03-28 15:30)"
 - "entity_links table: 13 rows (verified 2026-03-28 15:30)"
 If no system state was relevant to verify, omit this section.]
@@ -298,11 +298,3 @@ project: "<project name>"
 ```
 
 Also ensure the PIC's Key Files section includes a link to the PJL: `- Project log: [[PJL - <Project Name>]]`
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -236,29 +236,58 @@ Before loading the new PIC, check whether there's unlogged work from earlier in 
 
 **If this is the first pickup of the session** (no prior work), skip this step.
 
+### Verify Project Structure
+
+If the PIC's `project` frontmatter maps to a vault project under `02_Projects/`, verify the project folder is properly set up before loading context:
+
+1. Check that the project directory exists (e.g., `02_Projects/Flora Intelligence/signal-engine/`)
+2. Check for `agents.md` at the project root. If missing, create it with a minimal stub:
+   ```markdown
+   # Agent Context - {Project Name}
+   
+   Read root `agents.md` first.
+   
+   ## Scope
+   
+   {one-line project description}
+   ```
+3. Check for `lessons.md` at the project root. If missing, create it with:
+   ```markdown
+   # Lessons - {Project Name}
+   
+   See root `lessons.md` for cross-project lessons.
+   ```
+4. Check for the PJL file at `02_Projects/<project>/PJL - <Project Name>.md`. If missing, it will be created in the "Log to Project Log" step below.
+
+Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are created by the skills that write to them (`/create-spec`, `/create-plan`, `/log-work`). This step only ensures the project root and its config files exist.
+
 ### Load Context
 
 1. Read the full PIC document
 2. Read every file listed in `## Key Files` - these are essential context from the previous session
-3. Read the project's `agents.md` and `lessons.md` if they exist
+3. Read the project's `agents.md` and `lessons.md` (created above if they didn't exist)
 4. If the PIC references a spec or plan, read those too
-5. **Read the Project Log** if one exists at `02_Projects/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history — what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
+5. **Read the Project Log** if one exists at `02_Projects/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history -- what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
 
 Build understanding of: project scope, what was done, concrete next steps, blockers, and any user preferences from the previous session.
 
-### Verify State Claims
+### Environment Declaration (MANDATORY for Flora-touching PICs)
 
-Before acting on the PIC's claims about system state, verify the critical ones:
+If the PIC's project is a Flora app (KB, admin, portal, mail, fwis-viewer, home, reservations, mailbox-viewer, revenue-dashboard, culinary-cottages, or anything in `~/Repos/flora-monorepo/`), declare the target environment in your "Present the Plan" output. Three valid forms:
 
-1. If the PIC says code was "deployed" or "shipped", verify it's actually running in the target environment. Check CI/CD workflow history, hit the live URL, or inspect the running service.
-2. If the PIC says a database migration ran, verify the schema matches.
-3. If the PIC says a service is healthy/running, check it.
+```
+Environment: LOCAL          → iterating at localhost:3001-3011 via flora-dev, no production change expected
+Environment: REMOTE         → updating myarroyo.com/<app>/, will run flora-deploy <service> after the fix
+Environment: BOTH           → iterate locally first, then deploy to production
+```
 
-PICs can carry false "deployed" claims forward when the prior session committed but didn't actually deploy. Trust the PIC's *decisions* and *context*, but verify its *system state claims* before building on them.
+Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a `flora-deploy` or `safe-build` command → REMOTE or BOTH. If the next steps are pure code iteration with no deploy command → LOCAL. **If unclear, ASK the user via AskUserQuestion before starting.** Don't guess.
 
-### Environment Declaration
+**Verify the PIC's deployment-state claims before acting on them.** A PIC carrying "deployed KB hydration fix" in its `## What Was Done` is unverified hearsay until you confirm. Run:
+- `gh run list --repo hgreene624/flora-monorepo --limit 5` — confirm the GHA workflow ran
+- `curl -sf https://myarroyo.com/<app>/<path>` — confirm the live URL behaves as expected
 
-If the PIC's project involves deployable code (web apps, services, APIs), determine whether the work targets a local development environment, a production/staging environment, or both. Declare the target environment in your "Present the Plan" output before starting work. If unclear from the PIC's next steps, ask the user.
+PICs carry false "deployed" claims forward when the prior session pushed without running `flora-deploy`. See L25.
 
 ### Mark as Picked Up
 
