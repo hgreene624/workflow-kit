@@ -14,13 +14,7 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ### What this release is about
 
-Two problems kept showing up across sessions:
-
-1. **False records.** Claude would log "deployed the fix" when the code was only pushed, not actually running. Or close a PIC saying "fully resolved" while the docs still described the old system. Future sessions would trust those records and waste time.
-
-2. **One-size-fits-all ceremony.** Writing a quick config tweak went through the same 11-section spec interview and full agent review as a multi-service architecture project.
-
-This release fixes both. The session lifecycle skills (closeout, end-day, log-work, pickup) now verify claims against actual state before recording them. The creation skills (create-spec, create-plan, implement) now scale their process to match the size of the work.
+The session lifecycle skills (closeout, end-day, log-work, pickup) now verify claims against actual state before recording them. The creation skills (create-spec, create-plan, implement) now scale their process to match the size of the work.
 
 ### New skills
 
