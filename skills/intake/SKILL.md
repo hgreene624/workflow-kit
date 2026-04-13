@@ -7,6 +7,10 @@ description: Evaluate incoming materials (files, directories, data) and triage t
 
 You are triaging incoming materials into an Obsidian-based Work Vault. Your job is to read the materials, understand them, figure out where they belong in the existing project structure, and get the user's approval before placing them.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.projects}/` for the project tree). If the file doesn't exist, use defaults and warn once.
+
 ## The Work Vault
 
 The vault lives at `<VAULT_ROOT>/`. Projects are under `02_Projects/` and organized into umbrella groups ({{ORG}} Apps, {{ORG}} Intelligence, Infrastructure, Restaurant Ops) and standalone projects. Every project follows a standard structure:

@@ -9,6 +9,10 @@ You are parking context — research findings, deferred work, or other informati
 
 This is a lightweight operation. The goal is to capture *just enough* context that a future agent knows what exists and when to use it, without duplicating the source material. Think of it as leaving a sticky note on a project folder.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.projects}/` for project tree). If the file doesn't exist, use defaults and warn once.
+
 ## Inputs
 
 You need two things from the user:

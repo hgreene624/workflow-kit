@@ -78,6 +78,18 @@
 
   "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",
 
+  "runtime_config": {
+    "path": "~/.claude/wfk-paths.json",
+    "written_by": "/setup (Step 3b)",
+    "validated_by": ["/orient (Step 1b)", "/update-wfk pull (Step 14.4)"],
+    "schema": {
+      "config_version": "integer, bumped on schema changes",
+      "last_validated": "YYYY-MM-DD, updated by orient on successful validation",
+      "vault_root": "absolute path to vault root",
+      "paths": "object mapping logical names to relative directories under vault_root"
+    }
+  },
+
   "sync_rules": {
     "skills": {
       "on_push": "Only push core_skills. Strip hardcoded paths and org-specific references.",

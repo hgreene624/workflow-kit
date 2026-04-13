@@ -16,6 +16,10 @@ description: >-
 
 Resume work by loading context from pickup documents. Routes automatically: if the user points at a specific PIC, load it directly. Otherwise, triage all open PICs and help the user choose.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve all directory references in these instructions (e.g., `{vault_root}/{paths.reports}/Triage/` instead of `Work Vault/01_Notes/Reports/Triage/`, `{paths.projects}` instead of `02_Projects/`). If the file doesn't exist, use the defaults in these instructions and warn once: "No wfk-paths.json found. Using default paths."
+
 ## Pre-flight: Orient Check
 
 Before doing anything else, check whether `/orient` has been run in this session. Look for evidence in the conversation history - if you've already read the SOD, vault agents.md, and lessons.md earlier, orient has been done.
@@ -43,7 +47,7 @@ If the user pointed at a specific PIC file or named one explicitly, skip triage 
 
 Before scanning PICs, check for an existing triage report:
 
-1. Look for `Work Vault/01_Notes/Reports/Triage/TRI - {today}.md`
+1. Look for `{vault_root}/{paths.reports}/Triage/TRI - {today}.md`
 2. **If today's TRI exists:** load it, then run a **light scan** (Step 0a) to catch changes since it was written. Skip to Step 5 (Present the Triage) with the updated data.
 3. **If today's TRI is missing:** check for the most recent `TRI - *.md` in the same directory.
    - **If a previous TRI exists:** use it as a seed. Carry forward assessments (complexity, summary, batch verdicts) for PICs that are still open. Only run the full scan (Steps 1-4) on PICs that are **new** since that TRI was written (no matching entry in the previous report). Merge results and write today's TRI.
@@ -54,8 +58,8 @@ Before scanning PICs, check for an existing triage report:
 When loading a cached TRI, validate it against current PIC state:
 
 1. **Find ALL open and picked-up PICs using Grep, not Glob.** Glob truncates results when there are many PIC files, which causes missed PICs. Instead, run these two Grep calls in parallel with `head_limit: 0` (unlimited results) to guarantee complete coverage:
-   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
-   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
 2. For each PIC listed in the TRI, check whether it appears in the grep results (still open/picked-up) or is absent (now closed).
 3. Update the cached triage data:
    - PICs that no longer appear in grep results: mark as closed in the triage (confirm by reading frontmatter if unsure)
@@ -68,8 +72,8 @@ This light scan uses grep to find open PICs by content rather than globbing all 
 ### Step 1: Find All Open PICs
 
 1. **Use Grep, not Glob, to find PICs by status.** Glob truncates results when there are many PIC files (50+), which silently drops PICs from the triage. Run these two Grep calls in parallel with `head_limit: 0`:
-   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
-   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
 2. From the results, keep only files whose basename starts with `PIC - `. The grep may also match IRs, delegated tasks, or templates that share the `status: open` frontmatter pattern -- discard those.
 3. The filtered results ARE the complete set of open/picked-up PICs.
 4. Report the count: "Found N open pickups (and M in-progress)."
@@ -151,7 +155,7 @@ End with: "Pick a number to load, or tell me which cluster to batch."
 
 ### Step 6: Write the TRI
 
-After completing triage (whether full scan or seeded), write the results to `Work Vault/01_Notes/Reports/Triage/TRI - {today}.md`. See the TRI format specification below.
+After completing triage (whether full scan or seeded), write the results to `{vault_root}/{paths.reports}/Triage/TRI - {today}.md`. See the TRI format specification below.
 
 **When to update the TRI during the session:**
 - When a PIC is picked up: update its status row to `picked-up` and add the agent/session that claimed it

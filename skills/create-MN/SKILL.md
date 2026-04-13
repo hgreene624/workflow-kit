@@ -12,6 +12,10 @@ description: >-
 
 Generate a structured meeting note from whatever input the user provides. No interview - work entirely from the supplied content.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{vault_root}/{paths.meetings}/` for meeting note output). If the file doesn't exist, use defaults and warn once.
+
 ## Step 1 - Receive Input
 
 Accept meeting content in any form:
@@ -66,7 +70,7 @@ These rules are non-negotiable for every meeting note:
 ## Step 4 - Generate the File
 
 **Filename:** `MN - YYYY-MM-DD (<Topic>).md`
-**Location:** `Work Vault/01_Notes/Meetings/`
+**Location:** `{vault_root}/{paths.meetings}/`
 
 Use this exact structure:
 

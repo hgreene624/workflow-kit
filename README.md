@@ -246,6 +246,16 @@ This pulls new skills and updated templates from this repository. Your personal 
 
 ---
 
+## Contributing
+
+Found a bug or have an improvement? Run `/update-wfk contribute` and Claude will handle the fork, branch, and PR creation for you.
+
+**Authentication note:** GitHub fine-grained PATs cannot create pull requests against repos owned by other users. The contribute action uses `gh` OAuth instead. If you haven't already, run `gh auth login` in your terminal before contributing. This is a GitHub API limitation, not a WFK issue.
+
+You can also open issues at [github.com/hgreene624/workflow-kit/issues](https://github.com/hgreene624/workflow-kit/issues) to report bugs or suggest features.
+
+---
+
 ## License
 
 MIT

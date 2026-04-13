@@ -14,6 +14,10 @@ Observe the user's current work context and surface 2-3 WFK skills or principles
 
 **Arguments:** $ARGUMENTS
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - {today}.md`, `{paths.projects}/`). If the file doesn't exist, use defaults and warn once.
+
 ## Step 1: Read the user's context
 
 Gather signals about what the user is doing. Read in parallel, skip missing files silently.

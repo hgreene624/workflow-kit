@@ -14,6 +14,10 @@ Log work to **both layers**: the daily note's `## Worked on` section (brief, hum
 
 **Arguments:** $ARGUMENTS — Description of work, path to a plan, or nothing (will scan conversation context).
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - YYYY-MM-DD.md`, `{paths.projects}/<project>/PJL - <Name>.md`). If the file doesn't exist, use defaults and warn once.
+
 ## Step 1 — Determine What to Log
 
 If the user provided arguments, use those. Otherwise, scan the current conversation for:

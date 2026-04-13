@@ -24,6 +24,10 @@ description: >-
 
 Transform a YouTube video into actionable project intelligence. The pipeline has five phases, each gated so you don't waste time on content that turns out to be irrelevant. Supports single videos and playlists.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - {today}.md`, `{paths.projects}/`, `{paths.reference}/`). If the file doesn't exist, use defaults and warn once.
+
 **Arguments:** $ARGUMENTS
 
 ## Phase 0: Input Routing

@@ -7,6 +7,10 @@ description: End-of-day closeout — log work to the daily note and create picku
 
 You are closing out a work session. Your job is to capture what was done, log it to the daily note, and create pickup documents so a fresh agent tomorrow can hit the ground running without the user having to re-explain everything.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - YYYY-MM-DD.md`). If the file doesn't exist, use defaults and warn once.
+
 ## Step 0a: Environment Verification (MANDATORY for Flora work)
 
 Before logging anything, audit the session for Flora app work and verify the deployment state of every Flora-touching change. The closeout log will end up in the daily note where future agents read it as ground truth — false claims here cause cascading bugs.

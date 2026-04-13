@@ -23,6 +23,10 @@ Transform web articles into actionable project intelligence. The pipeline has fi
 
 **Arguments:** $ARGUMENTS
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/`, `{paths.projects}/`, `{paths.reference}/`). If the file doesn't exist, use defaults and warn once.
+
 ## Phase 0: Input Parsing
 
 Determine whether the input is a single article or a batch, then route accordingly.

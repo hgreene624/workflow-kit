@@ -63,6 +63,8 @@ Now execute vault scaffolding:
 
 Detect the vault root (the directory containing this SKILL.md's parent `skills/` folder, or the current working directory if it contains `CLAUDE.md`).
 
+### 3a. Vault config
+
 Create `workflow-kit.config.json` in the vault root:
 
 ```json
@@ -80,6 +82,36 @@ Create `workflow-kit.config.json` in the vault root:
   "custom_prefixes": ["<from APPROVED_PROFILE.approved_prefixes[].code>"]
 }
 ```
+
+### 3b. Runtime path config
+
+Create `~/.claude/wfk-paths.json`. This file tells all WFK skills where vault directories are. Skills read it at startup so they work regardless of vault naming or structure.
+
+```json
+{
+  "vault_root": "<absolute path to vault>",
+  "paths": {
+    "daily_notes": "<notes_dir>/Daily",
+    "meetings": "<notes_dir>/Meetings",
+    "reports": "<notes_dir>/Reports",
+    "pickups": "<notes_dir>/Pickups",
+    "work_logs": "<notes_dir>/Work Logs",
+    "weekly": "<notes_dir>/Weekly",
+    "tastings": "<notes_dir>/Tastings",
+    "initiatives": "<notes_dir>/Initiatives",
+    "lifelogs": "<notes_dir>/Lifelogs",
+    "projects": "02_Projects",
+    "operations": "03_Operations",
+    "reference": "04_Reference",
+    "system": "05_System",
+    "media": "06_Media"
+  }
+}
+```
+
+Path values are relative to `vault_root`. The `<notes_dir>` defaults to `01_Notes` but should match the scaffolder's output (if the user renamed it during Step 2). Derive from `APPROVED_PROFILE` or default.
+
+**If `~/.claude/wfk-paths.json` already exists** (re-running setup), back up the existing file to `~/.claude/wfk-paths.json.bak` before overwriting, and warn the user.
 
 ## Step 4 — Install Skills
 

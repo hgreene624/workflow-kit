@@ -15,11 +15,23 @@ Load the configuration files that tell you how to behave in this workspace. With
 
 This matters because agent config files form a chain — root AGENTS.md may reference project-level agents.md files, which reference lessons files. Missing any link means you'll violate rules you didn't know existed or repeat mistakes that were already captured.
 
+## Path Resolution
+
+Before using any vault paths below, read `~/.claude/wfk-paths.json`. If it exists, use `vault_root` and the `paths` object to resolve all directory references. For example, `{vault_root}/{paths.reports}/SOD/` instead of hardcoded paths. If the file doesn't exist, fall back to the defaults written in these instructions and warn the user: "No wfk-paths.json found. Run `/setup` to create one, or create `~/.claude/wfk-paths.json` manually. Using default paths."
+
 ## Steps
 
 Do all of these before responding to the user:
 
 1. **Date/time** — Run `date` to anchor your context temporally
+
+1b. **Validate vault paths** — Read `~/.claude/wfk-paths.json`. For each entry in `paths`, check that `{vault_root}/{path}` exists as a directory (use `ls`). If any path is missing:
+   - Report which paths are stale: "Path config drift: `{key}` points to `{path}` but directory doesn't exist."
+   - Offer to fix: "Want me to update wfk-paths.json with the correct paths?"
+   - If the user confirms, scan the vault root for the closest matching directory and update the config.
+   - Update `last_validated` to today's date after a successful check.
+   
+   If `wfk-paths.json` doesn't exist, skip validation and warn once (see Path Resolution above). Don't ask again during this session.
 
 2. **Root agent config** — Read `AGENTS.md` in the workspace root. This is the master configuration that defines how all agents should behave in this vault. Follow any "read this first" directives it contains.
 
@@ -31,7 +43,7 @@ Do all of these before responding to the user:
 
 6. **Lessons files** — Read the general lessons file (cross-project lessons) and any local `lessons.md` in the current project. These are hard-won knowledge from past sessions — ignoring them means repeating the same mistakes.
 
-7. **Period reports** — Read these from `Work Vault/01_Notes/Reports/` to understand what's been happening and what Holden's priorities are. Read in parallel:
+7. **Period reports** — Read these from `{vault_root}/{paths.reports}/` to understand what's been happening and what the user's priorities are. Read in parallel:
    - **SOD** (daily context): Most recent file in `Reports/SOD/`. Check today first, fall back to most recent. This has the WTD summary, priorities, open PICs, and suggested start.
    - **EOW** (last week): Most recent file in `Reports/EOW/`. This is the weekly rollup — what shipped, goal progress, retro findings, and next-week setup.
    - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has Holden's monthly objectives that should frame all work.

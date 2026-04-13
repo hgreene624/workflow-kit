@@ -11,6 +11,10 @@ After producing the EOD, this skill also generates **tomorrow's SOD** — the ag
 
 On Fridays, this skill also produces an **EOW (End of Week)** report rolling up the week's EODs. On the last workday of the month, it also produces an **EOM (End of Month)** report rolling up the month's EOWs.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve all directory references in these instructions. Key mappings: `{paths.daily_notes}` for daily notes, `{paths.reports}` for all report subdirectories (SOD, EOD, EOW, SOM, SOW, EOM, Triage), `{paths.projects}` for project tree, `{paths.pickups}` for cross-cutting pickups. If the file doesn't exist, use the defaults in these instructions and warn once.
+
 ## Step 0: Working Environment Health Check
 
 Before writing the EOD, scan the user's working environment for loose ends. While `/closeout` audits a single session's own work, end-day checks everything across the machine and surfaces anything that slipped through.
@@ -400,7 +404,7 @@ Before dream, scan the vault for misplaced files created today. This catches rou
 
 ```bash
 # Find all .md files created today (by frontmatter date, not filesystem)
-grep -rl "date created: {today}" "Work Vault/" --include="*.md"
+grep -rl "date created: {today}" "{vault_root}/" --include="*.md"
 ```
 
 Then for each file, check its prefix against the expected location table above.

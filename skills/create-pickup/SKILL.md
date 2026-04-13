@@ -9,6 +9,10 @@ You are creating a pickup document (PIC) that a fresh agent will use to continue
 
 Your job is to produce a PIC that is **accurate, complete, and actionable** — every factual claim verified, every known issue captured, every next step concrete enough to execute without guessing.
 
+## Path Resolution
+
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.projects}/<project>/pickups/` for PIC placement, `{paths.projects}/<project>/PJL - <Name>.md` for project logs). If the file doesn't exist, use defaults and warn once.
+
 ## Why Verification Matters
 
 PICs that transcribe conversation claims without checking them cause real damage:
@@ -144,10 +148,10 @@ For each item found, decide: does it go in "What Needs to Happen Next", "Blocker
 ### File Location
 
 ```
-Work Vault/02_Projects/<project>/pickups/YYYY-MM-DD/PIC - Topic Name.md
+{vault_root}/{paths.projects}/<project>/pickups/YYYY-MM-DD/PIC - Topic Name.md
 ```
 
-Use today's date. Create directories if needed. If the work spans multiple projects, pick the primary one. If truly cross-cutting, use `Work Vault/01_Notes/Pickups/YYYY-MM-DD/`.
+Use today's date. Create directories if needed. If the work spans multiple projects, pick the primary one. If truly cross-cutting, use `{vault_root}/{paths.pickups}/YYYY-MM-DD/`.
 
 ### Frontmatter
 
