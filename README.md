@@ -1,22 +1,35 @@
 # Workflow Kit
 
-A personal productivity system that pairs Claude (AI) with Obsidian (notes) to help you plan, execute, and track any kind of work.
+A personal productivity system that pairs Claude (AI) with Obsidian (notes) to create a shared workspace where you and AI build on the same files, the same context, and the same history.
 
-You tell Claude what you want to do. It interviews you, writes a plan, and helps you execute it step by step. Everything gets saved as organized notes in your vault so you never lose context.
+## Why This Exists
+
+The biggest limitation of working with AI today is memory. Chat windows bloat, context degrades, and everything you build together lives and dies inside a conversation. You start fresh every time. You repeat yourself. The AI forgets what you told it yesterday.
+
+Workflow Kit solves this by giving you and AI a **shared filesystem**. Your vault is just a folder of text files on your computer, but those files become persistent storage that both you and AI can read, write, and build on across sessions. The more you use it, the smarter your AI gets, because it has a growing repository of your work, your decisions, your project history, and your preferences to draw from.
+
+This isn't just a chat wrapper. It's a system that:
+
+- **Saves everything you do** as organized files that AI can reference later
+- **Builds your personal knowledge base** automatically through the work itself, not manual documentation
+- **Lets you pick up any project instantly**, even weeks later, because the context is in the files, not in your head
+- **Gets better over time** as your vault accumulates project logs, lessons, and work history
+
+For a deeper look at how all the pieces connect, see [How It All Works](WORKFLOW.md).
 
 ---
 
-## What This Does
+## What You Can Do With It
 
 **The short version:** You describe what you want to accomplish, and the system walks you through it:
 
-1. **Spec it out** — Claude asks you questions to understand what you're trying to do, then writes it up clearly
-2. **Check your thinking** — A review team (3 AI agents) looks for gaps, risks, and things you might have missed
-3. **Plan the work** — Breaks it into phases with clear milestones so you can track progress
-4. **Do the work** — Claude helps you execute each phase, checking quality along the way
-5. **Pick up where you left off** — Everything is saved. Start a new session and resume exactly where you stopped
+1. **Spec it out** -- Claude asks you questions to understand what you're trying to do, then writes it up clearly
+2. **Check your thinking** -- A review team (3 AI agents) looks for gaps, risks, and things you might have missed
+3. **Plan the work** -- Breaks it into phases with clear milestones so you can track progress
+4. **Do the work** -- Claude helps you execute each phase, checking quality along the way
+5. **Pick up where you left off** -- Everything is saved. Start a new session and resume exactly where you stopped
 
-This works for anything structured — a software feature, a business process, a hiring plan, a menu redesign, a budget model. It's not just for code.
+This works for anything structured: a software feature, a business process, a hiring plan, a menu redesign, a budget model. It's not just for code.
 
 ---
 
@@ -26,11 +39,11 @@ This works for anything structured — a software feature, a business process, a
 
 - **macOS or Windows**
 - **A modern terminal** — **[Warp](https://www.warp.dev)** on macOS (free, has tabs and AI features) or **[Windows Terminal](https://aka.ms/terminal)** on Windows (free, has tabs). The default macOS Terminal and Windows Command Prompt also work.
-- **[Claude Code](https://claude.ai/claude-code)** — the terminal/CLI tool (not Claude Desktop, which is a separate chat app)
+- **[Claude Code](https://www.claude.com/product/claude-code)** — the terminal/CLI tool (not Claude Desktop, which is a separate chat app)
 - **[Obsidian](https://obsidian.md)** installed (free note-taking app)
 - **Git** — on macOS, open your terminal and type `git` to check (installs automatically). On Windows, download from [git-scm.com](https://git-scm.com)
 
-> **Important:** Claude Code and Claude Desktop are different products. Claude Desktop is a chat app. Claude Code is a terminal tool that reads your files and runs commands. You need Claude Code for this system. If you only have Claude Desktop installed, [install Claude Code](https://claude.ai/claude-code) separately.
+> **Important:** Claude Code and Claude Desktop are different products. Claude Desktop is a chat app. Claude Code is a terminal tool that reads your files and runs commands. You need Claude Code for this system. If you only have Claude Desktop installed, [install Claude Code](https://www.claude.com/product/claude-code) separately.
 
 ### Step 1: Download the vault
 

@@ -8,7 +8,7 @@ category: Reference
 
 Welcome to your Workflow Kit. Here's how to get up and running.
 
-> **Note:** This system uses **Claude Code** (the terminal/CLI tool), not Claude Desktop (the chat app). If you haven't installed Claude Code yet, get it at [claude.ai/claude-code](https://claude.ai/claude-code).
+> **Note:** This system uses **Claude Code** (the terminal/CLI tool), not Claude Desktop (the chat app). If you haven't installed Claude Code yet, get it at [claude.com/product/claude-code](https://www.claude.com/product/claude-code).
 
 ## 1. Install Skills
 
