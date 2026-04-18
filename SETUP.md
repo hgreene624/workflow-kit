@@ -58,7 +58,7 @@ cp -r skills/<skill-name> ~/.claude/skills/<skill-name>
 xcopy /E /I "skills\<skill-name>" "%USERPROFILE%\.claude\skills\<skill-name>"
 ```
 
-If skills are already installed (user ran the manual copy from Getting Started), skip any that already exist and are identical. Report how many skills were installed or updated.
+If skills are already installed (user ran the manual copy from the README), skip any that already exist and are identical. Report how many skills were installed or updated.
 
 ## Step 4 — Generate Onboarding PICs
 

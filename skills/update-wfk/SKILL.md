@@ -43,7 +43,7 @@ The manifest declares:
 | agents.md | `agents.md` | Work Vault `agents.md` | **Never overwrite repo version** | Section-marker merge |
 | Obsidian config | `.obsidian/` | Work Vault `.obsidian/` | Only `community-plugins.json` | Same |
 | Vault structure | `01_Notes/` through `04_Reference/` | - | Never (scaffold only) | First-run only |
-| Getting Started | `Getting Started.md`, `SETUP.md`, `README.md` | Repo only | Repo-only edits | Not pulled to vault |
+| Docs | `SETUP.md`, `README.md`, `WORKFLOW.md` | Repo only | Repo-only edits | Not pulled to vault |
 
 ## Configuration
 
@@ -294,7 +294,7 @@ Read the repo's `README.md`. Check whether it needs updates based on this push:
 
 1. **Key Commands table** - does it list all core skills the user should know about? If new skills were added that a user would invoke directly (not internal-only skills), add them to the table.
 2. **Skill descriptions** - if a skill's behavior changed significantly (Tier 3 rewrite), check whether the README's description is still accurate.
-3. **Getting Started section** - if the install process or setup steps changed, update them.
+3. **Getting Started section** - if the install process or setup steps changed, update them. (Getting Started content lives in the README, not a separate file.)
 4. **Any section referencing specific skill names** - if a skill was renamed, update the reference.
 
 Don't bloat the README. It's an introduction, not documentation. Only add skills to the Key Commands table if they're user-invocable entry points (like `/create-spec`, `/pickup`, `/closeout`). Internal skills (like `/git-safe`) don't need a README mention.
