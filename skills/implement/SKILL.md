@@ -1,128 +1,149 @@
 ---
 name: implement
 description: >-
-  Execute or resume an implementation plan — dispatch teams, track progress in Plane, and
-  update the plan file in real-time. Use this skill when the user has a ready plan
-  (PL - *.md) and approved Plane project and wants to start building OR wants to resume
-  a partially-complete implementation. Accepts a plan path, spec path, or Plane project
-  URL/ID as entry point — evaluates current state and picks up where things left off.
-  Also trigger on "implement this plan", "start working on this", "execute the plan",
-  "let's build", "kick off implementation", "start phase 1", "pick up where we left off",
-  "resume implementation", "continue building", "what's the status of the implementation",
-  or when plan-spec has just finished and the user wants to proceed. This is the third step
-  in the spec→plan→implement pipeline. Do NOT use this for creating plans (use plan-spec)
-  or reviewing specs (use review-spec).
+  Execute implementation plans with minimal ceremony, dispatch workers, track progress inline
+  in the plan file. No external PM tools. Uses ceremony tiers (light/standard/heavy) to scale
+  process to task complexity: default to the simplest pattern that works, replace agent-based
+  QA with automated checks, eliminate PM relay.
+  Use this skill when the user has a ready plan (PL - *.md) and wants to start building, resume
+  a partial implementation, or when create-plan has just finished. Trigger on "implement", "build
+  this", "start the plan", "kick off", "resume implementation", "let's go", "execute", or the
+  user pointing at a plan file. Third step in the spec>plan>implement pipeline.
 ---
 
-# Implement — Router
+# Implement
 
-This skill is a **stateless router** that classifies the current state and loads the appropriate sub-skill. You never invoke sub-skills directly — this router handles dispatch.
+Execute a plan by dispatching workers directly. You are the orchestrator, no PM tracker, no QA
+auditor agent. Workers report to you. Quality comes from automated checks and live testing, not
+agent-written reports.
 
-**Arguments:** $ARGUMENTS — Path to plan file, spec file, or Plane project URL. Or nothing (will ask).
+**Design principles:**
+- Start with the simplest pattern. Escalate only when measurement proves it necessary.
+- Workers communicate via filesystem and git, not relay agents.
+- A test harness that prints pass/fail beats a QA agent that writes 150-line reports.
+- Audit gates only for irreversible operations (schema migrations, bulk emails, production deploys).
 
-## Step 0.5 — Classify Complexity (L23)
+## Entry
 
-Before classifying state, read the plan's frontmatter for the `complexity` and `ceremony` fields. These were set during `/create-plan` based on the user's choices.
+**Arguments:** $ARGUMENTS — plan file path, spec path, or nothing (will ask).
 
-**Read the ceremony config:**
-```yaml
-ceremony:
-  phases: true | false
-  audit_gates: true | false
-  smoke_tests: true | false
-  qa_auditor: true | false
-  user_testing_gates: true | false
-  pm_tracker: true | false
-```
+1. If no plan provided, ask for the path via AskUserQuestion.
+2. Read the plan frontmatter for `ceremony_tier`, `completed`, and `total`.
+3. Read `references/tiers.md` to understand what the tier enables.
+4. Determine state: fresh start (all tasks `todo`), resume (some `done`/`in-progress`), or complete.
 
-**Apply ceremony selections:**
+## Ceremony Tiers
 
-| Setting | If `false` | If `true` |
-|---------|-----------|-----------|
-| `pm_tracker` | You (orchestrator) manage workers directly. Workers report to you. Skip `implement-setup.md` PM section. | Spawn PM tracker per `implement-setup.md`. |
-| `qa_auditor` | No QA agent. Skip auditor spawn. | Spawn QA auditor per `implement-setup.md`. |
-| `audit_gates` | Workers start immediately when unblocked. No P*.1 audit-first requirement. | P*.1 audit must complete and be reviewed before P*.2 starts. |
-| `user_testing_gates` | Workers self-verify. No gate escalation to user. | Deploy tasks require user manual testing before Done. |
-| `smoke_tests` | No smoke test tasks in the plan. | Run smoke/integration tests after each phase. |
-| `phases` | Flat task list — dispatch workers by dependency order, no phase transitions. | Phase-based execution with checkpoints between phases. |
+Plans set `ceremony_tier: light | standard | heavy` in frontmatter. Default is `light`.
 
-**If the plan has no `ceremony` field** (legacy plans), infer from `complexity`:
-- `light` → all ceremony off
-- `standard` → phases + pm_tracker on, rest off unless plan has H/M risk phases
-- `heavy` → all ceremony on
+| Tier | When | What's on | What's off |
+|------|------|-----------|------------|
+| **light** | UI, CRUD, config, docs, <15 tasks | Workers + smoke checks | Gates, audit agents |
+| **standard** | Auth, schema migrations, production deploys | Workers + smoke checks + security eval + deploy gates | PM tracker, QA auditor agent |
+| **heavy** | Multi-day, multi-team, infrastructure migrations | Everything from v1 | Nothing, full ceremony |
 
-**If ALL ceremony is off** (typical for light plans): skip `implement-setup.md` entirely. Just read the plan, dispatch workers directly (one per deliverable), track completion yourself, and batch-update Plane when done. No routing manifest needed.
+If the plan has no `ceremony_tier`, infer: <15 tasks with no DB/deploy = light. Auth or schema work = standard. Multi-service infrastructure = heavy.
 
-**If ANY ceremony is on**: continue to Step 1 below, but only spin up the agents/gates that are enabled.
+**If tier is `heavy`:** load the original `/implement` skill instead. v2 handles light and standard only.
 
-## Step 0.8 — Read the Project Log
+## Context Loading
 
-If a project log (PJL) exists for this project, read the most recent 3–5 date sections before classifying state or dispatching work. PJLs accumulate session-by-session history and contain critical implementation context:
+Before dispatching work:
 
-- **Decisions already made** — don't re-litigate what's in the PJL
-- **What was tried and failed** — don't repeat failed approaches
-- **Current deployment state** — know what's live before making changes
-- **Known issues** — avoid tripping over documented gotchas
+1. Read the plan, spec, project `agents.md` and `lessons.md`, and `REF - Agent Lessons.md`
+2. **Read the Project Log** — If a PJL exists at `02_Projects/<project>/PJL - <Project Name>.md`, read the most recent 3-5 date sections. This is critical context for implementation:
+   - **Decisions already made** — don't re-litigate what's in the PJL
+   - **What was tried and failed** — don't repeat failed approaches
+   - **Current deployment state** — know what's live before making changes
+   - **Known issues** — avoid tripping over documented gotchas
+   Pass relevant PJL context to workers when dispatching them. A worker building Phase 2 needs to know what Phase 1 discovered.
+3. Check task statuses in the plan tables — which are `done`, `in-progress`, `todo`
+4. Scan for activated lessons (L25 deploy != push, L27 environment declaration, L9 schema inspection)
+5. Present summary: "Plan has N phases, M tasks ({completed} done, K ready). Tier: {tier}. Ready?"
 
-Pass relevant PJL context to workers when dispatching them. A worker building Phase 2 needs to know what Phase 1 discovered.
+## Dispatch
 
-## Step 1 — Classify State
+Create a team via TeamCreate. Dispatch workers directly — you manage them, no PM relay.
 
-Determine which sub-skill to load by checking these conditions in order:
+For each unblocked task or batch of independent tasks:
 
-1. **No plan identified?**
-   - If no argument provided and no plan file is obvious from context → ask the user for the plan path via `AskUserQuestion`
-   - If argument is a spec file → search for `PL - *.md` in the same directory. If none exists, suggest `/create-plan` first.
+1. Choose model per `references/worker.md` model guide
+2. Dispatch with the worker template, injecting: task details, context files, relevant checklists
+3. Workers report completion to YOU with: what was done, commit hash, verification URL (if applicable)
+4. Update the plan file: set task Status to `done`, add Notes, append to Work Log, increment
+   frontmatter `completed` count
 
-2. **Resuming a partial implementation?**
-   - Check: does a Plane project already exist for this plan? (check plan metadata for `plane_url`)
-   - Check: are there issues in In Progress or Done state?
-   - If yes → this is a **resume**. Load `references/implement-resume.md`.
+**Parallel dispatch:** Tasks with no dependency on each other run in parallel. Tasks with deps wait.
+When in doubt, run sequentially — parallel bugs cost more than slow progress.
 
-3. **Fresh start?**
-   - Plan exists, Plane project exists, but no issues are In Progress or Done (all Todo/Backlog)
-   - → this is a **fresh start**. Load `references/implement-setup.md`.
+## Quality: Smoke Checks (Not Audit Agents)
 
-4. **Active sprint (mid-execution)?**
-   - Team already exists, PM tracker is running, work is in progress
-   - → this is **continuing execution**. Load `references/implement-execute.md`.
+After each phase or deploy, run inline checks — not a separate agent. See `references/smoke-checks.md`.
 
-## Step 2 — Write Routing Manifest
+- Build passes? (`pnpm --filter <app> build`)
+- Key routes return expected status? (curl checks)
+- No secrets or debug artifacts in diff? (grep)
+- Schema migration has rollback? (check for down method)
 
-Before loading the sub-skill, follow the routing manifest protocol from `references/routing-manifest.md`:
-- Write the manifest with the expected sub-skill chain (e.g., ["setup", "execute"] for fresh start, ["resume", "execute"] for resumption)
-- The sub-skills will update the manifest as they complete
+Binary pass/fail. If fail, tell the worker what broke. No 150-line report.
 
-## Step 3 — Load and Follow Sub-Skill
+## Quality: Security Eval (Standard Tier Only)
 
-Read the appropriate reference file and follow its instructions within this same context window. The sub-skill IS your instruction set — follow it completely.
+For auth/middleware code changes, run the focused eval from `references/security-eval.md`.
+An LLM review of ONLY the auth diff against a checklist: session validation, error message leaks,
+parameterized queries, CSRF, rate limiting. Skip for CRUD, UI, config.
 
-| State | Sub-skill | What it does |
-|-------|-----------|-------------|
-| Fresh start | `references/implement-setup.md` | Load context, create team, spin up PM + QA, create tasks. Then auto-chain to execute. |
-| Active sprint | `references/implement-execute.md` | Dispatch workers, manage phases, run gates, handle completion. |
-| Resuming | `references/implement-resume.md` | Reconcile state from Plane + git, re-spin PM, then hand off to execute. |
+## Gates
 
-**QA reference:** When execute needs QA verification details, read `references/implement-qa.md`.
+**Light tier:** No gates. Workers self-verify via smoke checks.
 
-**If a live service breaks during implementation:** STOP all work. Invoke `/troubleshoot` immediately.
+**Standard tier:** Gates only for:
+- Schema migrations touching production data (review migration SQL before running)
+- Production deploys (smoke check must pass before reporting "deployed")
+- Bulk operations affecting real users (explicit user approval required)
+- Auth/security code (security eval must pass)
 
-## Sub-Skill Reference Files
+Present gates to the user directly via AskUserQuestion. No PM relay.
 
-All sub-skills live in `references/` alongside existing templates:
+## Phase Transitions
 
-| File | Purpose | Instructions |
+If plan has phases:
+- **Default: chain directly to the next phase.** Don't ask "ready for Phase N?" when work is flowing
+  and there's no blocker. The user will interrupt if they want to pause.
+- **Stop and ask only when:** a gate requires user input (bulk operation approval, deploy to production
+  with real users, design decision not covered by spec), or the previous phase had failures that
+  change the plan.
+- Update plan file with phase status at each transition.
+
+## Completion
+
+When all tasks are done:
+
+1. Update plan frontmatter: `status: Complete`, `completed_date: today`, verify `completed` = `total`
+2. Invoke `/log-work` with summary
+4. Invoke `/retro` for retrospective + handoff
+5. Delete team
+6. Offer next steps: `/learn`, `/kb-doc`, spec update
+
+## Partial Shutdown
+
+If session ends before sprint finishes:
+
+1. Update plan file with current progress (all in-progress tasks noted, frontmatter current)
+2. Invoke `/retro` for handoff
+4. Clean up team
+
+## Reference Files
+
+| File | Purpose | When to load |
 |------|---------|-------------|
-| `implement-setup.md` | Team creation, context loading | ~22 |
-| `implement-execute.md` | Phase execution, gates, completion | ~28 |
-| `implement-qa.md` | Playwright audit, acceptance criteria | ~12 |
-| `implement-resume.md` | State reconciliation, continuation | ~14 |
-| `routing-manifest.md` | Manifest protocol (shared infra) | — |
-| `context-checkpoint.md` | Worker context management | — |
-| `worker-template.md` | Worker dispatch template | — |
-| `auditor-prompts.md` | QA auditor template | — |
-| `tracker-prompts.md` | PM tracker template | — |
-| `handoff-template.md` | Handoff document template | — |
+| `references/tiers.md` | Tier definitions and flag mappings | Always |
+| `references/worker.md` | Worker dispatch template + model guide | When dispatching |
+| `references/smoke-checks.md` | Automated pass/fail checks | After deploys/phases |
+| `references/security-eval.md` | LLM auth code review prompt | Standard tier, auth changes |
+| `references/checklists/deploy.md` | Deploy verification | Workers touching production |
+| `references/checklists/frontend.md` | basePath, AG Grid, rendering | Frontend workers |
+| `references/checklists/db.md` | Schema inspection, migration safety | DB workers |
 
 ## Local Customizations
 

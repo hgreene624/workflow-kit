@@ -179,6 +179,14 @@ Run Step 2 to build the dynamic catalog, then present it as a formatted referenc
 ### `<skill-name>` - explain a specific skill
 Read the named skill's SKILL.md and explain what it does, when to use it, and show an example invocation. Tailor the explanation to the user's context if available.
 
+## Skill Chains
+
+Skills compose into documented chains. Key chains:
+- **Daily**: orient → pickup → log-work → closeout → end-day → dream
+- **Build**: create-spec → review-spec → create-plan → implement → pr-review → retro
+
+When recommending skills, consider where the user is in a chain and suggest the natural next step.
+
 ## Constraints
 
 - Maximum 3 recommendations. Quality over quantity.

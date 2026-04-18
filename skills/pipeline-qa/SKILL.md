@@ -13,6 +13,8 @@ Quality has two layers, and both must pass:
 
 A record that passes every structural check can still be worthless if the summary describes the wrong input, the classification mischaracterizes what happened, or the attribution points to the wrong entity. **Checking that fields are populated is not QA. Checking that fields contain the correct information is QA.**
 
+When a subsystem fails either layer, you can modify anything needed to fix it: prompts (DB or code), processing logic, config lists, schema migrations, compose files. The fix is whatever makes the output both structurally valid and substantively true.
+
 ---
 
 ## Prerequisites — Subsystem Registry
@@ -67,6 +69,7 @@ Before running any evaluation:
 2. **Read project context** — Load `agents.md` and `lessons.md` for the project.
 3. **Read the code** for the selected sub-component.
 4. **Read the QA Log** if one exists for this subsystem (path from registry).
+5. **Check golden tests** — if a `golden/` directory exists alongside the QA logs, load the relevant golden test file.
 
 Build a concrete understanding of:
 - What the spec says this sub-component should produce
@@ -77,7 +80,9 @@ Build a concrete understanding of:
 
 ## Step 3: Infrastructure Audit
 
-Before evaluating output quality, verify the subsystem's foundation is intact. Infrastructure problems cascade — a missing table affects every sub-component downstream.
+Before evaluating output quality, verify the subsystem's foundation is intact. Many pipeline failures are not output quality issues, they are infrastructure gaps, missing migrations, stale config, or inherited technical debt. This step catches those.
+
+Run every check relevant to the selected subsystem. Each check is binary: PASS or FAIL with specifics.
 
 ### Universal Checks (all subsystems)
 
@@ -87,15 +92,23 @@ Run these for every subsystem, using the values from the registry:
 |----|-------|---------------|-------------------|
 | INF-1 | **Services running** | Check each service listed in `infrastructure.services` is up and responsive | Pipeline can't execute at all |
 | INF-2 | **Code matches deploy** | Compare a key function signature in the running service vs committed code | Deployed code is stale; fixes committed but never deployed |
-| INF-3 | **DB connectivity** | Verify connection to database and that tables in `infrastructure.db_tables` exist | Pipeline will fail on all DB operations |
-| INF-4 | **Environment variables** | Check each var in `infrastructure.env_vars` is set in the running service | API calls fail, DB writes fail, features silently disabled |
+| INF-3 | **DB connectivity** | Verify connection to database and that tables in `infrastructure.db_tables` exist with expected columns | Pipeline will fail on all DB operations |
+| INF-4 | **Environment variables** | Check each var in `infrastructure.env_vars` is set and non-empty in the running service | API calls fail, DB writes fail, features silently disabled |
 | INF-5 | **Endpoints reachable** | Hit each URL in `infrastructure.endpoints` | Dependent services unreachable |
 
 ### Subsystem-Specific Checks
 
-Beyond universal checks, each subsystem may need domain-specific infrastructure verification. Define these in `agents.md` or derive them from the spec (e.g., "Is the LLM gateway reachable?", "Are prompts registered?", "Is the source API returning data?").
+Beyond universal checks, each subsystem needs domain-specific infrastructure verification. Define these in `agents.md` or derive them from the spec. Common categories to consider:
+
+- **Data freshness:** Is the source data pipeline feeding new records? (e.g., check recent row counts in source tables)
+- **Prompt/config registration:** Are LLM prompts, feature flags, or config entries that the code references actually present in the database or config store?
+- **Upstream API access:** Can the pipeline reach the external APIs it reads from? (e.g., email provider, calendar API, data feeds)
+- **Backlog size:** How many unprocessed records exist? A large backlog may indicate a stalled pipeline or misconfigured parameters.
+- **Dependent service health:** Are downstream services the pipeline writes to (gateways, queues, caches) reachable and accepting data?
 
 ### Reporting
+
+Record every check in the QA Log under a `### Infrastructure Audit` section (before the output evaluation):
 
 ```markdown
 ### Infrastructure Audit
@@ -108,6 +121,8 @@ Beyond universal checks, each subsystem may need domain-specific infrastructure 
 ```
 
 **Any infrastructure FAIL is a hard blocker.** Fix infrastructure issues before running the output evaluation. There is no point evaluating classification quality if the service is down or reading stale data.
+
+Infrastructure fixes follow the same diagnose-fix-verify loop as output fixes (Step 7). Log them in the same QA Log entry under Fixes Applied.
 
 ---
 
@@ -141,14 +156,33 @@ This is the most critical QA step. A record can pass every structural check and 
 
 For every pipeline output you evaluate, perform a **source-to-output comparison**:
 
-1. **Pull the output joined to its source.** Never evaluate output in isolation. Join the generated artifact back to the raw input that produced it.
+1. **Pull the output joined to its source.** Never evaluate output in isolation. Join the generated artifact back to the raw input that produced it. Find the FK or source reference that connects output to input, build the join, and compare.
+
+   Generic pattern:
+   ```
+   SELECT output.id, output.type, output.generated_summary,
+          source.id, source.original_content
+   FROM outputs
+   JOIN sources ON sources.id = outputs.source_ref
+   WHERE outputs.created_at > recent_window
+   ORDER BY outputs.created_at DESC;
+   ```
 
 2. **For each output, answer three questions:**
-   - **Is this true?** Does the output accurately reflect what the source material says? Look for hallucinated details, cross-contaminated content from other sources in the same batch, and content extracted from nested/quoted data rather than the primary record.
-   - **Is this attributed correctly?** Does the entity, person, or parent record this output points to match what the source data indicates?
-   - **Is the judgment correct?** For outputs involving a classification decision (type, priority, category), would a human reading the source data make the same call?
+   - **Is this true?** Does the output accurately reflect what the source material says? Not just "is it plausible" but "does the source actually say this?" Look for hallucinated details, cross-contaminated content from other sources in the same batch, and content extracted from nested/quoted data rather than the primary record.
+   - **Is this attributed correctly?** Does the entity, person, or parent record this output points to match what the source data indicates? Check that the attributed author matches the actual source author, and that linked parent records are topically related.
+   - **Is the judgment correct?** For outputs involving a classification decision (type, priority, category, weight), would a human reading the source data make the same call?
 
-3. **Compare across the batch.** Cross-contamination is a batch-level bug — you won't catch it by looking at records individually. For every batch processed together, verify that no two outputs swapped their content.
+3. **Compare across the batch.** Cross-contamination is a batch-level bug — you won't catch it by looking at records individually. For every batch processed together, verify that no two outputs swapped their content. The telltale sign: output A's summary describes what source B actually says, and vice versa.
+
+### Batch-Level Audit Pattern
+
+When auditing a batch that was processed together:
+
+1. Pull all outputs from the batch (same timestamp or run ID)
+2. For each output, check: does the attribution match the source author? Does the summary match the source content?
+3. If you find a mismatch, check the *other* outputs in the batch. The mismatched content probably belongs to one of them.
+4. Count: how many outputs in the batch are correct vs contaminated? If more than one is wrong, the bug is in the batch processing logic (ID mapping, positional mapping, prompt confusion).
 
 ### What to Look For
 
@@ -162,7 +196,14 @@ For every pipeline output you evaluate, perform a **source-to-output comparison*
 | **Entity mismatch** | Attribution doesn't match the actual source sender/author | P2 — downstream scoring and routing affected |
 | **Cascade misroute** | One bad classification propagates to all subsequent items in the same group | P1 — one error poisons N downstream records |
 
-Content truth failures produce *plausible-looking wrong data* that downstream consumers will trust. Fix priority: stop the bleeding (fix code path if it affects future processing) > identify root cause > fix and retest on the same data > quantify blast radius.
+### When Content Issues Are Found
+
+Content truth failures are more serious than structural failures because they produce *plausible-looking wrong data* that downstream consumers will trust. Fix priority:
+
+1. **Stop the bleeding** — if the bug affects all future processing (not just historical data), fix the code path first
+2. **Identify the root cause** — trace the code that produced the wrong content. Common causes: LLM response matched to wrong input (ID mapping bug), LLM reading nested/quoted content instead of the primary record, group/thread matching linking to a stale parent, fallback logic assigning default values that look real but aren't
+3. **Fix and retest on the same data** — delete the bad outputs, reset the inputs, reprocess, compare before/after
+4. **Quantify the blast radius** — how many existing records are affected? Is this a one-off or systematic?
 
 ---
 
@@ -172,6 +213,8 @@ Run the evaluation using the method appropriate to the subsystem:
 
 - **If an eval command exists** in the registry, run it and parse the output
 - **If no eval command**, query the database directly to pull recent outputs joined to their sources
+
+For sub-components without a dedicated eval script, build targeted queries that pull outputs alongside the source data they were derived from, then manually verify each result against the criteria.
 
 ### Evaluate Every Result
 
@@ -186,7 +229,7 @@ When the user selects "Full Pipeline":
 1. Run infrastructure audit with ALL checks for that system
 2. Evaluate each sub-component in pipeline order (upstream before downstream)
 3. Fix infrastructure issues first, then work through sub-component failures in order
-4. A single combined QA Log entry covers all sub-components
+4. A single combined QA Log entry covers all sub-components, with separate criteria/data sections per sub-component
 
 ---
 
@@ -199,8 +242,9 @@ For each failure group:
 Before diagnosing, read the QA Log (if it exists). Check:
 - Has this failure type appeared before?
 - Was a fix attempted? Did it work, partially work, or regress?
+- Are there "Remaining Issues" from prior runs that match this failure?
 
-This prevents re-attempting fixes that already failed and surfaces recurring issues.
+This prevents re-attempting fixes that already failed and surfaces recurring issues (e.g., "this is the third time this failure type has appeared, the previous fix wasn't sufficient").
 
 ### 7b: Classify Root Cause
 
@@ -212,11 +256,16 @@ This prevents re-attempting fixes that already failed and surfaces recurring iss
 | **Schema gap** | Missing column, wrong type, missing constraint | DB migration |
 | **Data quality** | Stale or orphan data causing misroutes | Data cleanup query |
 
-### 7c: Fix, Verify, Deploy
+### 7c: Implement and Verify
 
 1. **Implement** the fix (prompt, code, config, schema, or data)
-2. **Verify** by re-running only the failing cases. Check: do previously failing cases now pass? Did the fix introduce regressions?
+2. **Verify** by re-running only the failing cases. Check:
+   - Do previously failing cases now pass?
+   - Do the golden tests still pass (if they exist)?
+   - Did the fix introduce any new failures in the passing cases?
 3. **Deploy** if the fix involved code/config changes. DB-only changes (prompt updates, data cleanup) may not need a deploy.
+
+If the fix causes regressions, revert and try a different approach.
 
 ### 7d: Iterate
 
@@ -276,13 +325,13 @@ Criteria derived from {spec filename}:
 |---|------|----|----|----|---------|-------|
 | 1 | {item identifier} | PASS | PASS | FAIL | FAIL | {what was wrong} |
 
-**Summary:** {pass}/{total} items passed all criteria ({pct}%).
+**Summary:** {pass}/{total} items passed all criteria ({pct}%). {N} distinct failure types across {M} failing items.
 
 ### Failures Found
 - **{Root cause type}: {description}**
-  - Affected: {N} items
-  - Example: {specific failing case}
-  - Spec requirement: {what the spec says}
+  - Affected: {N} items (#{list of item numbers from table above})
+  - Example: {specific failing case with actual values}
+  - Spec requirement: {what the spec says, with section reference}
   - Actual output: {what the system produced}
   - Code location: {file:line}
 
@@ -298,8 +347,12 @@ Criteria derived from {spec filename}:
 
 ### Trend (vs prior runs)
 - **Last run:** {date} — {pass_rate}% -> this run: {pass_rate}%
-- **Recurring failures:** {list, or "none — first run"}
+- **Recurring failures:** {list any failure types that appeared in previous runs, or "none — first run"}
 - **Infrastructure delta:** {checks that changed since last run}
+- **Previously attempted fixes that didn't hold:** {list, or "none"}
+
+### Golden Test Results
+- {PASS|FAIL}: {N}/{M} golden tests passed
 
 ---
 ```
@@ -328,16 +381,23 @@ Do NOT auto-fix without user confirmation on the approach. The user decides what
 
 ## Golden Tests
 
-Golden tests are a small set of cases (5-10) with known-correct outcomes that must never regress. If golden tests don't exist yet, the first QA run should establish them from clearly passing cases. On subsequent runs, verify golden tests pass before promoting any fix. Store in a `golden/` subdirectory alongside QA logs (one JSON line per case: input, expected, rationale).
+Golden tests are a small set of cases (5-10) with known-correct outcomes that must never regress. If golden tests don't exist yet, the first QA run should establish them:
+
+1. From the current batch, select 5-10 cases that clearly pass all criteria
+2. Save them as the golden test set for that sub-component
+3. On subsequent runs, always verify golden tests pass before promoting any fix
+
+Store in a `golden/` subdirectory alongside QA logs (one JSON line per case: input, expected, rationale).
 
 ---
 
 ## Tips
 
 - Start with the sub-component most likely to have failures (check PICs or recent QA logs)
-- When fixing prompts, include the specific failure case in context
-- Verify fixes are deployed to the environment you're testing against
+- When fixing prompts, include the specific failure case in context ("these 3 records were misclassified because the prompt doesn't handle X")
+- For code fixes, verify the fix is deployed to the environment you're testing against
 - Don't optimize beyond spec compliance — if the spec is silent, don't invent criteria
+- If the spec itself seems wrong or incomplete for a sub-component, flag it to the user rather than inventing criteria
 
 ---
 

@@ -264,7 +264,7 @@ When the user is ready to plan, they run:
 /create-plan <path-to-spec>
 ```
 
-The plan-spec skill will automatically look for review artifacts in `Reviews/{date}/` and use them to inform the plan. Clarification answers from the log directly shape phase structure, task dependencies, and risk mitigations in the plan.
+The create-plan skill will automatically look for review artifacts in `Reviews/{date}/` and use them to inform the plan. Clarification answers from the log directly shape phase structure, task dependencies, and risk mitigations in the plan.
 
 ## Local Customizations
 

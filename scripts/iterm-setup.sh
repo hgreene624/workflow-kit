@@ -43,7 +43,7 @@ mkdir -p "$SCRIPTS_DIR"
 
 # Find the WFK repo or skill source for scripts
 SOURCES=(
-  "/tmp/flora-skills-repo/scripts"
+  "/tmp/wfk-repo/scripts"
   "$HOME/.claude/skills/iterm"
 )
 for src in "${SOURCES[@]}"; do
@@ -131,11 +131,14 @@ if [ -f "$PLIST" ]; then
   PROFILE_COUNT=$(/usr/libexec/PlistBuddy -c "Print ':New Bookmarks'" "$PLIST" 2>/dev/null | grep -c "Dict" || echo "0")
 
   for i in $(seq 0 $((PROFILE_COUNT - 1))); do
-    IS_DEFAULT=$(/usr/libexec/PlistBuddy -c "Print ':New Bookmarks:${i}:Name'" "$PLIST" 2>/dev/null || echo "")
+    PROFILE_NAME=$(/usr/libexec/PlistBuddy -c "Print ':New Bookmarks:${i}:Name'" "$PLIST" 2>/dev/null || echo "")
+    # Only configure the Default profile — skip all others
+    [ "$PROFILE_NAME" != "Default" ] && continue
+    IS_DEFAULT="$PROFILE_NAME"
 
     # Set Title Components to 1 (Session Name)
-    /usr/libexec/PlistBuddy -c "Delete ':New Bookmarks:${i}:Title Components'" "$PLIST" 2>/dev/null
-    /usr/libexec/PlistBuddy -c "Add ':New Bookmarks:${i}:Title Components' integer 1" "$PLIST" 2>/dev/null
+    /usr/libexec/PlistBuddy -c "Delete ':New Bookmarks:${i}:Title Components'" "$PLIST" 2>/dev/null || true
+    /usr/libexec/PlistBuddy -c "Add ':New Bookmarks:${i}:Title Components' integer 1" "$PLIST" 2>/dev/null || true
 
     # Set working directory (only if not already custom)
     CUSTOM=$(/usr/libexec/PlistBuddy -c "Print ':New Bookmarks:${i}:Custom Directory'" "$PLIST" 2>/dev/null || echo "No")
@@ -149,8 +152,10 @@ if [ -f "$PLIST" ]; then
         fi
       done
       if [ -n "$VAULT_PATH" ]; then
-        /usr/libexec/PlistBuddy -c "Set ':New Bookmarks:${i}:Custom Directory' 'Yes'" "$PLIST" 2>/dev/null
-        /usr/libexec/PlistBuddy -c "Set ':New Bookmarks:${i}:Working Directory' '$VAULT_PATH'" "$PLIST" 2>/dev/null
+        /usr/libexec/PlistBuddy -c "Set ':New Bookmarks:${i}:Custom Directory' 'Yes'" "$PLIST" 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add ':New Bookmarks:${i}:Custom Directory' string 'Yes'" "$PLIST" 2>/dev/null || true
+        /usr/libexec/PlistBuddy -c "Set ':New Bookmarks:${i}:Working Directory' '$VAULT_PATH'" "$PLIST" 2>/dev/null || \
+          /usr/libexec/PlistBuddy -c "Add ':New Bookmarks:${i}:Working Directory' string '$VAULT_PATH'" "$PLIST" 2>/dev/null || true
         log "✓ Profile '$IS_DEFAULT': initial directory → $VAULT_PATH"
       fi
     fi

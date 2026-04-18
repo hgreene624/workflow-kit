@@ -30,13 +30,13 @@ Ask the user to confirm what should be logged if it's ambiguous.
 
 ### Environment Disambiguation (MANDATORY for Flora app work)
 
-If the work being logged touched a Flora app (KB, admin, portal, mail, fwis-viewer, home, reservations, mailbox-viewer, revenue-dashboard, culinary-cottages, or anything in `~/Repos/flora-monorepo/`), the log entry MUST disambiguate which environment was affected. Three valid forms:
+If the work being logged touched a Flora app (KB, admin, portal, mail, fwis-viewer, home, reservations, mailbox-viewer, revenue-dashboard, culinary-cottages, or anything in `~/Repos/{{MONOREPO_NAME}}/`), the log entry MUST disambiguate which environment was affected. Three valid forms:
 
 - **Local-only iteration** — write `(local — verified at http://localhost:<port>/<path>)` after the bullet. Be explicit that this did NOT update production.
-- **Deployed to production** — write `(deployed via flora-deploy <service> — verified at https://myarroyo.com/<app>/<path>)` after the bullet. Include the verification URL you actually hit.
+- **Deployed to production** — write `(deployed via flora-deploy <service> — verified at https://YOUR_DOMAIN/<app>/<path>)` after the bullet. Include the verification URL you actually hit.
 - **Both** — write `(local + deployed via flora-deploy <service>)`.
 
-Bare phrases like "fixed KB hydration", "deployed mailbox-viewer", "tested admin page" are AMBIGUOUS and create false confidence. Future agents reading the daily note will not know whether myarroyo.com was actually updated. Always include the environment label and a verification URL.
+Bare phrases like "fixed KB hydration", "deployed mailbox-viewer", "tested admin page" are AMBIGUOUS and create false confidence. Future agents reading the daily note will not know whether YOUR_DOMAIN was actually updated. Always include the environment label and a verification URL.
 
 **Push ≠ Deploy.** As of 2026-04-07, `git push origin main` does NOT auto-deploy. If the work involved a code change to a Flora app and no `flora-deploy` or `safe-build` command was run, the change is LOCAL ONLY and the log must say so. Pushing to main without running the deploy command is not a deploy.
 
@@ -69,8 +69,8 @@ Match the project to its group:
 
 | Group (`###`) | Projects (`####`) |
 |---|---|
-| Flora Apps | Flora KB, Document Generator, Revenue Dashboard, Reservation App, Admin Panel, Culinary Cottages Portal, Mail |
-| Flora Intelligence | Signal Engine (FWIS, MIP, transcription pipeline), AI Gateway |
+| {{ORG}} Apps | Flora KB, Document Generator, Revenue Dashboard, Reservation App, Admin Panel, Culinary Cottages Portal, Mail |
+| {{ORG}} Intelligence | Signal Engine (FWIS, MIP, transcription pipeline), AI Gateway |
 | Infrastructure | VPS, CI/GHCR, Local Dev, Cron System |
 | Restaurant Ops | Odoo, Simphony, Server Manual, Tastings, Revenue Reports |
 | Workflow Kit & Tooling | WFK, CC Analytics |
@@ -81,7 +81,7 @@ Match the project to its group:
 
 Before creating a new `####` heading, scan ALL existing headings under `## Worked on`:
 
-1. **Match by project:** All work on the same project goes under ONE `####`. "CCP v3 Phase 0", "CCP Owner Portal Routing Deploy" are all `#### Culinary Cottages Portal` under `### Flora Apps`.
+1. **Match by project:** All work on the same project goes under ONE `####`. "CCP v3 Phase 0", "CCP Owner Portal Routing Deploy" are all `#### Culinary Cottages Portal` under `### {{ORG}} Apps`.
 2. **Common abbreviations:** MIP/FWIS/FAO → Signal Engine, CCP → Culinary Cottages Portal, DocGen → Document Generator.
 3. **If the group `###` heading already exists**, add the new `####` project under it. If the group doesn't exist yet, create both.
 
@@ -160,15 +160,15 @@ Only create a WL when the PJL entry would be too dense:
 ```markdown
 ## Worked on
 
-### Flora Apps
+### {{ORG}} Apps
 #### Culinary Cottages Portal
-- **Built the full owner portal** -- authentication, ownership cards, voting flow, and admin controls all live at myarroyo.com/owners/
+- **Built the full owner portal** -- authentication, ownership cards, voting flow, and admin controls all live at YOUR_DOMAIN/owners/
 - Ran live UAT with dad, caught and fixed 9 bugs during testing
 - Bulk signup emails and Patrick's final review still needed before owners can use it -- [[PJL - Culinary Cottages Portal|Project log]]
 #### Document Generator
 - **Shipped the guided document creation flow** -- overlay wizard walks users through research and generation -- [[PJL - Document Generator|Project log]]
 
-### Flora Intelligence
+### {{ORG}} Intelligence
 #### Signal Engine
 - **Verified signal pipeline works after gateway refactor** -- fixed two bugs that were crashing email processing and meeting tracking
 - Cleaned up stuck meeting processing runs and backfilled missing staff records -- [[PJL - Signal Engine|Project log]]

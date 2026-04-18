@@ -10,6 +10,52 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v2.1.0 - 2026-04-17
+
+### What this release is about
+
+New skill for capturing stakeholder ideas before they become specs. Five skills got significant generalization work to remove hardcoded assumptions and work better across different environments. Org-specific content scrubbed from several files that slipped through v2.0.0.
+
+### New skills
+
+**`/create-concept-brief`**
+When someone describes a feature idea, product vision, or system concept, this skill captures it as a structured Concept Brief (CB). It interviews the stakeholder about outcomes and frustrations (not technology), grounds their ideas against what already exists, and produces a document a developer can act on without guessing intent. The CB feeds into `/create-spec` as the first step in the idea-to-implementation pipeline.
+
+### What got better
+
+**Implementation scales without external tools.**
+`/implement` was rewritten to use ceremony tiers (light/standard/heavy) that match the plan's complexity. Light plans skip team setup entirely, dispatching workers directly with inline tracking. Standard plans add security eval and deploy gates. Heavy plans get full ceremony. The plan file tracks everything, no external project management dependency.
+
+**Pickup handles deployable projects more carefully.**
+`/pickup` now includes an environment declaration step for projects with deployment targets. Before starting work on a PIC that involves deployed code, it determines whether you're working LOCAL, REMOTE, or BOTH, and injects that context into every action. This prevents the "pushed but not deployed" false confidence pattern.
+
+**End-of-day audit is environment-aware.**
+`/end-day` now adapts its audit to your actual setup. It checks for uncommitted changes, unpushed commits, and stale deployments based on what it discovers in your environment, not a hardcoded service list.
+
+**Pipeline QA has a reusable framework.**
+`/pipeline-qa` now provides a generic spec-compliance evaluation framework: infrastructure pre-checks as hard blockers, subsystem isolation, automated scoring with configurable thresholds, and content truth verification. The specific checks are yours to define for your pipeline.
+
+**Skill chains documented in `/discover`.**
+`/discover` now shows how skills compose into chains (Daily: orient to pickup to log-work to closeout to end-day to dream; Build: create-spec to review-spec to create-plan to implement to pr-review to retro) and suggests the natural next step based on where you are.
+
+### Scrub fixes
+
+Several files from v2.0.0 contained leaked org-specific references (domain names, repo paths, deploy commands). These have been scrubbed: closeout, log-work, create-pickup, README.
+
+### What you need to do
+
+Nothing required. All changes are backward-compatible.
+
+### Migration
+
+When you run `/update-wfk pull`:
+1. `create-concept-brief` will be offered for installation
+2. Five skills (implement, pickup, end-day, pipeline-qa, discover) will be updated
+3. Scrubbed files (closeout, log-work, create-pickup) will be refreshed
+4. Your sync manifest will be updated to v2.1.0
+
+---
+
 ## v2.0.0 - 2026-04-11
 
 ### What this release is about

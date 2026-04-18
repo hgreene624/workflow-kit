@@ -48,18 +48,24 @@ Categorize findings:
 - **Behind remote** — local is out of date, someone else pushed
 - **Detached HEAD or wrong branch** — flag prominently
 
+**Remote repos:** If the user's environment includes git repos on remote servers (deploy targets, CI runners, VPS hosts), check those too via SSH. Look for indicators in the project's `agents.md` or CLAUDE.md for remote repo locations. Remote repos are easy to forget, and direct edits on servers (outside normal git flow) are a common source of drift. For each remote repo, run the same git status checks and flag any uncommitted changes or unpushed commits.
+
 ### 0b. Deployment target audit (if applicable)
 
 If the user's environment includes deployment targets (production servers, staging environments, container hosts), check whether today's code changes are actually running in those targets.
 
 **Detection:** Look for indicators in the vault's project `agents.md` files, REF docs, or CLAUDE.md for deployment infrastructure references (Docker, CI/CD pipelines, server hosts, deploy scripts). If none are found, skip this step.
 
-**If deployment targets exist:** For each service that had code changes today, verify the deployed version matches what was committed. The specific verification method depends on the user's infrastructure — check the project's `agents.md` for deploy verification commands.
+**If deployment targets exist:** For each service that had code changes today, compare the deployment timestamp against the latest relevant commit. The specific verification method depends on the user's infrastructure — check the project's `agents.md` for deploy verification commands.
 
-Not all drift needs action. Classify each finding:
-- **Real code change** (application logic, configs baked into builds) — needs deploy
-- **Doc-only change** (README, agents.md, markdown) — no deploy needed
-- **Framework auto-mods** (lock files, generated types) — usually no functional impact
+**Drift classification: not all drift needs action.** Before reporting, classify each drifted service:
+
+- **Real code change** (application logic, configs baked into builds, Dockerfiles, compose files) — NEEDS DEPLOY. Flag prominently.
+- **Doc-only change** (README, agents.md, markdown not baked into images) — NO DEPLOY needed. Docs aren't part of the deployed artifact.
+- **Framework auto-mods** (generated type files, lock file dev-path changes, auto-flipped config values) — usually NO functional impact. Mark as "framework noise."
+- **Config/env changes outside the build** (mounted env files, external config) — NO DEPLOY if config is mounted at runtime rather than baked in.
+
+**Functional verification:** For services flagged as "real code change" drift, verify the deployed code actually matches or differs. Timestamp comparisons can lie due to cached builds. Where possible, check for a distinctive string from the latest commit in the running service (e.g., grepping a version constant or a new function name). If the string is present, the deployment has the code despite the timestamp mismatch.
 
 ### 0c. Auto-memory audit
 
@@ -67,7 +73,22 @@ Check `~/.claude/projects/*/memory/MEMORY.md` for consistency:
 - New memory files today that aren't indexed in MEMORY.md (orphan entries)
 - MEMORY.md entries pointing to files that don't exist (broken links)
 
-### 0d. Present the audit
+### 0d. Config backup audit (if applicable)
+
+If the user maintains a backup location for agent configuration files (skills, agents, settings), check that the backup is current:
+
+```bash
+# Example: compare source vs backup directory
+diff -rq ~/.claude/skills/ <backup_path>/skills/ 2>/dev/null | head -20
+diff -rq ~/.claude/agents/ <backup_path>/agents/ 2>/dev/null | head -10
+diff -q ~/.claude/settings.json <backup_path>/settings.json 2>/dev/null
+```
+
+**Detection:** Look for a backup path in `wfk-paths.json`, CLAUDE.md, or `agents.md`. If no backup location is configured, skip this step.
+
+Any drift means the backup is stale and should be refreshed before the vault commit captures today's changes. Report which files differ but do not auto-sync.
+
+### 0e. Present the audit
 
 Output a summary table. For each issue, ask the user how to handle it BEFORE proceeding to Step 1:
 
@@ -79,11 +100,20 @@ Repos:
   ~/Repos/my-project       branch=main  ⚠ 1 unpushed commit   → push? [y/n]
   ~/Documents/Vaults        branch=main  clean                  ✅
 
+Deploys:
+  ⚠ web-app    commit 30min newer (real code change)            → deploy? [y/n]
+  ⚠ dashboard  commit 4h newer (framework noise)                → no real impact
+  ✅ all other services in sync
+
+Config backup:
+  skills/      2 files newer in source than backup              → sync? [y/n]
+  settings.json ✅ in sync
+
 Memory:
   1 new file today, indexed in MEMORY.md                        ✅
 ```
 
-Do NOT auto-fix. The user decides each one. Unpushed commits may be intentional. Undeployed code may belong to another session.
+Do NOT auto-fix. The user decides each one. Unpushed commits may be intentional. Undeployed code may belong to another session. Backup drift may be intentional if the user is mid-edit.
 
 **If no issues:** print one line — `Environment health: clean.` — and proceed.
 
@@ -239,7 +269,7 @@ the same system/pipeline/project as recently shipped or deployed. If so, add a
 cross-reference note:}
 - ⚠️ **[PIC topic]** touches **[system]** which was shipped [date] — if broken, check deployment state first (env vars, feature flags, container health) before investigating from scratch.
 {This prevents agents from wasting sessions reverse-engineering recently-built systems
-when the real issue is a deployment regression. See L18 in Agent Lessons.}
+when the real issue is a deployment regression.}
 
 ## Tomorrow
 {TODOs and meetings from tomorrow's daily note. Flag time-sensitive items.

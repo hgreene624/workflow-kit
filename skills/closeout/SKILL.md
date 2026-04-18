@@ -17,14 +17,14 @@ Before logging anything, audit the session for Flora app work and verify the dep
 
 For every Flora app code change in this session, answer:
 
-1. **Was it deployed to REMOTE (myarroyo.com)?** Check by:
+1. **Was it deployed to REMOTE (YOUR_DOMAIN)?** Check by:
    - Did anyone run `./infra/dev/flora-deploy <service>` or `safe-build <service> --pull`? Look for the actual command in the conversation/JSONL.
-   - If yes, run `gh run list --repo hgreene624/flora-monorepo --limit 5` to confirm the GHA workflow ran successfully.
+   - If yes, run `gh run list --repo YOUR_USERNAME/{{MONOREPO_NAME}} --limit 5` to confirm the GHA workflow ran successfully.
    - Do NOT count "git push origin main" as a deploy. Push ≠ Deploy as of 2026-04-07. CI is `workflow_dispatch`-only.
 
 2. **If it was LOCAL ONLY**, the closeout log MUST say so explicitly: "(local — verified at http://localhost:<port>/<path>) — NOT deployed to production".
 
-3. **If it was deployed**, log MUST include: "(deployed via flora-deploy <service> — verified at https://myarroyo.com/<app>/<path>)".
+3. **If it was deployed**, log MUST include: "(deployed via flora-deploy <service> — verified at https://YOUR_DOMAIN/<app>/<path>)".
 
 4. **If you cannot determine the environment** for a Flora change, STOP and ask the user before logging. Don't guess.
 
@@ -55,7 +55,7 @@ Context compaction loses detail. The live conversation context may be missing ea
 Session logs live at `~/.claude/projects/<project-slug>/`. The project slug is derived from the working directory path (slashes become dashes). Find the most recent `.jsonl` file:
 
 ```bash
-ls -lt ~/.claude/projects/-Users-holdengreene-Documents-Vaults/*.jsonl 2>/dev/null | head -5
+ls -lt ~/.claude/projects/-Users-username-Documents-Vaults/*.jsonl 2>/dev/null | head -5
 ```
 
 The current session is typically the most recently modified file.
@@ -165,11 +165,11 @@ If you cannot determine whether a change is yours vs another session's, **leave 
 ### 1.6a — Identify this session's repos
 
 Walk the JSONL tool_use entries and extract every file path that was edited/written. Map each file to its parent git repo by walking up to find a `.git` directory. Common candidates:
-- `~/Repos/flora-monorepo/` (Flora app code)
+- `~/Repos/{{MONOREPO_NAME}}/` (Flora app code)
 - `~/Documents/Vaults/` (vault notes, configs, REF docs)
 - `~/.claude/skills/` (only if a `.git` directory exists — otherwise the changes are mirrored via backup-vault and live at `Vaults/.claude-backup/skills/` instead)
 - `vps:/root/bin/` (VPS scripts — check via `ssh vps "cd /root/bin && git status"`)
-- `vps:/docker/flora-monorepo/` (the VPS deploy clone — usually shouldn't be edited directly, but worth checking)
+- `vps:/docker/{{MONOREPO_NAME}}/` (the VPS deploy clone — usually shouldn't be edited directly, but worth checking)
 
 For each repo, build a list of files **this session touched**.
 
@@ -209,13 +209,13 @@ If the commit is from another session (older timestamp, unrelated message, or ma
 
 ### 1.6d — Check deploy state for Flora app changes
 
-This step is MANDATORY when this session edited any file under `~/Repos/flora-monorepo/apps/<svc>/` or its package dependencies (`packages/db`, `packages/ui`, `packages/shared`, `packages/flora-ai-client`).
+This step is MANDATORY when this session edited any file under `~/Repos/{{MONOREPO_NAME}}/apps/<svc>/` or its package dependencies (`packages/db`, `packages/ui`, `packages/shared`, `packages/flora-ai-client`).
 
 For each touched Flora service, verify the running prod container has this session's code:
 
 1. **Find the latest commit touching the service's paths:**
    ```bash
-   cd ~/Repos/flora-monorepo && git log -1 --format="%h %ai" -- apps/<svc>/ packages/
+   cd ~/Repos/{{MONOREPO_NAME}} && git log -1 --format="%h %ai" -- apps/<svc>/ packages/
    ```
 
 2. **Compare against the running container's image creation time:**
@@ -246,7 +246,7 @@ Before continuing to Step 2, output a clear table:
 Session Push & Deploy Audit
 ===========================
 
-Repo: ~/Repos/flora-monorepo
+Repo: ~/Repos/{{MONOREPO_NAME}}
 - 2 commits unpushed (mine):    [hash] [msg], [hash] [msg]    → push? [y/n]
 - 1 service with stale deploy:  kb (latest commit 30min newer than container)  → safe-build? [y/n]
 
@@ -257,8 +257,8 @@ Repo: vps:/root/bin
 - 1 file modified (mine):       safe-build                   → commit + push? [y/n]
 
 NOT TOUCHED (other sessions' work, flagged not acted on):
-- ~/Repos/flora-monorepo: 6 next-env.d.ts auto-mods (framework noise)
-- vps:/docker/flora-monorepo: clean
+- ~/Repos/{{MONOREPO_NAME}}: 6 next-env.d.ts auto-mods (framework noise)
+- vps:/docker/{{MONOREPO_NAME}}: clean
 ```
 
 Wait for user input on each item before proceeding. Resolve all "yours" items before logging work to the daily note — otherwise the daily note will lie about what was deployed.

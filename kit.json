@@ -1,6 +1,6 @@
 {
   "$schema": "Workflow Kit manifest — declares what ships with the kit vs stays local",
-  "version": "2.0.0",
+  "version": "2.1.0",
 
   "core_skills": [
     "apikeys",
@@ -8,6 +8,7 @@
     "auto-research",
     "best-practice",
     "closeout",
+    "create-concept-brief",
     "create-MN",
     "create-pickup",
     "create-plan",
@@ -46,7 +47,28 @@
   ],
 
   "org_skills": [
+    "chawdys",
+    "create-agent",
+    "create-flora-agent",
+    "cron",
+    "dad-eod",
+    "document-change",
+    "flora-app",
+    "groom-plane",
+    "kb-content",
+    "kb-doc",
+    "kb-ingest",
+    "kb-site",
+    "kb-structure",
     "limitless",
+    "ms-graph",
+    "ssh-win",
+    "stream-transcripts",
+    "tasting-upload",
+    "triage-admin-issues",
+    "triage-handoffs",
+    "triage-patrick",
+    "update-agent-rules",
     "vps-deploy"
   ],
 
@@ -56,7 +78,8 @@
     "yt",
     "pickup-triage",
     "wezterm",
-    "plan-spec"
+    "plan-spec",
+    "gateway-toggle"
   ],
 
   "renamed_skills": {
@@ -73,7 +96,8 @@
     "yt": "Replaced by video-intel (broader scope: transcription + project evaluation)",
     "pickup-triage": "Merged into pickup (triage is now built into the pickup flow)",
     "wezterm": "Terminal-specific automation replaced by iterm (macOS) or user's own terminal config",
-    "plan-spec": "Renamed and rewritten as create-plan (adaptive depth, inline tracking, no external PM)"
+    "plan-spec": "Renamed and rewritten as create-plan (adaptive depth, inline tracking, no external PM)",
+    "gateway-toggle": "Deprecated. AI gateway now uses adapter-based routing with automatic provider selection."
   },
 
   "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",

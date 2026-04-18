@@ -200,7 +200,7 @@ without explicit status will fail"]
 [Wikilinks and paths to essential context files. Only list files you've
 confirmed exist. Group by type:]
 - Specs/Plans: [[SPC - Name]], [[PL - Name]]
-- Code: `~/Repos/flora-monorepo/path/to/file.py`
+- Code: `~/Repos/{{MONOREPO_NAME}}/path/to/file.py`
 - Reports: [[RE - Name]]
 - Project context: `agents.md`, `lessons.md` paths
 

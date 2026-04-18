@@ -50,8 +50,8 @@ Before scanning PICs, check for an existing triage report:
 1. Look for `{vault_root}/{paths.reports}/Triage/TRI - {today}.md`
 2. **If today's TRI exists:** load it, then run a **light scan** (Step 0a) to catch changes since it was written. Skip to Step 5 (Present the Triage) with the updated data.
 3. **If today's TRI is missing:** check for the most recent `TRI - *.md` in the same directory.
-   - **If a previous TRI exists:** use it as a seed. Carry forward assessments (complexity, summary, batch verdicts) for PICs that are still open. Only run the full scan (Steps 1-4) on PICs that are **new** since that TRI was written (no matching entry in the previous report). Merge results and write today's TRI.
-   - **If no TRI exists at all:** run the full scan (Steps 1-5), then write today's TRI.
+   - **If a previous TRI exists:** use it as a seed. Carry forward assessments (complexity, summary, batch verdicts) for PICs that are still open. Only run the full scan (Steps 1-4) on PICs that are **new** since that TRI was written (no matching entry in the previous report). Merge results. The TRI file is written in Step 5 before presenting to the user.
+   - **If no TRI exists at all:** run the full scan (Steps 1-4), then proceed to Step 5 which writes the TRI and presents it.
 
 #### Step 0a: Light Scan (TRI refresh)
 
@@ -120,16 +120,18 @@ Assign batch verdicts:
 - **PARTIAL BATCH** - some PICs in the cluster batch, others don't
 - **SPLIT** - same project label but independent workstreams
 
-### Step 5: Present the Triage
+### Step 5: Write TRI and Present the Triage
+
+**Write the TRI file FIRST, before presenting anything to the user.** The TRI is not a follow-up task -- it is the output artifact of the triage. Compute the triage data (Steps 1-4 or 0a), write the TRI file (see format below), then present the summary to the user. If the TRI is not written before you show the user the "Pick a number" prompt, the triage is incomplete. No exceptions.
 
 **Presentation rules (mandatory):**
-- Present ONE grouped-by-cluster table — not three separate views.
-- Clusters are themes (e.g. "FWIS / Signal Engine", "DocGen / Patrick-facing", "Admin / Infra", "Restaurant Ops / Tourism (blocked)"). Pull the theme from the SOD priorities when possible.
+- Present ONE grouped-by-cluster table -- not three separate views.
+- Clusters are themes (e.g. "Backend / API", "Frontend / UX", "Infrastructure / DevOps", "Docs / Knowledge (blocked)"). Pull the theme from the SOD priorities when possible.
 - A "Validate first" cluster always comes first if there are picked-up PICs flagged in the SOD.
-- Within each cluster, order PICs **low → high effort** (LOW → MED → HIGH). Blocked PICs sink to the bottom of their cluster.
-- Cluster order: validate-first → SOD priority order → blocked clusters last.
+- Within each cluster, order PICs **low -> high effort** (LOW -> MED -> HIGH). Blocked PICs sink to the bottom of their cluster.
+- Cluster order: validate-first -> SOD priority order -> blocked clusters last.
 - Every PIC gets a global selection number (`#`), assigned by walking the clusters top-to-bottom so #1 is the top of the first cluster.
-- Use a single table with cluster headers as separator rows, OR one small table per cluster — either is fine, but no separate "by complexity" or "session order" tables.
+- Use a single table with cluster headers as separator rows, OR one small table per cluster -- either is fine, but no separate "by complexity" or "session order" tables.
 
 **Format:**
 
@@ -138,24 +140,24 @@ Assign batch verdicts:
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 1 — e.g. FWIS / Signal Engine}
+### {Cluster 1 — e.g. Backend / API}
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 2 — e.g. DocGen / Patrick-facing}
+### {Cluster 2 — e.g. Frontend / UX}
 ...
 
 ### {Blocked cluster, last}
 ...
 ```
 
-The `Note` column is one short phrase: SOD priority, batch hint, or blocker reason. Skip the Project column — the cluster header makes it redundant.
+The `Note` column is one short phrase: SOD priority, batch hint, or blocker reason. Skip the Project column -- the cluster header makes it redundant.
 
 End with: "Pick a number to load, or tell me which cluster to batch."
 
-### Step 6: Write the TRI
+### Step 6: TRI Maintenance (Session Updates)
 
-After completing triage (whether full scan or seeded), write the results to `{vault_root}/{paths.reports}/Triage/TRI - {today}.md`. See the TRI format specification below.
+The TRI was already written in Step 5 before presenting. This step covers keeping it current as the session progresses:
 
 **When to update the TRI during the session:**
 - When a PIC is picked up: update its status row to `picked-up` and add the agent/session that claimed it
@@ -242,9 +244,9 @@ Before loading the new PIC, check whether there's unlogged work from earlier in 
 
 ### Verify Project Structure
 
-If the PIC's `project` frontmatter maps to a vault project under `02_Projects/`, verify the project folder is properly set up before loading context:
+If the PIC's `project` frontmatter maps to a vault project under `{paths.projects}/`, verify the project folder is properly set up before loading context:
 
-1. Check that the project directory exists (e.g., `02_Projects/Flora Intelligence/signal-engine/`)
+1. Check that the project directory exists
 2. Check for `agents.md` at the project root. If missing, create it with a minimal stub:
    ```markdown
    # Agent Context - {Project Name}
@@ -261,7 +263,7 @@ If the PIC's `project` frontmatter maps to a vault project under `02_Projects/`,
    
    See root `lessons.md` for cross-project lessons.
    ```
-4. Check for the PJL file at `02_Projects/<project>/PJL - <Project Name>.md`. If missing, it will be created in the "Log to Project Log" step below.
+4. Check for the PJL file at `{paths.projects}/<project>/PJL - <Project Name>.md`. If missing, it will be created in the "Log to Project Log" step below.
 
 Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are created by the skills that write to them (`/create-spec`, `/create-plan`, `/log-work`). This step only ensures the project root and its config files exist.
 
@@ -271,27 +273,27 @@ Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are c
 2. Read every file listed in `## Key Files` - these are essential context from the previous session
 3. Read the project's `agents.md` and `lessons.md` (created above if they didn't exist)
 4. If the PIC references a spec or plan, read those too
-5. **Read the Project Log** if one exists at `02_Projects/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history -- what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
+5. **Read the Project Log** if one exists at `{paths.projects}/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history -- what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
 
 Build understanding of: project scope, what was done, concrete next steps, blockers, and any user preferences from the previous session.
 
-### Environment Declaration (MANDATORY for Flora-touching PICs)
+### Environment Declaration (for deployable projects)
 
-If the PIC's project is a Flora app (KB, admin, portal, mail, fwis-viewer, home, reservations, mailbox-viewer, revenue-dashboard, culinary-cottages, or anything in `~/Repos/flora-monorepo/`), declare the target environment in your "Present the Plan" output. Three valid forms:
+If the PIC's project involves deployable code (a web app, API, service, or anything that runs in both a local dev environment and a remote/production environment), declare the target environment in your "Present the Plan" output. Three valid forms:
 
 ```
-Environment: LOCAL          → iterating at localhost:3001-3011 via flora-dev, no production change expected
-Environment: REMOTE         → updating myarroyo.com/<app>/, will run flora-deploy <service> after the fix
+Environment: LOCAL          → iterating locally via the local dev server, no production change expected
+Environment: REMOTE         → updating production, will run the deploy command after the fix
 Environment: BOTH           → iterate locally first, then deploy to production
 ```
 
-Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a `flora-deploy` or `safe-build` command → REMOTE or BOTH. If the next steps are pure code iteration with no deploy command → LOCAL. **If unclear, ASK the user via AskUserQuestion before starting.** Don't guess.
+Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a deploy command -> REMOTE or BOTH. If the next steps are pure code iteration with no deploy command -> LOCAL. **If unclear, ASK the user via AskUserQuestion before starting.** Don't guess.
 
-**Verify the PIC's deployment-state claims before acting on them.** A PIC carrying "deployed KB hydration fix" in its `## What Was Done` is unverified hearsay until you confirm. Run:
-- `gh run list --repo hgreene624/flora-monorepo --limit 5` — confirm the GHA workflow ran
-- `curl -sf https://myarroyo.com/<app>/<path>` — confirm the live URL behaves as expected
+**Verify the PIC's deployment-state claims before acting on them.** A PIC carrying "deployed the fix" in its `## What Was Done` is unverified hearsay until you confirm. Check:
+- CI/CD workflow history to confirm the build ran
+- The live URL to confirm the deployment behaves as expected
 
-PICs carry false "deployed" claims forward when the prior session pushed without running `flora-deploy`. See L25.
+PICs carry false "deployed" claims forward when the prior session pushed code without running the deploy command. A git push is not a deployment unless your CI/CD pipeline auto-deploys.
 
 ### Mark as Picked Up
 
@@ -307,7 +309,7 @@ If a PJL exists for this project, append a session-start entry under today's dat
 - **Session start** — picked up [[PIC - Topic Name]], targeting: {first 1-2 next steps from PIC}
 ```
 
-If no PJL exists yet, create one at `02_Projects/<project>/PJL - <Project Name>.md` with standard frontmatter and this first entry. The PJL will accumulate as work is logged via `/log-work` and `/create-pickup`.
+If no PJL exists yet, create one at `{paths.projects}/<project>/PJL - <Project Name>.md` with standard frontmatter and this first entry. The PJL will accumulate as work is logged via `/log-work` and `/create-pickup`.
 
 Do this before presenting the plan.
 
