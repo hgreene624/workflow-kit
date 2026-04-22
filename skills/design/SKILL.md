@@ -29,13 +29,15 @@ If no path is given, ask the user which spec to work from.
 
 3. Read the project's `agents.md` and `lessons.md` if they exist. Read the vault-root `AGENTS.md` as well.
 
-4. If `agents.md` specifies a repo path, explore the codebase until you can confidently fill the Current State and Patterns Found sections. Don't limit yourself to files the spec explicitly mentions — adjacent modules, shared utilities, and existing patterns in the same domain all matter. If a question about current behavior can be answered by reading the code, read the code instead of leaving it as an Open Question.
+4. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, query it: "What does the industry consider best practice for {design area}? What are proven patterns and common pitfalls?" Surface as a proposition when writing the Desired End State section. If no oracle exists, prompt: "This project has no oracle. Want to create one with `/oracle-create` for domain grounding?" If declined, proceed without. See [[SD - Oracle System]].
 
-5. Estimate the implementation LOC. If under 500 LOC, inform the user: "This implementation is estimated at ~{N} LOC. Design discussions are optional under 500 LOC. Want to proceed or skip to `/structure`?" Use AskUserQuestion for this.
+5. If `agents.md` specifies a repo path, explore the codebase until you can confidently fill the Current State and Patterns Found sections. Don't limit yourself to files the spec explicitly mentions — adjacent modules, shared utilities, and existing patterns in the same domain all matter. If a question about current behavior can be answered by reading the code, read the code instead of leaving it as an Open Question.
 
-6. Read the DD template from `~/.claude/skills/design/references/dd-template.md`.
+6. Estimate the implementation LOC. If under 500 LOC, inform the user: "This implementation is estimated at ~{N} LOC. Design discussions are optional under 500 LOC. Want to proceed or skip to `/structure`?" Use AskUserQuestion for this.
 
-7. Generate the DD document (~200 lines) filling all six sections:
+7. Read the DD template from `~/.claude/skills/design/references/dd-template.md`.
+
+8. Generate the DD document (~200 lines) filling all six sections:
    - **Current State** — what exists today, based on codebase exploration
    - **Desired End State** — concrete target behavior from the spec
    - **Patterns Found** — table of relevant patterns from the codebase
@@ -43,14 +45,10 @@ If no path is given, ask the user which spec to work from.
    - **Resolved Decisions** — decisions already locked in from the spec or review
    - **Open Questions** — questions that will change the implementation approach
 
-8. For each Open Question, present it to the user one at a time via AskUserQuestion. Include the question, its impact, and the default if unanswered.
+9. For each Open Question, present it to the user one at a time via AskUserQuestion. Include the question, its impact, and the default if unanswered.
 
-9. Record each answer in the Resolved Decisions table. Move the question from Open Questions and add a new DD-N row with the decision and rationale.
+10. Record each answer in the Resolved Decisions table. Move the question from Open Questions and add a new DD-N row with the decision and rationale.
 
-10. After all questions are resolved (or the user defers them), save the DD document to: `02_Projects/<project>/designs/{today}/DD - {Spec Name}.md` — create the directory if needed. Set frontmatter fields: today's date, category "Design Discussion", source wikilink to the spec, and status "Draft".
+11. After all questions are resolved (or the user defers them), save the DD document to: `02_Projects/<project>/designs/{today}/DD - {Spec Name}.md` — create the directory if needed. Set frontmatter fields: today's date, category "Design Discussion", source wikilink to the spec, and status "Draft".
 
-11. Print the path to the saved DD document and end with: "Design discussion complete. Ready for `/structure` to create the implementation outline."
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.
+12. Print the path to the saved DD document and end with: "Design discussion complete. Ready for `/structure` to create the implementation outline."

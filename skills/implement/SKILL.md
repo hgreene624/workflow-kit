@@ -1,10 +1,9 @@
 ---
 name: implement
 description: >-
-  Execute implementation plans with minimal ceremony, dispatch workers, track progress inline
-  in the plan file. No external PM tools. Uses ceremony tiers (light/standard/heavy) to scale
-  process to task complexity: default to the simplest pattern that works, replace agent-based
-  QA with automated checks, eliminate PM relay.
+  Execute implementation plans with minimal ceremony — dispatch workers, track progress inline
+  in the plan file. No external PM tools. Redesigned based on Anthropic's agent team research: default to the
+  simplest pattern that works, replace agent-based QA with automated checks, eliminate PM relay.
   Use this skill when the user has a ready plan (PL - *.md) and wants to start building, resume
   a partial implementation, or when create-plan has just finished. Trigger on "implement", "build
   this", "start the plan", "kick off", "resume implementation", "let's go", "execute", or the
@@ -13,11 +12,11 @@ description: >-
 
 # Implement
 
-Execute a plan by dispatching workers directly. You are the orchestrator, no PM tracker, no QA
+Execute a plan by dispatching workers directly. You are the orchestrator — no PM tracker, no QA
 auditor agent. Workers report to you. Quality comes from automated checks and live testing, not
 agent-written reports.
 
-**Design principles:**
+**Design principles** (from Anthropic research):
 - Start with the simplest pattern. Escalate only when measurement proves it necessary.
 - Workers communicate via filesystem and git, not relay agents.
 - A test harness that prints pass/fail beats a QA agent that writes 150-line reports.
@@ -40,7 +39,7 @@ Plans set `ceremony_tier: light | standard | heavy` in frontmatter. Default is `
 |------|------|-----------|------------|
 | **light** | UI, CRUD, config, docs, <15 tasks | Workers + smoke checks | Gates, audit agents |
 | **standard** | Auth, schema migrations, production deploys | Workers + smoke checks + security eval + deploy gates | PM tracker, QA auditor agent |
-| **heavy** | Multi-day, multi-team, infrastructure migrations | Everything from v1 | Nothing, full ceremony |
+| **heavy** | Multi-day, multi-team, infrastructure migrations | Everything from v1 | Nothing — full ceremony |
 
 If the plan has no `ceremony_tier`, infer: <15 tasks with no DB/deploy = light. Auth or schema work = standard. Multi-service infrastructure = heavy.
 
@@ -50,8 +49,9 @@ If the plan has no `ceremony_tier`, infer: <15 tasks with no DB/deploy = light. 
 
 Before dispatching work:
 
+0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, note it for mid-build queries. When a worker hits a design choice not covered by the plan, query the oracle: "What's the recommended approach for {specific question}?" Surface to user: "Implementation question: {question}. Oracle recommends {approach} (source: {citation}). Proceed with this approach?" Never silently apply oracle recommendations. See [[SD - Oracle System]].
 1. Read the plan, spec, project `agents.md` and `lessons.md`, and `REF - Agent Lessons.md`
-2. **Read the Project Log** — If a PJL exists at `02_Projects/<project>/PJL - <Project Name>.md`, read the most recent 3-5 date sections. This is critical context for implementation:
+2. **Read the Project Log** — If a PJL exists at `02_Projects/<project>/PJL - <Project Name>.md`, read the most recent 3–5 date sections. This is critical context for implementation:
    - **Decisions already made** — don't re-litigate what's in the PJL
    - **What was tried and failed** — don't repeat failed approaches
    - **Current deployment state** — know what's live before making changes
@@ -61,6 +61,11 @@ Before dispatching work:
 4. Scan for activated lessons (L25 deploy != push, L27 environment declaration, L9 schema inspection)
 5. Present summary: "Plan has N phases, M tasks ({completed} done, K ready). Tier: {tier}. Ready?"
 
+## Environment Declaration (Flora apps only)
+
+Before dispatching ANY Flora worker, determine and declare the environment: LOCAL, REMOTE, or BOTH.
+If ambiguous, ask the user. Inject the declaration into every worker prompt. See `references/worker.md`.
+
 ## Dispatch
 
 Create a team via TeamCreate. Dispatch workers directly — you manage them, no PM relay.
@@ -69,7 +74,7 @@ For each unblocked task or batch of independent tasks:
 
 1. Choose model per `references/worker.md` model guide
 2. Dispatch with the worker template, injecting: task details, context files, relevant checklists
-3. Workers report completion to YOU with: what was done, commit hash, verification URL (if applicable)
+3. Workers report completion to YOU with: what was done, commit hash, verification URL (if Flora)
 4. Update the plan file: set task Status to `done`, add Notes, append to Work Log, increment
    frontmatter `completed` count
 
@@ -141,10 +146,6 @@ If session ends before sprint finishes:
 | `references/worker.md` | Worker dispatch template + model guide | When dispatching |
 | `references/smoke-checks.md` | Automated pass/fail checks | After deploys/phases |
 | `references/security-eval.md` | LLM auth code review prompt | Standard tier, auth changes |
-| `references/checklists/deploy.md` | Deploy verification | Workers touching production |
+| `references/checklists/deploy.md` | VPS deploy verification | Workers touching production |
 | `references/checklists/frontend.md` | basePath, AG Grid, rendering | Frontend workers |
 | `references/checklists/db.md` | Schema inspection, migration safety | DB workers |
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

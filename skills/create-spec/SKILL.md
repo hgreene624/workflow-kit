@@ -19,6 +19,7 @@ Create specs with depth proportional to complexity. A config change doesn't need
 
 ## Entry
 
+0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, query it: "What are the key design considerations, established patterns, and common pitfalls for building {spec subject}?" Surface the response as context before the interview using the standard proposition format. If no oracle exists, prompt: "This project has no oracle for domain grounding. Want to create one with `/oracle-create` before speccing?" If the user declines, proceed without. See [[SD - Oracle System]].
 1. Orient: run `date`, read vault `AGENTS.md`, read project `agents.md` + `lessons.md` if they exist
 2. Detect mode: interactive (user talking) or agent (programmatic invocation)
 3. Route: creating new or updating existing? If ambiguous, check for existing specs in the project and ask.
@@ -117,7 +118,3 @@ TLDR (3-5 bullets), then offer:
 |------|---------|
 | `references/spec-template.md` | Full 11-section template (same as v1) |
 | `references/update-spec.md` | Update flow for existing specs |
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

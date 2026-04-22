@@ -10,6 +10,44 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v2.2.0 - 2026-04-22
+
+### What this release is about
+
+Oracle System: a research grounding layer that prevents speculating solutions to solved problems. Before designing a system, the oracle researches what the world already knows about the domain and brings established patterns, industry standards, and known pitfalls into the conversation. Four new skills, five existing skills updated with oracle integration.
+
+### New skills
+
+**`/oracle-create`**
+Creates a NotebookLM research notebook for a project or sub-domain. Runs deep research to discover external sources (industry papers, frameworks, production case studies), imports them, and synthesizes a grounding report. Registers the oracle in the project's PJL frontmatter so future sessions can find it. One oracle per project by default.
+
+**`/oracle-ask`**
+Queries an existing oracle for design guidance. Looks up the project's oracle from PJL, queries it, and formats the response as a proposition with source citations. Works standalone ("ask the oracle about X") or inline from other skills at design decision points. Supports follow-up conversations for multi-turn research.
+
+**`/oracle-research`**
+Expands an existing oracle's knowledge when the project scope grows. Adds new research and sources to the notebook, updates the PJL ledger, and optionally appends new findings to the grounding report.
+
+**`/create-sd`**
+Creates System Definition (SD) documents with correct structure and frontmatter. SDs are constitutional, living references that define what a system is and what principles govern it. The skill enforces the common structure across existing SDs: opening declaration, conceptual model, business impact, boundaries, principles, theoretical grounding, and change log. Prevents the spec-vs-SD confusion by providing guidance on when to use each.
+
+### What got better
+
+**Design work starts with what the world knows.**
+`/create-spec`, `/design`, `/grill`, `/create-plan`, and `/implement` all gained an oracle check step. Before writing a spec or interrogating a design, the skill checks if the project has an oracle and queries it for domain grounding. The oracle's response is surfaced as a proposition (never applied silently) so the user can adopt, adapt, or discard it.
+
+**Grill has an external pressure dimension.**
+`/grill` now uses the oracle to compare the user's design decisions against industry patterns. When the user's approach departs from what the oracle reports as standard practice, the grill surfaces the departure as a question, not a judgment.
+
+### What you need to do
+
+Nothing. Oracle integration is prompted, not mandatory. If a project has no oracle, skills suggest creating one and proceed without if declined. NotebookLM MCP server is required for oracle functionality (install with `uv tool install notebooklm-mcp-cli`).
+
+### Migration
+
+`/update-wfk pull` will install the 4 new skills and update the 5 modified skills automatically.
+
+---
+
 ## v2.1.0 - 2026-04-17
 
 ### What this release is about

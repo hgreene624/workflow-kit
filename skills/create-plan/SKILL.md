@@ -30,7 +30,7 @@ change gets a flat task list. A 68-task platform build gets phased vertical slic
 
 1. Read the spec. If no path given, ask.
 2. Check for review artifacts in `<project>/reviews/` — if they exist, use them as primary input.
-3. Read project `agents.md`, `lessons.md`, and any relevant agent reference docs.
+3. Read project `agents.md`, `lessons.md`, and `REF - Agent Lessons.md`.
 4. If no review artifacts exist, warn: "Spec hasn't been reviewed. Recommend /review-spec first. Proceed anyway?"
 
 ## Classify Tier
@@ -49,6 +49,7 @@ Present assessment to user: "This looks **{tier}** (~{N} tasks). Plan shape: {de
 
 Before task planning, understand how the spec maps to the codebase.
 
+0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, query it for implementation patterns: "What are proven implementation approaches and common pitfalls for building {plan subject}?" Surface as a proposition: "Oracle suggests {approach} based on {source}. Want to follow this pattern or take a different approach?" See [[SD - Oracle System]].
 1. If the project has a repo, explore it: current state of modules the spec touches, existing patterns, gaps between spec assumptions and reality.
 2. For heavy tier (>500 LOC or multi-module): produce a Design Discussion artifact at `<project>/designs/{today}/DD - {Name}.md`. Present open questions to user one at a time.
 3. For standard tier: quick codebase scan, note discrepancies, no formal DD artifact.
@@ -63,11 +64,16 @@ Save to `<project>/plans/{today}/PL - {Name} Implementation Plan.md`.
 Every task table includes Status and Notes columns for agent tracking:
 
 ```markdown
-| # | Task | Status | Acceptance Criteria | Deps | Notes |
-|---|------|--------|---------------------|------|-------|
-| 1 | ... | todo | ... | -- | |
-| 2 | ... | todo | ... | 1 | |
+| # | Task | Status | Acceptance Criteria | Deps | Prior | Notes |
+|---|------|--------|---------------------|------|-------|-------|
+| 1 | ... | todo | ... | -- | | |
+| 2 | ... | todo | ... | 1 | | |
 ```
+
+**Prior column (standard+ tiers):** Lists earlier fixes targeting the same failure family.
+If count >= 2 with the same family (e.g., "prompt edits for title shape"), route the next
+attempt to a DIFFERENT family (post-processor, schema enforcement, decomposition).
+Source: MQ-12 (fighting the prompt). Leave blank for tasks with no prior intervention history.
 
 **Status values:** `todo`, `in-progress`, `done`, `blocked`, `skipped`
 
@@ -80,10 +86,17 @@ Every plan includes machine-readable progress in frontmatter:
 ```yaml
 completed: 0
 total: 12
+live_monitor_required: false    # true when any task runs >10 min
+synthetic_repro_required: false  # true when fixing transient/intermittent failures
+blind_dimension_scan: pending    # complete | skipped | pending
 ```
 
 Agents update `completed` as tasks finish. Any agent can grep frontmatter to know progress
-without reading the full plan.
+without reading the full plan. The three new fields are grep-able triggers:
+`/implement` auto-dispatches a live monitor when `live_monitor_required: true`,
+requires synthetic verification when `synthetic_repro_required: true`, and blocks
+scale launch until `blind_dimension_scan: complete`.
+Source: RC-1, MQ-7, MQ-20 (marathon postmortem).
 
 ### Work Log
 
@@ -149,7 +162,3 @@ After user approves:
 |------|---------|
 | `references/dd-template.md` | Design Discussion template (standard/heavy) |
 | `references/so-template.md` | Structure Outline template (heavy only) |
-
----
-
-> **LOCAL.md customizations:** To extend or override this skill for your project, create a `LOCAL.md` file alongside this `SKILL.md`. It will be loaded after the base skill and can add project-specific paths, naming conventions, PM tool integrations, or additional ceremony steps. The base skill remains untouched for upstream updates.

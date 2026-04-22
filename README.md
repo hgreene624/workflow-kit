@@ -200,6 +200,9 @@ Think of pickups as an extension of your memory. When you're juggling 10 things 
 | Start a new project | `/create-spec` |
 | Plan the work | `/create-plan` |
 | Execute the plan | `/implement` |
+| Research a domain before designing | `/oracle-create` |
+| Ask the oracle a design question | `/oracle-ask` |
+| Define a system's principles | `/create-sd` |
 | Log what you did | `/log-work` |
 | Understand a document or topic | `/explain` |
 | Create meeting notes | `/create-MN` |
