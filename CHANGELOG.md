@@ -10,6 +10,47 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v2.3.0 - 2026-04-23
+
+### What this release is about
+
+Strategic awareness across the workflow. Skills that begin, close, and report on work now read strategic planning documents (roadmaps, weekly focus files) to anchor decisions in goals, not just tasks. Closeout gained two new pre-flight checks that prevent duplicate PICs and make deployment automatic. A new prototype skill generates Claude Design-ready documents from specs.
+
+### New skills
+
+**`/prototype`**
+Ingests a spec and produces a Prototype Design Discussion (DD) optimized for Claude Design (claude.ai/design). Extracts user flows, screen inventory, component inventory, data model summary, and interaction patterns into a single document you can paste directly into Claude Design for interactive UI prototyping.
+
+### What got better
+
+**Closeout wraps up your work without asking.**
+Closeout now auto-commits, auto-pushes, and auto-deploys your session's changes. The closeout invocation IS the approval. Two new pre-flight steps: Strategic Context (groups work by goals, flags off-focus work) and PIC State Snapshot (scans open PICs to prevent duplicates and catch PICs closed by parallel sessions).
+
+**End-day captures subjective state first.**
+A Day Rating step (1-5 scale) runs before the analytical aggregation, capturing how the user felt about the day before the numbers reframe their perception. Strategic context adds a Goal Progress section to the EOD that makes multi-day goal stalls visible.
+
+**Pickup clusters by strategic goals.**
+When roadmap or weekly focus documents exist, pickup groups PICs by strategic goal (not just project theme). "Unaligned" work surfaces last, making priority visible at a glance. A capacity gate in create-pickup warns when open PICs exceed 7 and offers merge alternatives.
+
+**Orient loads strategic context.**
+A new step (7b) reads roadmap and weekly focus documents at session start, anchoring the session in strategy with a brief summary of active goals and PIC alignment.
+
+**Meeting notes support multi-part meetings.**
+Create-MN gained Parts Detection for meetings with distinct temporal segments (location changes, participant changes, reconvening after breaks). Format B provides a template with Part containers wrapping topic blocks.
+
+**Forward momentum is the default.**
+Several skills (create-plan, create-spec, design, structure, recap) now proceed to the next workflow step automatically instead of offering pause points. The philosophy: the skill invocation IS the intent. Users who want to stop can always say so.
+
+### What you need to do
+
+Nothing. Strategic context features gracefully degrade when no planning documents exist. The auto-commit/push/deploy behavior in closeout can be overridden via LOCAL.md if you prefer confirmation prompts.
+
+### Migration
+
+`/update-wfk pull` will install the new prototype skill and update all modified skills. Concept brief now ships with generalized reference files (org-context.md and cb-template.md) you can customize for your organization.
+
+---
+
 ## v2.2.0 - 2026-04-22
 
 ### What this release is about

@@ -33,7 +33,7 @@ If no path is given, ask the user which spec to work from.
 
 5. If `agents.md` specifies a repo path, explore the codebase until you can confidently fill the Current State and Patterns Found sections. Don't limit yourself to files the spec explicitly mentions — adjacent modules, shared utilities, and existing patterns in the same domain all matter. If a question about current behavior can be answered by reading the code, read the code instead of leaving it as an Open Question.
 
-6. Estimate the implementation LOC. If under 500 LOC, inform the user: "This implementation is estimated at ~{N} LOC. Design discussions are optional under 500 LOC. Want to proceed or skip to `/structure`?" Use AskUserQuestion for this.
+6. Estimate the implementation LOC. If under 500 LOC, inform the user: "This implementation is estimated at ~{N} LOC. Design discussions are optional under 500 LOC, skipping to `/structure`." and proceed directly to `/structure`. If >=500 LOC, continue with the DD.
 
 7. Read the DD template from `~/.claude/skills/design/references/dd-template.md`.
 

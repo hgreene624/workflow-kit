@@ -106,11 +106,15 @@ When multiple PICs exist for the same project area:
 - If so, recommend closing the older PIC as superseded
 - Flag these explicitly - closing stale PICs is a quick win
 
-### Step 4: Project Clustering
+### Step 4: Goal-Aligned Clustering
 
-Group PICs by project. For clusters with 2+ PICs, evaluate batch compatibility:
+**Read strategic planning documents** (roadmaps, weekly focus files) if they exist before clustering. If a roadmap exists, cluster PICs by strategic goal first, then by project within each goal. If no roadmap exists, fall back to project-only clustering.
 
-1. **Shared context?** Same codebase, database, or deployment target - loading context once saves ramp-up time
+**With strategic goals:** Clusters become goal-aligned: "Goal A (3 PICs)", "Goal B (2 PICs)", "Unaligned (1 PIC)". PICs that don't map to any known goal get an "Unaligned" cluster, presented last. This makes strategic priority visible at a glance.
+
+Within each goal cluster (or project cluster if no goals exist), evaluate batch compatibility:
+
+1. **Shared context?** Same codebase, database, or deployment target, loading context once saves ramp-up time
 2. **Shared workstream?** Sequential phases or subtasks of the same effort
 3. **Compatible complexity?** LOW + MEDIUM batches well. Two HIGHs risk fatigue.
 4. **Containment?** Does one PIC's next-steps include the other? Work the parent, close both.
@@ -118,7 +122,7 @@ Group PICs by project. For clusters with 2+ PICs, evaluate batch compatibility:
 Assign batch verdicts:
 - **BATCH** - shared context makes working them together faster
 - **PARTIAL BATCH** - some PICs in the cluster batch, others don't
-- **SPLIT** - same project label but independent workstreams
+- **SPLIT** - same goal/project but independent workstreams
 
 ### Step 5: Write TRI and Present the Triage
 
@@ -126,7 +130,7 @@ Assign batch verdicts:
 
 **Presentation rules (mandatory):**
 - Present ONE grouped-by-cluster table -- not three separate views.
-- Clusters are themes (e.g. "Backend / API", "Frontend / UX", "Infrastructure / DevOps", "Docs / Knowledge (blocked)"). Pull the theme from the SOD priorities when possible.
+- Clusters are strategic goals when available (e.g. "Goal A", "Goal B", "Unaligned"). Without strategic planning docs, fall back to project themes (e.g. "Backend / API", "Frontend / UX"). Pull the theme from the SOD priorities when possible.
 - A "Validate first" cluster always comes first if there are picked-up PICs flagged in the SOD.
 - Within each cluster, order PICs **low -> high effort** (LOW -> MED -> HIGH). Blocked PICs sink to the bottom of their cluster.
 - Cluster order: validate-first -> SOD priority order -> blocked clusters last.
@@ -140,11 +144,11 @@ Assign batch verdicts:
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 1 — e.g. Backend / API}
+### {Cluster 1 — e.g. Goal A / Backend API}
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 2 — e.g. Frontend / UX}
+### {Cluster 2 — e.g. Goal B / Frontend UX}
 ...
 
 ### {Blocked cluster, last}

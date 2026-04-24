@@ -52,7 +52,22 @@ Read the frontmatter of each match. If any PIC has `status: open` or `status: pi
 
 Fragmenting related work across multiple PICs loses context and creates triage overhead. One PIC per active workstream.
 
-## Step 0.5: PJL Entry Gate (MANDATORY)
+## Step 0.5: Capacity Gate
+
+Before creating a new PIC, check the current landscape:
+
+1. **Read strategic planning documents** if they exist (roadmaps, weekly focus files). Identify which goal this PIC's work serves. If it doesn't map to any goal, it's unaligned work.
+
+2. **Count open PICs** (grep `status: open` across `**/PIC - *.md`). If the count is already >= 7:
+   - Present to the user: "You have {N} open PICs. Creating another will add to the backlog. Options:"
+     1. Merge this context into an existing open PIC for the same project/goal
+     2. Log to the PJL only (no PIC, context lives in the project log)
+     3. Create the PIC anyway
+   - This gate prevents the accumulation pattern where every interrupted session spawns a new PIC.
+
+3. **Tag the PIC with its goal.** Add a `goal` field to the PIC frontmatter (e.g., `goal: "API Performance"`). If the work doesn't serve any known goal, set `goal: "Unaligned"`. This field is optional but helps with clustering during pickup triage.
+
+## Step 0.75: PJL Entry Gate (MANDATORY)
 
 Before gathering claims or writing anything, verify that a PJL entry exists for this project and today's date.
 
@@ -162,6 +177,7 @@ tags: [pickup, <project-tag>]
 category: Pickup
 status: open
 project: "<project name>"
+goal: "<goal name or 'Unaligned'>"
 pickup_date: "YYYY-MM-DD"
 ---
 ```
@@ -235,7 +251,7 @@ of "it worked last week but broke" investigations — see L18 in Agent Lessons.]
 [Quick summary of what was verified and when. This tells the next agent
 which claims they can trust vs which might have drifted.
 Example:
-- "Container flora-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
+- "Container web-api: healthy, 0 restarts (verified 2026-03-28 15:30)"
 - "activities table: 1,226 rows, 332 with type='issue' (verified 2026-03-28 15:30)"
 - "entity_links table: 13 rows (verified 2026-03-28 15:30)"
 If no system state was relevant to verify, omit this section.]

@@ -147,14 +147,13 @@ Everything in standard, plus:
 
 1. Summarize: phases (if any), total tasks, key dependencies
 2. Highlight decisions you made beyond what the spec/review covered
-3. "Plan has X tasks. Ready to go, or adjust?"
+3. "Plan has X tasks."
 
 ## Handoff
 
-After user approves:
+After presenting the plan:
 1. Update plan status to "Approved -- Ready for Implementation"
-2. Offer `/implement` to start building
-3. Or "not yet" if user wants to adjust
+2. Proceed to `/implement`
 
 ## Reference Files
 

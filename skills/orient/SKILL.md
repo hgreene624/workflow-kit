@@ -46,10 +46,18 @@ Do all of these before responding to the user:
 7. **Period reports** — Read these from `{vault_root}/{paths.reports}/` to understand what's been happening and what the user's priorities are. Read in parallel:
    - **SOD** (daily context): Most recent file in `Reports/SOD/`. Check today first, fall back to most recent. This has the WTD summary, priorities, open PICs, and suggested start.
    - **EOW** (last week): Most recent file in `Reports/EOW/`. This is the weekly rollup — what shipped, goal progress, retro findings, and next-week setup.
-   - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has Holden's monthly objectives that should frame all work.
+   - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has the user's monthly objectives that should frame all work.
    - **EOM** (last month): Most recent file in `Reports/EOM/`. This has the prior month's retrospective and carry-forwards.
 
-   Skip any that don't exist. The SOD is the most important — it's the freshest context. The others provide progressively wider framing.
+   Skip any that don't exist. The SOD is the most important, it's the freshest context. The others provide progressively wider framing.
+
+7b. **Strategic context** - Read any strategic planning documents that exist in the vault:
+   - **Roadmap**: A file mapping all active work to strategic goals, defining what's parked, and providing decision rules for incoming requests. This is the "why" behind every PIC and SOD priority.
+   - **Weekly focus**: A file naming the current week's goals and listing what's explicitly not this week.
+
+   Look for these in `{vault_root}/{paths.reports}/` or wherever the user's vault organizes planning documents. If both exist, present a brief strategic summary in the orient output: "Active goals: [goal 1], [goal 2], [goal 3]. [N] open PICs aligned. [M] parked." This anchors the session in strategy, not just tasks.
+
+   If no strategic planning documents exist, skip this step. The workflow functions without them.
 
 8. **Cross-reference reports with open work** — This step prevents wasted investigation. After reading the SOD and EOW:
    - For each open PIC in the SOD, check whether the EOW mentions the same system, pipeline, or project as recently shipped/deployed/built

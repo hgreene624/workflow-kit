@@ -15,7 +15,38 @@ On Fridays, this skill also produces an **EOW (End of Week)** report rolling up 
 
 Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve all directory references in these instructions. Key mappings: `{paths.daily_notes}` for daily notes, `{paths.reports}` for all report subdirectories (SOD, EOD, EOW, SOM, SOW, EOM, Triage), `{paths.projects}` for project tree, `{paths.pickups}` for cross-cutting pickups. If the file doesn't exist, use the defaults in these instructions and warn once.
 
-## Step 0: Working Environment Health Check
+## Strategic Context
+
+Before aggregating, read any strategic planning documents that exist (roadmaps, weekly focus files, goal statements). If they exist, add a **Goal Progress** section to the EOD that reports at the goal level, e.g.:
+
+```
+## Goal Progress
+- **Goal A:** Significant progress (pipeline unblocked, 3 items shipped). Remaining: final integration.
+- **Goal B:** Iterated on content depth, 4 items expanded. Ownership tracking not started.
+- **Goal C:** No progress today.
+```
+
+This makes it visible when a goal stalls across days. The SOD should carry forward any goal that had no progress, flagging it: "Goal [X] had no progress yesterday. Prioritize or explicitly defer?"
+
+On **Fridays** (EOW), also compare the week's goal progress against the weekly goals. Did the weekly goals ship? What carries forward to next week?
+
+## Step 0: Day Rating
+
+Before anything else, ask the user how today went. Use AskUserQuestion with a 1-5 scale:
+
+| Rating | Label |
+|--------|-------|
+| 1 | Rough day |
+| 2 | Below average |
+| 3 | Decent |
+| 4 | Good day |
+| 5 | Great day |
+
+Add the rating to today's daily note frontmatter as `day_rating: N`. If the user adds a comment, store it as `day_note: "..."` in frontmatter too.
+
+This runs first because it captures the user's subjective feeling before the analytical steps reframe their perception. Don't skip it.
+
+## Step 0a: Working Environment Health Check
 
 Before writing the EOD, scan the user's working environment for loose ends. While `/closeout` audits a single session's own work, end-day checks everything across the machine and surfaces anything that slipped through.
 
@@ -130,7 +161,7 @@ Read in parallel. Skip missing files silently.
    - Extract `## TODO` to check completion
    - Extract `## Meetings` for context
 2. **Today's SOD** — `01_Notes/Reports/SOD/SOD - {today}.md`
-   - Read Holden's Priorities and Suggested Start sections
+   - Read the user's Priorities and Suggested Start sections
    - This is the intent baseline to compare against
 3. **PICs created today** — glob `02_Projects/**/PIC - *.md` where `date created` = today
    - These represent carry-forward work from today's closeouts
@@ -218,7 +249,7 @@ Then list the goals. User responds with which to keep. Update the EOD to check t
 
 ## Step 4: Generate tomorrow's SOD
 
-The SOD is an **agent-facing document** — every agent reads it via orient to understand the state of the world and Holden's priorities. It's a rolling week-to-date (WTD) context window that resets when an EOW drops.
+The SOD is an **agent-facing document** — every agent reads it via orient to understand the state of the world and the user's priorities. It's a rolling week-to-date (WTD) context window that resets when an EOW drops.
 
 ### Determine the WTD window
 - Find the most recent EOW in `Reports/EOW/` — this is the window start
@@ -250,7 +281,7 @@ wtd_window_start: {date of last EOW or earliest EOD}
 Group by project/initiative, not by day. This is an index, not a retelling —
 agents can read the daily notes for detail. Be terse.}
 
-## Holden's Priorities
+## User's Priorities
 {Confirmed goals from today's EOD + any carried from SOW/previous EODs.
 These represent what the user is trying to accomplish — agents should align
 their suggestions, tradeoff decisions, and pickup recommendations with these.}
@@ -284,7 +315,7 @@ relying on it.
 If none: omit this section.}
 
 ## Suggested Start
-{Recommend a PIC based on: alignment with Holden's priorities > blocking
+{Recommend a PIC based on: alignment with the user's priorities > blocking
 other work > time-sensitivity > natural continuation of recent work.}
 ```
 

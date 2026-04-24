@@ -206,6 +206,7 @@ Think of pickups as an extension of your memory. When you're juggling 10 things 
 | Log what you did | `/log-work` |
 | Understand a document or topic | `/explain` |
 | Create meeting notes | `/create-MN` |
+| Generate UI prototype from spec | `/prototype` |
 | Organize incoming files | `/intake` |
 | Save context for later | `/park` |
 | End your day | `/closeout` |

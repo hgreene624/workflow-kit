@@ -91,7 +91,6 @@ For each skill, note what vault state would make it relevant:
 | No SOD for today | `/orient` |
 | Open PICs exist | `/pickup` |
 | Work done but no DN entry | `/log-work` |
-| User says "done" or "wrapping up" | `/closeout` |
 | Multiple closeouts, no EOD | `/end-day` |
 | 5+ open PICs, long conversation | `/recap` |
 | Feature described with no spec | `/create-spec` |
@@ -181,9 +180,10 @@ Read the named skill's SKILL.md and explain what it does, when to use it, and sh
 
 ## Skill Chains
 
-Skills compose into documented chains. Key chains:
+Skills compose into documented chains. See [[REF - Skill Chain Map]] for the full map. Key chains:
 - **Daily**: orient → pickup → log-work → closeout → end-day → dream
 - **Build**: create-spec → review-spec → create-plan → implement → pr-review → retro
+- **Deploy**: git-safe → vps-deploy → document-change
 
 When recommending skills, consider where the user is in a chain and suggest the natural next step.
 

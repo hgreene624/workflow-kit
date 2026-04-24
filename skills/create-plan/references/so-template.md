@@ -44,6 +44,20 @@ tags: [{relevant tags}]
 - **Checkpoint:** {verification}
 
 ## Vertical Slice Verification
-{For each phase, answer: "Can the user do something new after this phase?" If no -> the phase is horizontal and must be restructured.}
+{For each phase, answer: "Can the user do something new after this phase?" If no, the phase is horizontal and must be restructured.}
 | Phase | User-Testable Outcome | Vertical? |
 |-------|----------------------|-----------|
+
+## Input Distribution Coverage
+{Required when changing any formula, threshold, or algorithm with a numeric parameter.
+Omit for non-formula work. Source: MQ-8 (max_tokens formula cut budget 41% for N=10-49).}
+
+| Parameter | Range tested | Regression zone | Dominates prior? |
+|-----------|-------------|-----------------|------------------|
+
+## Sibling Modules to Sweep
+{Required when narrowing an exception, fixing a bug pattern, renaming a field.
+Omit when not applicable. Source: RC-6 (broad-except narrowed in one module, 43 sites left in siblings).}
+
+| Module / file | Same pattern? | Swept in this PR? |
+|---------------|---------------|-------------------|

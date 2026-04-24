@@ -11,24 +11,54 @@ You are closing out a work session. Your job is to capture what was done, log it
 
 Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - YYYY-MM-DD.md`). If the file doesn't exist, use defaults and warn once.
 
-## Step 0a: Environment Verification (MANDATORY for Flora work)
+## Step 0: Strategic Context
 
-Before logging anything, audit the session for Flora app work and verify the deployment state of every Flora-touching change. The closeout log will end up in the daily note where future agents read it as ground truth — false claims here cause cascading bugs.
+Read any strategic planning documents that exist in the vault (roadmaps, weekly focus files, goal statements). Use these to:
 
-For every Flora app code change in this session, answer:
+1. **Group the session summary by goal** in Step 1d. Instead of a flat list of topics, present work grouped by which strategic goal it served: "Goal A: [work done]. Goal B: [work done]. Off-focus: [work done]." This makes goal-level progress visible at closeout.
 
-1. **Was it deployed to REMOTE (YOUR_DOMAIN)?** Check by:
-   - Did anyone run `./infra/dev/flora-deploy <service>` or `safe-build <service> --pull`? Look for the actual command in the conversation/JSONL.
-   - If yes, run `gh run list --repo YOUR_USERNAME/{{MONOREPO_NAME}} --limit 5` to confirm the GHA workflow ran successfully.
-   - Do NOT count "git push origin main" as a deploy. Push ≠ Deploy as of 2026-04-07. CI is `workflow_dispatch`-only.
+2. **Flag off-focus work** when deciding which topics need PICs (Step 3). If a topic doesn't serve any current goal, note it: "This work isn't on a current goal. PIC it, or just log to PJL?" This is informational, not a gate. Sometimes reactive work is necessary. The flag just makes the choice conscious.
 
-2. **If it was LOCAL ONLY**, the closeout log MUST say so explicitly: "(local — verified at http://localhost:<port>/<path>) — NOT deployed to production".
+3. **Pass goal context to /create-pickup** (Step 3). The create-pickup skill has its own capacity gate and goal-tagging. Pass the goal name so it can tag the PIC's frontmatter without re-reading the planning docs.
 
-3. **If it was deployed**, log MUST include: "(deployed via flora-deploy <service> — verified at https://YOUR_DOMAIN/<app>/<path>)".
+If no strategic planning documents exist, skip this step. All downstream behavior works without it.
 
-4. **If you cannot determine the environment** for a Flora change, STOP and ask the user before logging. Don't guess.
+## Step 0b: PIC State Snapshot (MANDATORY)
 
-This step exists because the most dangerous closeout failure is logging "deployed KB hydration fix" when the change is actually only on the local dev server. The next session's agent reads the daily note, assumes prod is updated, doesn't deploy, and the bug stays live for days.
+Before logging work or deciding what needs new PICs, scan the current PIC landscape. This prevents duplicate PICs, catches PICs closed by parallel sessions, and shows what's already tracked.
+
+**Run two Grep calls in parallel:**
+- `Grep pattern="^status: open" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
+- `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
+
+Filter results to files whose basename starts with `PIC -` (discard IRs, DTs, templates).
+
+**Use this context throughout closeout:**
+- **Step 1d (session summary):** When listing topics worked on, note which ones already have open PICs. Don't propose creating a PIC for something that's already tracked.
+- **Step 3 (PIC creation):** Before creating a new PIC, check if an open PIC already covers the same domain. If yes, update the existing PIC instead of creating a duplicate.
+- **Step 3 (PIC closure):** If any open PICs were fully resolved during this session, close them as part of closeout. Don't leave completed PICs in `open` status.
+- **Step 4 (final summary):** Include PIC counts (open, created, closed) in the closing block so the user sees the net change.
+
+This snapshot is context, not output. Don't present the full PIC list to the user unless they ask. Just use it to make better decisions about what to create, update, or close.
+
+## Step 0a: Environment Verification (MANDATORY for deployable code)
+
+Before logging anything, audit the session for code changes to deployable applications and verify the deployment state of every production-affecting change. The closeout log will end up in the daily note where future agents read it as ground truth, so false claims here cause cascading bugs.
+
+For every app code change in this session, answer:
+
+1. **Was it deployed to production?** Check by:
+   - Did anyone run the project's deploy command? Look for the actual command in the conversation/JSONL.
+   - If yes, verify via CI/CD logs or the live URL that the deployment succeeded.
+   - Do NOT count "git push" as a deploy unless your CI/CD auto-deploys on push. Many projects use Push ≠ Deploy models.
+
+2. **If it was LOCAL ONLY**, the closeout log MUST say so explicitly: "(local, verified at http://localhost:<port>/<path>) -- NOT deployed to production".
+
+3. **If it was deployed**, log MUST include: "(deployed via [deploy command], verified at [production URL])".
+
+4. **If you cannot determine the environment** for a code change, STOP and ask the user before logging. Don't guess.
+
+This step exists because the most dangerous closeout failure is logging "deployed the fix" when the change is actually only on the local dev server. The next session's agent reads the daily note, assumes prod is updated, doesn't deploy, and the bug stays live for days.
 
 ## Step 0: Check for Recap Output
 
@@ -140,10 +170,9 @@ Check whether this session modified infrastructure. Indicators:
 - Deploy path changes (app moved to a different directory)
 - Service migration (old system replaced by new system)
 
-If **any** infrastructure changes occurred, verify these REF docs are still accurate:
-1. `REF - VPS Work Rules.md` — App Location Map, Docker Compose Projects table
-2. `REF - VPS Service Route Map.md` — route entries for affected services
-3. Relevant project `agents.md` — architecture descriptions, container references
+If **any** infrastructure changes occurred, verify these reference docs are still accurate:
+1. Infrastructure reference docs (server work rules, service route maps, app location maps)
+2. Relevant project `agents.md` files (architecture descriptions, container references)
 
 For each doc, spot-check the sections that would be affected by this session's changes. If a doc is stale (references old containers, removed paths, or pre-migration architecture), either:
 - **Update it now** as part of closeout, or
@@ -165,11 +194,10 @@ If you cannot determine whether a change is yours vs another session's, **leave 
 ### 1.6a — Identify this session's repos
 
 Walk the JSONL tool_use entries and extract every file path that was edited/written. Map each file to its parent git repo by walking up to find a `.git` directory. Common candidates:
-- `~/Repos/{{MONOREPO_NAME}}/` (Flora app code)
-- `~/Documents/Vaults/` (vault notes, configs, REF docs)
-- `~/.claude/skills/` (only if a `.git` directory exists — otherwise the changes are mirrored via backup-vault and live at `Vaults/.claude-backup/skills/` instead)
-- `vps:/root/bin/` (VPS scripts — check via `ssh vps "cd /root/bin && git status"`)
-- `vps:/docker/{{MONOREPO_NAME}}/` (the VPS deploy clone — usually shouldn't be edited directly, but worth checking)
+- Project code repositories (find via `find ~/Repos -maxdepth 2 -name .git -type d`)
+- Vault directory (if it's a git repo)
+- `~/.claude/skills/` (only if a `.git` directory exists)
+- Remote repos on deployment targets (check project `agents.md` for server repo locations)
 
 For each repo, build a list of files **this session touched**.
 
@@ -183,7 +211,7 @@ cd <repo> && git status --short -- <files...>
 
 For any file that shows as `M` (modified, uncommitted) or `??` (untracked):
 - **Is this session responsible for the change?** Cross-check against the JSONL Edit/Write entries.
-- If yes → present to user: "I have uncommitted changes from this session in `<repo>`: [files]. Commit before closeout?"
+- If yes → **commit immediately** using `/git-safe`. Don't ask. Closeout implies "wrap up my work," which includes committing it. Use a descriptive message referencing the session's work.
 - If no (e.g., another session's WIP, framework auto-mods, machine-state files) → leave alone, list in the closeout summary as "uncommitted state present in [repo] not from this session — flagged but not touched."
 
 **Never `git add -A` blindly.** Always stage specific files from the session's edit list. Other agents may have their own staged work you don't see.
@@ -201,17 +229,17 @@ For each unpushed commit, verify it's yours:
 - Cross-check the commit time against the session start time (JSONL first message timestamp)
 - Cross-check the commit message against the session's work (the topics from Step 0/1)
 
-If yes → present: "I have unpushed commits from this session in `<repo>`: [list]. Push to origin/main?"
+If yes → **push immediately** via `git push origin main` (after verifying branch via `git branch --show-current`). Don't ask. Closeout implies "wrap up my work," which includes pushing it. The user approved this by running `/closeout`.
 
-If the commit is from another session (older timestamp, unrelated message, or matches commits from another machine like `root@srv1062455.hstgr.cloud`) → leave it alone, flag it in the closeout summary.
+If the commit is from another session (older timestamp, unrelated message, or matches commits from another machine) → leave it alone, flag it in the closeout summary.
 
-**Per git-safe**: always verify the branch first (`git branch --show-current`), never force push, never push to main without the user's explicit approval at this step.
+**Per git-safe**: always verify the branch first, never force push. But pushing your own session's commits to main during closeout does not require a separate approval, the closeout invocation IS the approval.
 
-### 1.6d — Check deploy state for Flora app changes
+### 1.6d — Check deploy state for app code changes
 
-This step is MANDATORY when this session edited any file under `~/Repos/{{MONOREPO_NAME}}/apps/<svc>/` or its package dependencies (`packages/db`, `packages/ui`, `packages/shared`, `packages/flora-ai-client`).
+This step is MANDATORY when this session edited deployable application code. Check your project's `agents.md` for the list of deployable services and their source paths.
 
-For each touched Flora service, verify the running prod container has this session's code:
+For each touched service, verify the running production instance has this session's code:
 
 1. **Find the latest commit touching the service's paths:**
    ```bash
@@ -232,9 +260,8 @@ For each touched Flora service, verify the running prod container has this sessi
    This is the most reliable check — timestamps can be misleading for cached builds, but the actual file content is ground truth.
 
 If the running container does NOT have your fix:
-- Present to user: "I edited `<file>` in this session. The running `<container>` does NOT have the change. Deploy now via `safe-build <svc>`?"
-- Recommended deploy method: `safe-build <svc>` on VPS (local build, no GHCR pull dependency). Per `vps-deploy` skill.
-- Per the Push ≠ Deploy rule (L25): pushing to main does NOT auto-deploy. You must run safe-build or flora-deploy explicitly.
+- **Deploy immediately** using your project's deploy command. Don't ask. If you edited code in this session and it's not deployed, deploy it. Closeout means "wrap up my work," which includes getting your code live.
+- If your project uses a Push ≠ Deploy model: pushing to main does NOT auto-deploy. You must run the deploy command explicitly.
 
 **Do NOT deploy services you didn't edit in this session**, even if you notice they're stale. That's another session's responsibility (or end-day's audit step). Closeout's scope is your own work.
 
@@ -246,22 +273,18 @@ Before continuing to Step 2, output a clear table:
 Session Push & Deploy Audit
 ===========================
 
-Repo: ~/Repos/{{MONOREPO_NAME}}
-- 2 commits unpushed (mine):    [hash] [msg], [hash] [msg]    → push? [y/n]
-- 1 service with stale deploy:  kb (latest commit 30min newer than container)  → safe-build? [y/n]
+Repo: ~/Repos/my-project
+- 2 commits unpushed (mine):    [hash] [msg], [hash] [msg]    → pushing
+- 1 service with stale deploy:  web-app (latest commit 30min newer than container) → deploying
 
 Repo: ~/Documents/Vaults
 - 0 uncommitted, 0 unpushed                                   → ✅
 
-Repo: vps:/root/bin
-- 1 file modified (mine):       safe-build                   → commit + push? [y/n]
-
 NOT TOUCHED (other sessions' work, flagged not acted on):
-- ~/Repos/{{MONOREPO_NAME}}: 6 next-env.d.ts auto-mods (framework noise)
-- vps:/docker/{{MONOREPO_NAME}}: clean
+- ~/Repos/my-project: 3 auto-generated type files (framework noise)
 ```
 
-Wait for user input on each item before proceeding. Resolve all "yours" items before logging work to the daily note — otherwise the daily note will lie about what was deployed.
+Resolve all "yours" items automatically before logging work to the daily note, otherwise the daily note will lie about what was deployed.
 
 ## Step 2: Log Work
 

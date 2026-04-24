@@ -116,13 +116,13 @@ After presenting the dashboard, immediately start working through the open items
 **fix:** Present what you'd do and ask for permission.
 ```
 #1 fix — work_items default is 'open' but CHECK only allows 'pending'.
-One ALTER command on VPS. Fix it now? [yes/skip]
+One ALTER command on the DB. Fix it now? [yes/skip]
 ```
 
 **decide:** Present the options with full context.
 ```
-#2 decide — VPS has 6 uncommitted files from before our session.
-They're in .gitignore, docker-compose.yml, ai-gateway, flora-ai-client-py,
+#2 decide — Server has 6 uncommitted files from before our session.
+They're in .gitignore, docker-compose.yml, gateway config,
 api config. Options:
   a) Investigate what they are (I'll read the diff, ~2 min)
   b) Commit them as-is
@@ -140,7 +140,7 @@ type CHECK. Context: spec defines 6 types, DB only has 2, no code uses
 **parked:** Confirm the deferral.
 ```
 #4 parked — CI/GHCR migration was assessed as ~1 session effort.
-It's mitigated by NODE_OPTIONS + safe-build pre-flight.
+It's mitigated by existing workarounds.
 Leave deferred, or create a PIC to track it?
 ```
 
@@ -171,15 +171,7 @@ Nothing to do now. Moving to #6.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Then either return to main thread work, or offer closeout if the session is ending.
-
-## Closeout Handoff
-
-If the session is ending (user is wrapping up, or all main work is done), offer to flow into closeout after triage:
-
-> "Want me to run `/closeout` to log today's work and create pickups?"
-
-Closeout will detect the recap was just run and use its findings. Don't re-scan.
+Then return to main thread work.
 
 ## Tips
 
@@ -187,7 +179,3 @@ Closeout will detect the recap was just run and use its findings. Don't re-scan.
 - Be honest about your own dropped balls. "I asked about X but moved on without waiting for your answer."
 - If the conversation is short (< 10 messages), a recap is overkill. Say so and skip it.
 - After context compaction, the JSONL still has the full history. Always load it in Step 0 so you don't miss compacted branches.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

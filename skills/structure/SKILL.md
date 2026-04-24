@@ -29,7 +29,7 @@ If no path is given, ask the user which spec to structure.
 
 3. **Check for a Design Discussion (DD)** — look in `02_Projects/<project>/designs/` for a matching DD document. If one exists, read it — design decisions inform module boundaries and phase order.
 
-4. **If no DD exists**, estimate lines of code for the spec. If >500 LOC, suggest running `/design` first and ask whether to proceed or pause. If <500, proceed without.
+4. **If no DD exists**, estimate lines of code for the spec. If >500 LOC, note that a DD is recommended and run `/design` first. If <500, proceed without.
 
 5. **Read project agents.md** — look for `02_Projects/<project>/agents.md` to understand codebase context, conventions, and constraints.
 
@@ -52,7 +52,3 @@ If no path is given, ask the user which spec to structure.
 12. **Save the SO document** to `02_Projects/<project>/structures/{today}/SO - {Spec Name}.md`. Create the directory if it doesn't exist.
 
 13. **Handoff** — end with: "Structure outline complete. Ready for `/create-plan` to create the detailed implementation plan."
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -5,13 +5,10 @@ category: Daily Note
 ---
 # {{date:dddd, MMMM D, YYYY}}
 
-## Recent Specs
+## Recent Specs & Plans
 ![[Recent Specs.base]]
 
-## Recent Plans
-![[Recent Plans.base]]
-
-## Recent Reports
+## Recent Work
 ![[Recent Reports.base]]
 
 ## Pickups

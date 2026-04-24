@@ -14,12 +14,18 @@ status: Draft
 ## Desired End State
 {What should exist after implementation. Concrete description of the target behavior.}
 
-## Patterns Found
-{What patterns, conventions, or existing implementations in the codebase are relevant? Which should be followed? Which should be avoided?}
+## Coverage Map
 
-| Pattern | Location | Follow/Avoid | Why |
-|---------|----------|--------------|-----|
-| {pattern} | {file/module} | {Follow/Avoid} | {rationale} |
+Every field, column, payload key, and counter this work touches or produces.
+Blank "Gated by" cells are blind spots. Address them before shipping.
+
+| Field / column / counter | Level | Populated by | Gated by | Qual/Quant |
+|--------------------------|-------|--------------|----------|------------|
+
+**Levels:** per-signal, per-day, per-batch, per-phase, per-system, per-workflow-protocol.
+Pre-ship requires at least one gate at each level the user experiences the system at.
+
+Source: MQ-1, MQ-2, MQ-5, MQ-7 (easy-to-measure crowds out qualitative; blind-dimension scan).
 
 ## Approach Options
 

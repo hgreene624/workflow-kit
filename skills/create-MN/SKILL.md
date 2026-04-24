@@ -23,7 +23,7 @@ Accept meeting content in any form:
 - **Limitless lifelog data** (JSON or already-processed summaries)
 - **Conversational dictation** ("we talked about X, then Y, then Z")
 - **Unstructured notes** (bullet points, fragments, stream of consciousness)
-- **Arguments to the command** (e.g., `/create-MN topic: weekly standup, attendees: Holden, Dad`)
+- **Arguments to the command** (e.g., `/create-MN topic: weekly standup, attendees: Alice, Bob`)
 
 If the user provides no content at all, ask: "Paste or describe the meeting content and I'll structure it." Do not interview topic-by-topic - take whatever they give in one pass.
 
@@ -34,12 +34,27 @@ Parse the input to identify:
 1. **Date** - from content, filename, or today's date as fallback
 2. **Attendees** - only explicitly mentioned participants. Never infer attendees from context. If speaker diarization uses aliases ("You", "Speaker 1"), map them only when the real name is unambiguous from content.
 3. **Topic** - a short descriptor for the filename parenthetical. Derive from the dominant theme or ask if unclear.
-4. **Topics/Agenda items** - group related discussion into discrete topic blocks. Each topic must have at least one concrete detail.
-5. **Per-topic content:**
+4. **Parts vs. single-segment** - determine whether the meeting has distinct temporal segments (see Step 2.5).
+5. **Topics/Agenda items** - group related discussion into discrete topic blocks. Each topic must have at least one concrete detail.
+6. **Per-topic content:**
    - **Discussion** - hierarchical bullets capturing conversation flow, reasoning, context, who said what. **Bold** key details (dates, costs, decisions, owners, names).
-   - **Decisions** - only explicitly stated decisions. Omit section entirely if none.
-   - **Plans** - ideas or direction discussed without a clear owner or deliverable yet (e.g., "exploring adding a mezcal section" with no decision). If a topic had discussion but no decision and no action, use Plans to capture the direction. Omit if none.
+   - **Decisions** - only explicitly stated decisions. Omit entirely if none.
+   - **Plans** - ideas or direction discussed without a clear owner or deliverable yet. Omit if none.
    - **Actions** - owned tasks with a clear deliverable and owner. Format as `- [ ] Owner: description`. Omit if none.
+
+## Step 2.5 - Parts Detection
+
+A meeting needs **Parts** when it has distinct temporal segments separated by:
+- Location change (moved rooms, went to someone's office)
+- Participant change (someone joined or left)
+- Clear temporal gap (break, pause, reconvened later)
+- Distinct shift in meeting mode (informal chat became structured discussion)
+
+**Rules:**
+- If there are no clear segment boundaries, do NOT use parts. Just use topics directly.
+- Parts are temporal containers. Topics organize by subject matter within each part.
+- Every part must have a descriptive title and time range (if available).
+- A meeting with only one segment does not get a Part wrapper.
 
 ## Step 3 - Quality Rules
 
@@ -52,10 +67,9 @@ These rules are non-negotiable for every meeting note:
 - Bold key details throughout discussion bullets.
 
 ### Structure
-- Every topic heading (`###`) must have a Discussion section with substantive content.
-- Omit Decisions/Plans/Actions subsections entirely when empty rather than leaving them blank.
-- No bottom-level consolidated Action Items section - actions live inline under their topic.
-- Use `#### Discussion`, `#### Decisions`, `#### Plans`, `#### Actions` as subsection headings.
+- Every topic heading must have substantive discussion content.
+- Omit Decisions/Plans/Actions entirely when empty for a given topic.
+- No bottom-level consolidated Action Items section - decisions and actions live inline under their topic.
 
 ### Signal vs. noise
 - Skip greetings, wrap-ups, small talk, ambient noise, and filler.
@@ -70,9 +84,11 @@ These rules are non-negotiable for every meeting note:
 ## Step 4 - Generate the File
 
 **Filename:** `MN - YYYY-MM-DD (<Topic>).md`
-**Location:** `{vault_root}/{paths.meetings}/`
+**Location:** `Work Vault/01_Notes/Meetings/`
 
-Use this exact structure:
+### Format A: Single-Segment Meeting (no parts)
+
+Use when the meeting is one continuous conversation without temporal breaks.
 
 ```markdown
 ---
@@ -114,6 +130,64 @@ category: Meeting
 ---
 ```
 
+### Format B: Multi-Part Meeting (temporal segments)
+
+Use when the meeting has distinct parts (location change, participant change, temporal gap). Parts at `###`, topics at `####`, with per-topic decisions/actions inline.
+
+```markdown
+---
+date created: YYYY-MM-DD
+tags:
+  - meeting
+  - <relevant-project-or-domain-tags>
+category: Meeting
+---
+
+## Attendees
+- <Name>
+- <Name>
+
+---
+## Agenda / Topics
+
+---
+
+### Part 1: <Descriptive Part Title>
+*~HH:MM AM/PM - HH:MM AM/PM, <brief context: location, mode, who's present>*
+
+#### <Topic title>
+- <Discussion bullets, hierarchical, capturing flow and reasoning>
+- **Bold** key details
+- **Decision:** <only if explicitly stated for this topic>
+- [ ] <Owner>: <action item, only if explicitly assigned>
+
+#### <Next topic>
+- <Discussion bullets>
+
+---
+
+### Part 2: <Descriptive Part Title>
+*~HH:MM AM/PM - HH:MM AM/PM, <context>*
+
+#### <Topic title>
+- <Discussion bullets>
+- **Decision:** <inline if applicable>
+
+---
+## Notes (optional scratchpad)
+- <Only if there's extra context not captured in topics>
+
+---
+```
+
+**Format B rules:**
+- Each `####` topic heading contains its own discussion bullets plus any decisions/actions inline
+- Prefix decisions with `**Decision:**` as a bold inline marker within the topic's bullets
+- Actions use checkbox format `- [ ] Owner: task` within the topic
+- Omit decision/action lines entirely when none exist for that topic (no "Decision: none")
+- The time range and context line is italic, immediately below the Part heading
+- Horizontal rules (`---`) separate parts for visual clarity
+
 ## Step 5 - Link in Daily Note
 
 If a daily note exists for the meeting date (`DN - YYYY-MM-DD.md`), add a link under the `## Meetings/Calls` section:
@@ -134,7 +208,3 @@ Show the user the generated filename and a brief summary:
 - Any content that was ambiguous or dropped (explain why)
 
 Do not ask for confirmation before writing - just write it. The user can review and request changes.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

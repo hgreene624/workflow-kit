@@ -110,7 +110,6 @@ For brief and standard: present findings inline and apply fixes. For full: let r
 TLDR (3-5 bullets), then offer:
 1. Run /create-plan now
 2. More changes first
-3. Done for now
 
 ## Reference Files
 
