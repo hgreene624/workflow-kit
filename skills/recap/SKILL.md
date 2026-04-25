@@ -171,7 +171,15 @@ Nothing to do now. Moving to #6.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
-Then return to main thread work.
+Then either return to main thread work, or offer closeout if the session is ending.
+
+## Closeout Handoff
+
+If the session is ending (user is wrapping up, or all main work is done), offer to flow into closeout after triage:
+
+> "Want me to run `/closeout` to log today's work and create pickups?"
+
+Closeout will detect the recap was just run and use its findings. Don't re-scan.
 
 ## Tips
 

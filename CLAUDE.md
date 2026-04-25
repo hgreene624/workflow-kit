@@ -12,11 +12,28 @@ Run `/orient` at the start of every conversation. No exceptions.
 - Do not infer or invent details. Log only what is explicitly stated.
 - When information is incomplete, leave it blank or ask — do not guess.
 - Keep instructions out of user-facing notes. Store guidance in `agents.md` or linked reference docs.
-- When clarifying requirements, ask questions **one at a time** with numbered options. Do not bundle multiple questions together.
-- Verify assumptions against docs/code before modifying anything.
+- All questions to the user MUST use the AskUserQuestion tool, one at a time. See "Rules That Survive Compaction" below.
+- Verify assumptions against docs/code before modifying anything. Don't guess at syntax, dependencies, or config.
 - Minimum blast radius: only change what's required. Ask before bundling refactors or "improvements" into a fix.
-- Write an implementation plan before dispatching agent teams.
-- **Never leave discovered issues untracked.** When you find a broken system, failing service, or bug during work on a different task — create a PIC before moving on.
+- Write an implementation plan before dispatching agent teams. The spec defines what; the plan defines how and in what order.
+- **Never leave discovered issues untracked.** When you find a broken system, failing service, or bug during work on a different task — even if it seems "unrelated" — you must either fix it now or create a PIC before moving on. Saying "that's a separate issue" without a tracking mechanism means the issue gets forgotten. Ask the user: "I found [issue]. Fix now or create a PIC?"
+- **Always clean up after a fix.** When you rename, replace, migrate, or remove something, actively hunt for and delete the stale artifacts left behind: old DB rows, superseded branches, dead code paths, orphaned registry entries, obsolete cron jobs, unused prompt versions, etc. Cleanup is part of the fix, not a separate task. If you're unsure whether an artifact is safe to remove, ask — but don't just leave it.
+<!-- WFK:END -->
+
+<!-- WFK:START - Agent Teams -->
+## Agent Teams — Mandatory
+
+When dispatching multiple agents or subagents for ANY purpose (parallel research, implementation, reviews, syncs — anything), you MUST use Claude Code Agent Teams (`TeamCreate` → workers) so every agent appears in a tmux pane the user can monitor.
+
+**Never use bare background subagents** (`Agent` tool with `run_in_background: true` without a team). No exceptions.
+
+The correct pattern:
+1. `TeamCreate` to set up the team
+2. Launch workers within the team (they appear as tmux panes)
+3. Coordinate via `SendMessage` between team members
+4. User can see all agents working in the swarm view
+
+This applies even for "quick" parallel tasks. If you're about to use the `Agent` tool more than once in a single message, use a team instead.
 <!-- WFK:END -->
 
 <!-- WFK:START - File Prefix Conventions -->
@@ -36,12 +53,12 @@ Every document has a prefix that identifies its type:
 | `RET` | Retrospective | `RET - Sprint 5.md` |
 | `WL` | Work Log | `WL - Feature Migration.md` |
 | `WS` | Weekly Summary | `WS (W13) - 2026-03-23.md` |
-| `MN` | Meeting Note | `MN - 2026-03-25 (Topic).md` |
 | `IN` | Initiative Log | `IN - Cost Optimization.md` |
 | `QA` | Quality Audit | `QA - Feature Validation.md` |
 | `ARE` | Agent Report | `ARE - Spec Review.md` |
 | `DD` | Design Discussion | `DD - Feature Design.md` |
-| `SO` | Structure Outline | `SO - Feature Outline.md` || `HAN` | Handoff | `HAN - Sprint 6.md` |
+| `SO` | Structure Outline | `SO - Feature Outline.md` |
+| `HAN` | Handoff | `HAN - Sprint 6.md` |
 
 Do NOT invent new prefixes. If a document doesn't fit, use the closest match or ask.
 <!-- WFK:END -->
@@ -102,6 +119,9 @@ tags: [relevant-tags]
 category: Daily Note | Meeting | Spec | Plan | Report | Reference | Pickup
 ---
 ```
+
+Reports may add: `status`, `severity`, `resolved`, `affects`.
+Plans may add: `status`, `source` (link to spec).
 <!-- WFK:END -->
 
 <!-- WFK:START - Standard Project Structure -->
@@ -140,6 +160,7 @@ The `YYYY-MM-DD` is always the **creation date** of the document. Use today's da
 
 - Use **shortest path** (filename only): `[[SPC - New Feature]]`, not full paths
 - Obsidian resolves by filename — full paths break when files move
+- Display text is optional: `[[SPC - New Feature|Feature Spec]]`
 <!-- WFK:END -->
 
 <!-- WFK:START - Agent Files -->
@@ -154,6 +175,24 @@ The `YYYY-MM-DD` is always the **creation date** of the document. Use today's da
 ## Git Safety
 
 Before ANY git operation that modifies state (commit, push, pull, merge, checkout, rebase), follow `/git-safe`. No exceptions.
+<!-- WFK:END -->
+
+<!-- WFK:START - Post-Compaction Recovery -->
+## Post-Compaction Recovery
+
+After context compaction, re-read this CLAUDE.md before continuing work. It contains behavioral rules (DN formatting, PJL rules, pickup verification, closeout procedures, project structure) that do not survive summarization.
+<!-- WFK:END -->
+
+<!-- WFK:START - Rules That Survive Compaction -->
+## Rules That Survive Compaction
+
+These are the most-violated rules. They live here so they persist even if CLAUDE.md hasn't been re-read yet.
+
+- **AskUserQuestion for ALL questions.** Every question to the user MUST use the AskUserQuestion tool. Never ask inline, in numbered lists, in bold headers, or embedded in reports. One question per tool call. Present information first, then ask.
+- **No hedging.** Never say "likely", "probably", "almost certainly" about technical state. Verify and state the fact, or say "I don't know yet" and check. Hedging about current state is banned.
+- **No em dashes.** Use commas, periods, or parentheses instead of `—`. Tight spacing in markdown: no double blank lines.
+- **Don't ask answerable questions.** Check filesystem, git, or commands before asking the user. Only ask about intent or preference, not observable state.
+- **iTerm tab updates.** Only set the tab when the user explicitly asks (e.g., "set tab", "color tab", "label tab", "iterm", "tag this"). Never set it proactively.
 <!-- WFK:END -->
 
 <!-- LOCAL:START - Add your vault-specific rules below this line -->

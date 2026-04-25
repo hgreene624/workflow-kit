@@ -91,6 +91,7 @@ For each skill, note what vault state would make it relevant:
 | No SOD for today | `/orient` |
 | Open PICs exist | `/pickup` |
 | Work done but no DN entry | `/log-work` |
+| User says "done" or "wrapping up" | `/closeout` |
 | Multiple closeouts, no EOD | `/end-day` |
 | 5+ open PICs, long conversation | `/recap` |
 | Feature described with no spec | `/create-spec` |
