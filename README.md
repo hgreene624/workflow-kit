@@ -196,16 +196,19 @@ Think of pickups as an extension of your memory. When you're juggling 10 things 
 |---------------|------------|
 | Start a session | `/orient` |
 | Resume previous work | `/pickup` |
-| Capture an idea | `/create-concept-brief` |
-| Start a new project | `/create-spec` |
-| Plan the work | `/create-plan` |
+| Create any document | `/create-note` (detects type, or specify: SD, SPC, PIC, MN, PD, PLN, DD, SO, RE) |
+| Capture an idea | `/create-note PD` |
+| Start a new project | `/create-note SPC` |
+| Plan the work | `/create-note PLN` |
 | Execute the plan | `/implement` |
+| Strategic roadmap | `/roadmap` |
 | Research a domain before designing | `/oracle-create` |
 | Ask the oracle a design question | `/oracle-ask` |
-| Define a system's principles | `/create-sd` |
+| Define a system's principles | `/create-note SD` |
 | Log what you did | `/log-work` |
 | Understand a document or topic | `/explain` |
-| Create meeting notes | `/create-MN` |
+| Create meeting notes | `/create-note MN` |
+| Extract lessons from this session | `/distill-lessons` |
 | Generate UI prototype from spec | `/prototype` |
 | Organize incoming files | `/intake` |
 | Save context for later | `/park` |
@@ -285,7 +288,7 @@ When you start a new project, Claude creates a folder structure automatically:
   plans/          -- How you'll do it (broken into phases)
   reports/        -- Analysis and research
   reviews/        -- Quality checks
-  agents.md       -- AI instructions specific to this project
+  CLAUDE.md       -- AI instructions specific to this project
   lessons.md      -- What you've learned along the way
 ```
 
@@ -318,7 +321,7 @@ During setup, the system scans your machine to detect what kind of work you do a
 
 The system adapts over time:
 - **Lessons** -- When Claude learns something about how your work goes (a tool that doesn't work as expected, a process that needs an extra step), it saves that as a lesson. Future sessions read those lessons and avoid the same mistakes.
-- **Agent configs** -- Each project has an `agents.md` file where Claude stores project-specific context. This means Claude remembers the tech stack, the conventions, and the gotchas for each project.
+- **Agent configs** -- Each project has an `CLAUDE.md` file where Claude stores project-specific context. This means Claude remembers the tech stack, the conventions, and the gotchas for each project.
 - **Pickups** -- Every time you stop working, the context is saved. When you come back, Claude reads the pickup and knows exactly where you were and what's next.
 
 ### Adding Your Own Skills

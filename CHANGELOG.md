@@ -10,6 +10,72 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.0.0 - 2026-04-28
+
+### What this release is about
+
+Document creation consolidated from 8 separate skills into one. Strategic planning becomes a first-class workflow with the new roadmap skill. Lessons extraction is now automated. Deployment verification patterns hardened across closeout, end-day, log-work, and pickup. Major org-content scrub pass.
+
+### Breaking changes
+
+**8 document creation skills replaced by `/create-note`.** The individual skills (`/create-sd`, `/create-spec`, `/create-pickup`, `/create-MN`, `/create-concept-brief`, `/create-plan`, `/design`, `/structure`) are removed. Use `/create-note` with a type argument instead:
+
+| Old command | New command |
+|---|---|
+| `/create-sd` | `/create-note SD` |
+| `/create-spec` | `/create-note SPC` |
+| `/create-pickup` | `/create-note PIC` |
+| `/create-MN` | `/create-note MN` |
+| `/create-concept-brief` | `/create-note PD` |
+| `/create-plan` | `/create-note PLN` |
+| `/design` | `/create-note DD` |
+| `/structure` | `/create-note SO` |
+
+You can also just say "create a spec" or "write meeting notes" and `create-note` will detect the type from context. All templates, frontmatter conventions, writing profile lookups, and routing rules are preserved. The skill also handles `RE` (reports) which had no dedicated skill before.
+
+**`/pipeline-qa` removed from core.** This was always org-specific (FWIS signal engine checks). Moved to org_skills. If you had it installed, it will be removed on pull. If you built your own checks on top of it, save your LOCAL.md first.
+
+### New skills
+
+**`/create-note`**
+One skill for all vault document types. Pass a type (SD, SPC, PIC, MN, PD, PLN, DD, SO, RE) or let it detect from context. Loads the correct writing profile, applies type-specific frontmatter, routes to the right directory, and follows the established structure for each document type. Includes all templates that were previously scattered across 8 separate skills.
+
+**`/roadmap`**
+Strategic planning that maps all active work to stated goals. Audits open PICs, Patrick Requests, and project logs. Triages PICs into active/parked/blocked with a capacity gate (8 max). Phases tasks across weeks with dependency tracking. Produces both a Roadmap (RM, multi-week strategic view) and Weekly Focus (WF, this-week tactical view). Three modes: full creation, refresh (update existing), or weekly-focus-only (new WF from current RM). Integrates with orient (reads RM at startup), end-day (goal progress reporting), triage-patrick (weekly focus gate), and pickup (goal-aligned clustering).
+
+**`/distill-lessons`**
+Extracts reusable lessons from the current conversation into CLAUDE.md and lessons.md files. Watches for corrections, failures, surprising fixes, and non-obvious workarounds. Formats each lesson with trigger condition, action, and rationale so future agents can apply them as active constraints.
+
+### What got better
+
+**Closeout verifies deployment state before logging.** A new pre-flight step audits whether code changes in the session were actually deployed. If you pushed but didn't deploy, closeout catches the gap before it becomes a false record in your daily note. Automatic commit, push, and deploy during closeout for any stale services.
+
+**End-day runs a machine-wide state audit.** Beyond the single-session closeout, end-day now checks every repo on the machine for uncommitted changes, every deployed service for stale containers, and every auto-memory directory for drift. Reports findings as actionable items, not automated fixes.
+
+**Log-work requires environment disambiguation.** When logging work that touches deployed applications, the entry must specify LOCAL, REMOTE, or BOTH, with a verification URL. Prevents the "deployed the fix" claim when the fix only exists locally.
+
+**Pickup declares environment before starting.** For PICs that involve deployed code, pickup forces an environment declaration (LOCAL/REMOTE/BOTH) before any work begins. This prevents investigating a production bug against localhost.
+
+**15 additional skills updated** with structural improvements, better scrubbing, and tighter integration with the strategic planning layer.
+
+### What you need to do
+
+**Update your command muscle memory.** If you type `/create-spec` by habit, it will no longer resolve. Use `/create-note SPC` or just say "create a spec" and the unified skill handles it. The old command names still work as natural language triggers for `create-note`.
+
+**Check your LOCAL.md files.** If you customized any of the 8 removed skills via LOCAL.md, those files will be preserved in backups during the pull. Review and migrate any customizations to `~/.claude/skills/create-note/LOCAL.md`.
+
+### Migration
+
+When you run `/update-wfk pull`:
+1. 8 deprecated skills will be backed up and removed (create-sd, create-spec, create-pickup, create-MN, create-concept-brief, create-plan, design, structure)
+2. pipeline-qa will be removed (moved to org-only)
+3. 3 new skills installed (create-note, roadmap, distill-lessons)
+4. 15 existing skills updated
+5. References to old skill names in your CLAUDE.md will be flagged for update
+6. Your sync manifest will be updated to v3.0.0
+
+---
+
 ## v2.3.0 - 2026-04-23
 
 ### What this release is about
