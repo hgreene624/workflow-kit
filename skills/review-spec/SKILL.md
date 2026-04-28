@@ -3,21 +3,21 @@ name: review-spec
 description: >
   Dispatch a team of agents to critically review a spec document (SPC - *.md). Evaluates scope
   and impact on the actual environment, loads all relevant context (lessons, references, related
-  specs, agents.md), and flags issues, gotchas, and clarification needs. Use this skill whenever
+  specs, CLAUDE.md), and flags issues, gotchas, and clarification needs. Use this skill whenever
   the user wants to review a spec, evaluate a spec before implementation, get critical feedback
   on a spec, or says anything like "review this spec", "evaluate this spec", "what are the risks
   in this spec", "is this spec ready". Also trigger when the user passes a SPC file path and
-  wants feedback before planning. This skill focuses on review only — use /create-plan afterward
-  to produce the plan document and Plane project.
+  wants feedback before planning. This skill focuses on review only -- use /create-plan afterward
+  to produce the plan document and project tracker.
 ---
 
 # Spec Review Skill
 
-You are orchestrating a 3-agent team that critically evaluates a spec before it becomes a plan. The goal is to catch issues, surface gotchas, and get user buy-in on open questions — not rubber-stamp the spec and rush to planning.
+You are orchestrating a 3-agent team that critically evaluates a spec before it becomes a plan. The goal is to catch issues, surface gotchas, and get user buy-in on open questions -- not rubber-stamp the spec and rush to planning.
 
 This is the first half of a two-skill workflow:
-1. **`/review-spec`** (this skill) — analyze, critique, get clarification
-2. **`/create-plan`** — produce plan document + Plane project (run after review issues are resolved)
+1. **`/review-spec`** (this skill) -- analyze, critique, get clarification
+2. **`/create-plan`** -- produce plan document + project tracker (run after review issues are resolved)
 
 ## Invocation
 
@@ -27,24 +27,24 @@ This is the first half of a two-skill workflow:
 
 The spec path can be relative to the vault root or absolute. If no path is given, ask the user which spec to review.
 
-## Step 0 — Orient & Infer Project
+## Step 0 -- Orient & Infer Project
 
 Before dispatching the team:
 
 1. Read the spec file to understand what's being proposed
 2. Infer the project from the spec's location in the vault directory tree:
-   - `01_Work/03_Projects/<ProjectName>/` → that's your project
-   - Also check for sub-projects (e.g., `{{ORG}} Hub/`, `Inbox Triage/`, `Signal Engine/` under {{SIGNAL_ENGINE}})
-3. Check for `agents.md` and `lessons.md` in that project directory
-4. Read the vault-root `AGENTS.md` file, then the project-level `agents.md` if one exists — these contain critical context about how work should be done in that project
+   - `02_Projects/<Initiative>/<ProjectName>/` -> that's your project
+   - Also check for sub-project directories (e.g., nested project folders under an initiative umbrella)
+3. Check for `CLAUDE.md` and `lessons.md` in that project directory
+4. Read the vault-root `CLAUDE.md` file, then the project-level `CLAUDE.md` if one exists -- these contain critical context about how work should be done in that project
 
-## Step 1 — Dispatch the Team
+## Step 1 -- Dispatch the Team
 
 Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be able to monitor each agent's progress.
 
 ### Agent 1: Scope Analyst
 
-**Purpose:** Map the blast radius of the spec — what does this change touch?
+**Purpose:** Map the blast radius of the spec -- what does this change touch?
 
 **Instructions for the agent:**
 
@@ -53,16 +53,16 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 > **Read the spec at:** `{spec_path}`
 >
 > **Then investigate the actual environment:**
-> 1. If the project has a local codebase (check `agents.md` for repo path), explore it:
+> 1. If the project has a local codebase (check `CLAUDE.md` for repo path), explore it:
 >    - Which files/modules would need changes?
 >    - What existing code does similar things that could be reused or would conflict?
 >    - Are there tests that would need updating?
-> 2. If the project involves VPS infrastructure (check `agents.md` for VPS paths), SSH in and check:
->    - Running containers and their resource usage
+> 2. If the project involves server infrastructure (check `CLAUDE.md` for server/VPS paths), investigate:
+>    - Running containers/services and their resource usage
 >    - Existing config files that would need modification
->    - Database schemas that would be affected (`\d tablename` in postgres)
+>    - Database schemas that would be affected
 >    - Available disk/RAM/CPU headroom
-> 3. Map dependencies — what other systems does this touch? (APIs, external services, shared databases, Traefik routing, etc.)
+> 3. Map dependencies -- what other systems does this touch? (APIs, external services, shared databases, reverse proxy routing, etc.)
 >
 > **Output:** Write a scope analysis to `{workspace}/ARE - {spec_name} Scope Analysis.md` with sections:
 > - **Affected Components** (table: Component | Type | Impact | Notes)
@@ -70,7 +70,7 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 > - **Dependency Map** (what this connects to, upstream and downstream)
 > - **Risk Surface** (what could break during implementation)
 >
-> Keep it factual — no opinions on whether the spec is good, just what it touches.
+> Keep it factual -- no opinions on whether the spec is good, just what it touches.
 
 ### Agent 2: Context Researcher
 
@@ -78,26 +78,26 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 
 **Instructions for the agent:**
 
-> You are the Context Researcher. Your job is to find and compile every piece of context that's relevant to evaluating this spec — lessons learned, reference docs, related specs and plans, past reports, and architectural decisions.
+> You are the Context Researcher. Your job is to find and compile every piece of context that's relevant to evaluating this spec -- lessons learned, reference docs, related specs and plans, past reports, and architectural decisions.
 >
 > **Read the spec at:** `{spec_path}`
 >
 > **Then gather context from these sources:**
 >
-> 1. **Lessons files** — Read `lessons.md` in the project directory AND in parent/sibling project directories. Also check `04_ Tools/Reference/REF - Project Planning Lessons.md` and `04_ Tools/Reference/REF - Agent Lessons.md`. Extract every lesson that's relevant to what this spec proposes.
+> 1. **Lessons files** -- Read `lessons.md` in the project directory AND in parent/sibling project directories. Also check `04_Reference/` for project planning lessons and agent lessons. Extract every lesson that's relevant to what this spec proposes.
 >
-> 2. **Reference files** — Search for `REF - *.md` files in the project directory and `04_ Tools/Reference/`. Read any that relate to the technologies, patterns, or infrastructure mentioned in the spec.
+> 2. **Reference files** -- Search for `REF - *.md` files in the project directory and `04_Reference/`. Read any that relate to the technologies, patterns, or infrastructure mentioned in the spec.
 >
-> 3. **Related specs and plans** — Search for other `SPC - *.md` and `PL - *.md` files in the same project. Read them to understand:
+> 3. **Related specs and plans** -- Search for other `SPC - *.md` and `PL - *.md` files in the same project. Read them to understand:
 >    - What's already been specced/planned that this overlaps with
 >    - What's currently in progress that could conflict
 >    - What architectural decisions have already been made
 >
-> 4. **Past reports** — Check the project's `Reports/` directory for recent reports that provide context (audit results, incident reports, evaluation results).
+> 4. **Past reports** -- Check the project's reports directory for recent reports that provide context (audit results, incident reports, evaluation results).
 >
-> 5. **Workflow docs** — Read relevant workflows from `Documentation/Agent Workflows/` (Feature Development Workflow, Project Spec Workflow, Project Plan Workflow).
+> 5. **Workflow docs** -- Read relevant workflows from documentation directories (feature development, spec authoring, plan creation).
 >
-> 6. **Memory** — Check `~/.claude/projects/-Users-username-Library-Mobile-Documents-iCloud-md-obsidian-Documents-Personal-Vault/memory/` for any memory files relevant to this project.
+> 6. **Memory** -- Check `~/.claude/projects/*/memory/` for any memory files relevant to this project.
 >
 > **Output:** Write a context brief to `{workspace}/ARE - {spec_name} Context Brief.md` with sections:
 > - **Applicable Lessons** (lesson ID, source file, relevance to this spec)
@@ -106,13 +106,13 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 > - **Historical Context** (past incidents, reports, or patterns relevant here)
 > - **Key References** (files the reviewer should read directly)
 >
-> Prioritize — put the most impactful context first. If a lesson directly contradicts something in the spec, flag it prominently.
+> Prioritize -- put the most impactful context first. If a lesson directly contradicts something in the spec, flag it prominently.
 
 ### Agent 3: Critical Reviewer
 
 **Purpose:** Synthesize the scope analysis and context brief into a critical evaluation of the spec.
 
-**This agent must wait for Agents 1 and 2 to complete before starting its main work.** It can begin by reading the spec and the project's agents.md, but should not start the review until the scope analysis and context brief are available.
+**This agent must wait for Agents 1 and 2 to complete before starting its main work.** It can begin by reading the spec and the project's CLAUDE.md, but should not start the review until the scope analysis and context brief are available.
 
 **Instructions for the agent:**
 
@@ -126,14 +126,14 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 >
 > Evaluate the spec against these criteria:
 >
-> 1. **Completeness** — Are there gaps in the spec? Missing acceptance criteria? Undefined behavior at boundaries? Unaddressed edge cases?
-> 2. **Feasibility** — Given the scope analysis, is this realistic? Are resource requirements acknowledged? Are there hidden infrastructure costs?
-> 3. **Conflicts** — Does this contradict existing architectural decisions, lessons learned, or in-progress work?
-> 4. **Gotchas** — Based on lessons and past incidents, what's likely to go wrong? What has gone wrong before in similar work?
-> 5. **Scope creep risk** — Is the spec tightly scoped or does it invite unbounded work?
-> 6. **Dependency risks** — Are there external dependencies that could block progress? Ordering constraints that aren't documented?
-> 7. **Reality check** — Does the spec match the current state of the codebase and infrastructure? Are assumptions still valid? Has work already been done that the spec doesn't account for?
-> 8. **Clarification needs** — What questions must the user answer before this spec can be planned? What ambiguities would lead different developers to make different choices?
+> 1. **Completeness** -- Are there gaps in the spec? Missing acceptance criteria? Undefined behavior at boundaries? Unaddressed edge cases?
+> 2. **Feasibility** -- Given the scope analysis, is this realistic? Are resource requirements acknowledged? Are there hidden infrastructure costs?
+> 3. **Conflicts** -- Does this contradict existing architectural decisions, lessons learned, or in-progress work?
+> 4. **Gotchas** -- Based on lessons and past incidents, what's likely to go wrong? What has gone wrong before in similar work?
+> 5. **Scope creep risk** -- Is the spec tightly scoped or does it invite unbounded work?
+> 6. **Dependency risks** -- Are there external dependencies that could block progress? Ordering constraints that aren't documented?
+> 7. **Reality check** -- Does the spec match the current state of the codebase and infrastructure? Are assumptions still valid? Has work already been done that the spec doesn't account for?
+> 8. **Clarification needs** -- What questions must the user answer before this spec can be planned? What ambiguities would lead different developers to make different choices?
 >
 > Write the evaluation to `{workspace}/ARE - {spec_name} Spec Review.md` with this exact structure and frontmatter:
 >
@@ -141,7 +141,7 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 > ---
 > category: Review
 > date created: {today}
-> source: "review-spec skill — Critical Reviewer"
+> source: "review-spec skill -- Critical Reviewer"
 > spec: "[[{spec_filename}]]"
 > ---
 >
@@ -163,7 +163,7 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 > {1-2 sentences: ready to plan? needs revision? needs clarification?}
 >
 > ## Clarifications Needed
-> {MANDATORY section — even if empty, include it with "None — spec is clear enough to plan."}
+> {MANDATORY section -- even if empty, include it with "None -- spec is clear enough to plan."}
 > {These are questions whose answers will change the shape of the plan. They are NOT the same as issues.}
 > {An issue is a problem with the spec. A clarification is a decision the user needs to make.}
 > {Format each as: **CL-N: [question]** with 1-2 sentences of context explaining why this matters for planning.}
@@ -177,7 +177,7 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 > {Each issue: ID (C1/W1/I1), title, affected spec section, description, concrete suggestion}
 >
 > ## Suggested Spec Improvements
-> {Specific text changes or additions — not vague recommendations}
+> {Specific text changes or additions -- not vague recommendations}
 > {Number them so the user can say "apply 1, 3, and 5"}
 >
 > ## Gotchas & Lessons to Watch
@@ -193,19 +193,19 @@ Create a workspace for the review artifacts:
 
 ```
 {project_dir}/reviews/{date}/
-├── ARE - {spec_name} Scope Analysis.md      (Agent 1 output)
-├── ARE - {spec_name} Context Brief.md       (Agent 2 output)
-└── ARE - {spec_name} Spec Review.md         (Agent 3 output)
++-- ARE - {spec_name} Scope Analysis.md      (Agent 1 output)
++-- ARE - {spec_name} Context Brief.md       (Agent 2 output)
++-- ARE - {spec_name} Spec Review.md         (Agent 3 output)
 ```
 
-**CRITICAL — File naming:** All output files MUST use the exact `ARE - {spec_name} ...` prefix format shown above. Do NOT use slugified names like `spec-review-foo.md` or `context-brief.md`. The `ARE -` prefix is a vault-wide convention that enables Obsidian linking, search, and routing. When dispatching agents, include the full target filename in the prompt so agents write to the correct path.
+**CRITICAL -- File naming:** All output files MUST use the exact `ARE - {spec_name} ...` prefix format shown above. Do NOT use slugified names like `spec-review-foo.md` or `context-brief.md`. The `ARE -` prefix is a vault-wide convention that enables Obsidian linking, search, and routing. When dispatching agents, include the full target filename in the prompt so agents write to the correct path.
 
-## Step 2 — Present Findings & Get Clarification
+## Step 2 -- Present Findings & Get Clarification
 
 Once all three agents finish:
 
 1. Read the spec review (`ARE - {spec_name} Spec Review.md`)
-2. Summarize the key findings for the user — verdict, issue count by severity, top gotchas
+2. Summarize the key findings for the user -- verdict, issue count by severity, top gotchas
 3. If the review found **Clarifications Needed**, present them one at a time using `AskUserQuestion`. Each clarification is a decision that changes the shape of the plan:
    - "The spec mentions a new API endpoint but doesn't specify auth. Should it use the existing JWT flow or the new unified auth?"
    - "This overlaps with the Sales Context Panel spec. Should they share a backend service or stay independent?"
@@ -214,19 +214,19 @@ Once all three agents finish:
    ## Clarification Log
 
    **CL-1:** [question]
-   **Answer:** [user's answer] (2026-03-13)
+   **Answer:** [user's answer] (YYYY-MM-DD)
 
    **CL-2:** [question]
-   **Answer:** [user's answer] (2026-03-13)
+   **Answer:** [user's answer] (YYYY-MM-DD)
    ```
 
-## Step 3 — Apply Spec Improvements (L23: No Double-Confirmation)
+## Step 3 -- Apply Spec Improvements (No Double-Confirmation)
 
 After clarifications are resolved, apply improvements efficiently. **Do NOT re-ask the user to confirm decisions they already made.**
 
 **Flow:**
 
-1. **Auto-apply clarification-linked improvements.** Any improvement that directly implements a clarification answer the user already gave in Step 2 is applied immediately — no second ask. The user already decided; applying is just executing that decision.
+1. **Auto-apply clarification-linked improvements.** Any improvement that directly implements a clarification answer the user already gave in Step 2 is applied immediately -- no second ask. The user already decided; applying is just executing that decision.
 
 2. **Present remaining improvements in ONE pass.** Collect all improvements NOT linked to a clarification answer. Present them in a single `AskUserQuestion` with `multiSelect: true`, grouped by severity in the description but as one list:
    > "Review found {N} additional improvements. Which should I apply?"
@@ -238,8 +238,8 @@ After clarifications are resolved, apply improvements efficiently. **Do NOT re-a
    ```
    ## Applied Changes
 
-   - [x] #1: Updated Assumption A1 (auto-applied — implements CL-1)
-   - [x] #2: Added rollback strategy (auto-applied — implements CL-3)
+   - [x] #1: Updated Assumption A1 (auto-applied -- implements CL-1)
+   - [x] #2: Added rollback strategy (auto-applied -- implements CL-3)
    - [x] #4: Added confidence thresholds (user-approved)
    - [ ] #3: Add Acceptance Criteria section (skipped by user)
    ```
@@ -251,10 +251,10 @@ After clarifications are resolved, apply improvements efficiently. **Do NOT re-a
 
 ## What This Skill Does NOT Do
 
-- It does not produce a plan document — that's `/create-plan`
-- It does not create Plane projects or issues — that's `/create-plan`
+- It does not produce a plan document -- that's `/create-plan`
+- It does not create project tracker issues -- that's `/create-plan`
 - It does not implement the spec
-- It does not make architectural decisions — it flags decisions that need to be made
+- It does not make architectural decisions -- it flags decisions that need to be made
 - It does not modify the spec without user approval
 
 ## Handoff to /create-plan
@@ -264,7 +264,7 @@ When the user is ready to plan, they run:
 /create-plan <path-to-spec>
 ```
 
-The create-plan skill will automatically look for review artifacts in `Reviews/{date}/` and use them to inform the plan. Clarification answers from the log directly shape phase structure, task dependencies, and risk mitigations in the plan.
+The create-plan skill will automatically look for review artifacts in `reviews/{date}/` and use them to inform the plan. Clarification answers from the log directly shape phase structure, task dependencies, and risk mitigations in the plan.
 
 ## Local Customizations
 

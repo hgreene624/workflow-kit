@@ -22,7 +22,7 @@ Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to reso
 
 ## Pre-flight: Orient Check
 
-Before doing anything else, check whether `/orient` has been run in this session. Look for evidence in the conversation history - if you've already read the SOD, vault agents.md, and lessons.md earlier, orient has been done.
+Before doing anything else, check whether `/orient` has been run in this session. Look for evidence in the conversation history - if you've already read the SOD, vault CLAUDE.md, and lessons.md earlier, orient has been done.
 
 If orient has NOT been run yet, run `/orient` first (invoke the Skill tool with skill: "orient"). Do not skip this - pickup without orient means you'll miss project rules and lessons.
 
@@ -108,11 +108,11 @@ When multiple PICs exist for the same project area:
 
 ### Step 4: Goal-Aligned Clustering
 
-**Read strategic planning documents** (roadmaps, weekly focus files) if they exist before clustering. If a roadmap exists, cluster PICs by strategic goal first, then by project within each goal. If no roadmap exists, fall back to project-only clustering.
+**Read the current RM** (most recent file in `01_Notes/Roadmaps/`) before clustering. If an RM exists, cluster PICs by RM goal first, then by project within each goal. If no RM exists, fall back to project-only clustering.
 
-**With strategic goals:** Clusters become goal-aligned: "Goal A (3 PICs)", "Goal B (2 PICs)", "Unaligned (1 PIC)". PICs that don't map to any known goal get an "Unaligned" cluster, presented last. This makes strategic priority visible at a glance.
+**With RM:** Clusters become goal-aligned: "Goal A (3 PICs)", "Goal B (2 PICs)", "Unaligned (1 PIC)". PICs that don't map to any RM goal get an "Unaligned" cluster, presented last. This makes strategic priority visible at a glance.
 
-Within each goal cluster (or project cluster if no goals exist), evaluate batch compatibility:
+Within each goal cluster, evaluate batch compatibility:
 
 1. **Shared context?** Same codebase, database, or deployment target, loading context once saves ramp-up time
 2. **Shared workstream?** Sequential phases or subtasks of the same effort
@@ -122,7 +122,7 @@ Within each goal cluster (or project cluster if no goals exist), evaluate batch 
 Assign batch verdicts:
 - **BATCH** - shared context makes working them together faster
 - **PARTIAL BATCH** - some PICs in the cluster batch, others don't
-- **SPLIT** - same goal/project but independent workstreams
+- **SPLIT** - same goal but independent workstreams
 
 ### Step 5: Write TRI and Present the Triage
 
@@ -142,7 +142,7 @@ This step prevents showing stale PICs that were already picked up or closed by o
 
 **Presentation rules (mandatory):**
 - Present ONE grouped-by-cluster table -- not three separate views.
-- Clusters are strategic goals when available (e.g. "Goal A", "Goal B", "Unaligned"). Without strategic planning docs, fall back to project themes (e.g. "Backend / API", "Frontend / UX"). Pull the theme from the SOD priorities when possible.
+- Clusters are RM goals when available (e.g. "Goal A", "Goal B", "Unaligned"). Without an RM, fall back to project themes. Pull the theme from the SOD priorities when possible.
 - A "Validate first" cluster always comes first if there are picked-up PICs flagged in the SOD.
 - Within each cluster, order PICs **low -> high effort** (LOW -> MED -> HIGH). Blocked PICs sink to the bottom of their cluster.
 - Cluster order: validate-first -> SOD priority order -> blocked clusters last.
@@ -156,11 +156,11 @@ This step prevents showing stale PICs that were already picked up or closed by o
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 1 -- e.g. Goal A / Backend API}
+### {Cluster 1 -- e.g. Backend API / Goal A}
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 2 -- e.g. Goal B / Frontend UX}
+### {Cluster 2 -- e.g. Frontend UX / Goal B}
 ...
 
 ### {Blocked cluster, last}
@@ -260,14 +260,14 @@ Before loading the new PIC, check whether there's unlogged work from earlier in 
 
 ### Verify Project Structure
 
-If the PIC's `project` frontmatter maps to a vault project under `{paths.projects}/`, verify the project folder is properly set up before loading context:
+If the PIC's `project` frontmatter maps to a vault project under `02_Projects/`, verify the project folder is properly set up before loading context:
 
-1. Check that the project directory exists
-2. Check for `agents.md` at the project root. If missing, create it with a minimal stub:
+1. Check that the project directory exists (e.g., `02_Projects/<initiative>/<project>/`)
+2. Check for `CLAUDE.md` at the project root. If missing, create it with a minimal stub:
    ```markdown
    # Agent Context - {Project Name}
    
-   Read root `agents.md` first.
+   Read root `CLAUDE.md` first.
    
    ## Scope
    
@@ -279,7 +279,7 @@ If the PIC's `project` frontmatter maps to a vault project under `{paths.project
    
    See root `lessons.md` for cross-project lessons.
    ```
-4. Check for the PJL file at `{paths.projects}/<project>/PJL - <Project Name>.md`. If missing, it will be created in the "Log to Project Log" step below.
+4. Check for the PJL file at `02_Projects/<project>/PJL - <Project Name>.md`. If missing, it will be created in the "Log to Project Log" step below.
 
 Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are created by the skills that write to them (`/create-spec`, `/create-plan`, `/log-work`). This step only ensures the project root and its config files exist.
 
@@ -287,23 +287,23 @@ Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are c
 
 1. Read the full PIC document
 2. Read every file listed in `## Key Files` - these are essential context from the previous session
-3. Read the project's `agents.md` and `lessons.md` (created above if they didn't exist)
+3. Read the project's `CLAUDE.md` and `lessons.md` (created above if they didn't exist)
 4. If the PIC references a spec or plan, read those too
-5. **Read the Project Log** if one exists at `{paths.projects}/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history -- what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
+5. **Read the Project Log** if one exists at `02_Projects/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history -- what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
 
 Build understanding of: project scope, what was done, concrete next steps, blockers, and any user preferences from the previous session.
 
-### Environment Declaration (for deployable projects)
+### Environment Declaration (MANDATORY for deployable projects)
 
 If the PIC's project involves deployable code (a web app, API, service, or anything that runs in both a local dev environment and a remote/production environment), declare the target environment in your "Present the Plan" output. Three valid forms:
 
 ```
-Environment: LOCAL          -> iterating locally via the local dev server, no production change expected
+Environment: LOCAL          -> iterating locally via dev server, no production change expected
 Environment: REMOTE         -> updating production, will run the deploy command after the fix
 Environment: BOTH           -> iterate locally first, then deploy to production
 ```
 
-Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a deploy command -> REMOTE or BOTH. If the next steps are pure code iteration with no deploy command -> LOCAL. **If unclear, ASK the user via AskUserQuestion before starting.** Don't guess.
+Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a deploy command -> REMOTE or BOTH. If the next steps are pure code iteration with no deploy command -> LOCAL. **If unclear, ASK the user before starting.** Don't guess.
 
 **Verify the PIC's deployment-state claims before acting on them.** A PIC carrying "deployed the fix" in its `## What Was Done` is unverified hearsay until you confirm. Check:
 - CI/CD workflow history to confirm the build ran
@@ -325,7 +325,7 @@ If a PJL exists for this project, append a session-start entry under today's dat
 - **Session start** -- picked up [[PIC - Topic Name]], targeting: {first 1-2 next steps from PIC}
 ```
 
-If no PJL exists yet, create one at `{paths.projects}/<project>/PJL - <Project Name>.md` with standard frontmatter and this first entry. The PJL will accumulate as work is logged via `/log-work` and `/create-pickup`.
+If no PJL exists yet, create one at `02_Projects/<project>/PJL - <Project Name>.md` with standard frontmatter and this first entry. The PJL will accumulate as work is logged via `/log-work` and `/create-pickup`.
 
 Do this before presenting the plan.
 
@@ -336,9 +336,7 @@ Do this before presenting the plan.
 3. **Today's plan** - the numbered next steps from the PIC
 4. **Blockers** - anything that might get in the way (or "none")
 
-Then ask: "Ready to start, or do you want to adjust the plan?"
-
-Once confirmed, begin working on the first step.
+Then begin working on the first step.
 
 ---
 

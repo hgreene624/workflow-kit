@@ -1,4 +1,4 @@
-# Log Work — Examples
+# Log Work -- Examples
 
 Reference examples for daily note and work log formatting. Read this when unsure about format.
 
@@ -6,58 +6,88 @@ Reference examples for daily note and work log formatting. Read this when unsure
 
 ```markdown
 ### Vault Maintenance
-- Standardized file prefixes across 12 reports — `RE -` prefix applied consistently
-- Cleaned up 3 orphaned data.nosync directories
+- Standardized file prefixes across 12 reports, cleaned up 3 orphaned directories
 ```
 
 ## Detailed mode output:
 
-**WL file** (`WL - {{ORG}} Migration Orchestration Plan.md`):
+**WL file** (`02_Projects/owner-portal/work-logs/WL - Owner Portal 2026-04-08.md`):
 ```markdown
-## 2026-03-21
+## 2026-04-08
 
-### 14:30 — P13.1 Audit existing {{ORG}} Portal
-- 8 routes, 17 API endpoints, 4 LLM calls (Max Proxy Sonnet), 14 tables direct-DB
-- Portal is 100% direct-DB — zero {{SIGNAL_ENGINE}} API data reads (plan was wrong)
-- Plan gaps: Work Themes system and AI Chat both missing from plan
-- Security concern: `docker exec chawdys` for email sending — needs proper API
-- Complexity: HIGH overall, 3-4 week estimate
-- [[RE - {{ORG}} Portal Audit (P13.1)]]
+### 09:30 -- Phase 0 audit + local env setup
+- P0.1 DONE -- prerequisites audit PASS (3 non-blocking warnings)
+- P0.2 DONE -- KB created (UUID 6dd426ea, slug owner-meetings)
+- P0.3 DONE -- staging DB snapshot: 209,238 bytes, 11 v2 tables, sha256 a23a42b3
+- P0.4 DONE -- local dev validated at port 3012, prod healthy
+- Worktree created, env file added
+- Artifacts: [[ARE - Owner Portal Phase 0 Audit]], [[ARE - Owner Portal Phase 0 Result]]
 
-### 15:45 — P13.2 Scaffold portal Next.js app
-- `apps/portal/`: Next.js 16.1.6, basePath `/portal`, standalone output
-- 8 route stubs + 3 API stubs, ForwardAuth middleware, AG Grid v32, DaisyUI 5
-- Build verified: 12 routes (5 static, 7 dynamic)
-- Commit: `beab5a8`
+### 11:15 -- Phase 1 schema migrations
+- P1.2 DONE -- owners->users rename migration (0008_rename.sql), 604 rows unchanged
+- P1.3 DONE -- voting_items rename (0007_voting_items.sql), cadence enum clean
+- P1.5 DONE -- auth_tokens + owner_emails tables (0006_auth.sql)
+- P1.6 DONE -- ownership_lines backfill (0010_ownership.sql), 614 rows
+- P1.9 DONE -- rollback round-trip PASSED, commit b3ca2bc
+- Phase 1 COMPLETE
+
+### 14:00 -- Phase 2 auth rewrite
+- P2.2-P2.11 all DONE -- argon2 hashing, signup/login/reset/logout endpoints, proxy gating, UI pages, admin bulk-invite, smoke test PASS
+- Raw-SQL rot patched at W-1 locations, wider rot (~12 files) in progress
+- Build clean: 37 static pages, zero TS errors
+- Phase 2 COMPLETE
 ```
 
 **Daily note:**
 ```markdown
-### {{ORG}} Migration — [[PL - {{ORG}} Migration Orchestration Plan|Plan]]
-- P13.1 portal audit — **8 routes, 17 endpoints**, 100% direct-DB, Work Themes + AI Chat missing from plan
-- P13.2 scaffold — Next.js 16, 8 route stubs, ForwardAuth, AG Grid, build verified
-- [[WL - {{ORG}} Migration Orchestration Plan|Full log]]
+### Apps
+#### Owner Portal
+- **Built the full owner portal** -- authentication, ownership cards, voting flow, and admin controls all live
+- Ran live UAT, caught and fixed 9 bugs during testing
+- Bulk signup emails and final review still needed -- [[PJL - Owner Portal|Project log]]
 ```
 
-## BAD daily note entry (too detailed):
+## More daily note examples:
 
+**Multi-workstream project (good):**
 ```markdown
-### {{ORG}} Migration — [[PL - ...]]
-- P14.1 Audit — 16 routes, 17 AG Grid instances...
-- P14.2 Scaffold — apps/fwis-viewer/ created...
-- P14.3 Meetings — AG Grid 8 cols...
-- P14.4 Signal Explorer — 608-line client...
-- P14.5 People Grid — dept cards...
-(15 more bullets with commit hashes and component lists)
+### Intelligence
+#### Signal Engine
+- **Verified signal pipeline works after gateway refactor** -- fixed two bugs that were crashing email processing and meeting tracking
+- Cleaned up stuck processing runs and backfilled missing staff records -- [[PJL - Signal Engine|Project log]]
+```
+
+**Light day, no WL needed:**
+```markdown
+### Apps
+#### Admin Panel
+- **Prompt library restructured** -- 20 top-level groups collapsed to 5 layers, 112 prompts remapped (deployed to production)
+```
+
+## BAD daily note entries:
+
+**Too many headings for one project:**
+```markdown
+### Portal v3 Sprint -- Phase 0
+- P0.1 DONE -- Audit...
+### Portal v3 Sprint -- Phase 1
+- P1.1 DONE -- Audit...
+- P1.2 DONE -- Draft migration...
+### Portal v3 Sprint -- Phase 2
+- P2.1 DONE -- Audit...
+### Portal -- Phases 2-6 Complete + Production Deploy
+- Phases 2-6 all complete...
+### Portal -- Owner Routing Deploy
+- Caught silent undeployed code...
+```
+This is 5 headings for ONE project. Merge into a single `#### Owner Portal` with 3 summary bullets.
+
+**Per-task breakdown in daily note:**
+```markdown
+### Migration -- [[PL - ...]]
+- P14.1 Audit -- 16 routes, 17 AG Grid instances...
+- P14.2 Scaffold -- apps/viewer/ created...
+- P14.3 Meetings -- AG Grid 8 cols...
+- P14.4 Signal Explorer -- 608-line client...
 ```
 This is a task log, not a summary. All that detail goes in the WL file.
-
-## Good daily note entry (same sprint — properly summarized):
-
-```markdown
-### {{ORG}} Migration — [[PL - {{ORG}} Migration Orchestration Plan|Plan]]
-- Completed **Phase 14 ({{SIGNAL_ENGINE}} Viewer)** — SvelteKit → Next.js, 16 routes, 17 AG Grid instances
-- **16/17 tasks Done**, 4 post-deploy fixes, build:fix ratio **73:27**
-- Old portal sunset — **9.9 GB** reclaimed, M12 (Core Apps Live) achieved
-- [[WL - {{ORG}} Migration Orchestration Plan|Full log]]
-```

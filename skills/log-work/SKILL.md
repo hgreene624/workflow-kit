@@ -38,7 +38,7 @@ If the work being logged touched a deployable application (any project that runs
 
 Bare phrases like "fixed the hydration bug", "deployed the viewer", "tested the admin page" are AMBIGUOUS and create false confidence. Future agents reading the daily note will not know whether production was actually updated. Always include the environment label and a verification URL.
 
-**Push =/= Deploy.** If your project uses a Push =/= Deploy model (where `git push` does NOT auto-deploy), then pushing without running the deploy command means the change is LOCAL ONLY and the log must say so. Check your project's `agents.md` for the deploy model.
+**Push =/= Deploy.** If your project uses a Push =/= Deploy model (where `git push` does NOT auto-deploy), then pushing without running the deploy command means the change is LOCAL ONLY and the log must say so. Check your project's CLAUDE.md for the deploy model.
 
 ## Step 2 -- Always Both Layers
 
@@ -50,7 +50,12 @@ There is no mode selection. Both layers are mandatory. The only optional artifac
 
 ## Step 3 -- Identify the Topic and Project
 
-Match the work to a **project name** (not a plan name, not an activity name). Use the broadest stable label. Plans, phases, and activities are detail that goes in the project log.
+Match the work to a **project name** (not a plan name, not an activity name):
+- "Owner Portal", not "Portal v3 Phase 2"
+- "Signal Engine", not "Spec Compliance Phase 3c"
+- "Document Generator", not "DocGen Guided Creation"
+
+The project name is the broadest stable label. Plans, phases, and activities are detail that goes in the project log.
 
 Identify the project path under `02_Projects/` if one exists.
 
@@ -60,12 +65,12 @@ The Worked on section uses a **three-level hierarchy**: group (`###`) > project 
 
 ### Determine the group
 
-Match the project to its group. Define your groups in `agents.md` or use project directory structure to infer them. Example group structure:
+Match the project to its group. Define your groups in CLAUDE.md or use project directory structure to infer them. Example group structure:
 
 | Group (`###`) | Projects (`####`) |
 |---|---|
-| Apps | Web App, Admin Panel, Portal, Dashboard |
-| Intelligence / Data | Signal Engine, Data Pipeline, AI Gateway |
+| Apps | Web App, Admin Panel, Portal, Dashboard, Mail |
+| Intelligence | Signal Engine, Data Pipeline, AI Gateway |
 | Infrastructure | Server, CI/CD, Local Dev, Cron System |
 | Operations | ERP, Reports, Manual Processes |
 | Tooling | Workflow Kit, Analytics |
@@ -77,7 +82,7 @@ Match the project to its group. Define your groups in `agents.md` or use project
 Before creating a new `####` heading, scan ALL existing headings under `## Worked on`:
 
 1. **Match by project:** All work on the same project goes under ONE `####`. Different plan phases, deployment ops, and bug fixes for the same project share one heading.
-2. **Common abbreviations:** Map shorthand to canonical project names (define mappings in `agents.md` if needed).
+2. **Common abbreviations:** Map shorthand to canonical project names (define mappings in CLAUDE.md if needed).
 3. **If the group `###` heading already exists**, add the new `####` project under it. If the group doesn't exist yet, create both.
 
 **The daily note should have ONE `####` heading per project, not one per plan, phase, activity, or session.**
@@ -159,7 +164,7 @@ Only create a WL when the PJL entry would be too dense:
 #### Owner Portal
 - **Built the full owner portal** -- authentication, ownership cards, voting flow, and admin controls all live
 - Ran live UAT, caught and fixed 9 bugs during testing
-- Bulk signup emails and final review still needed before owners can use it -- [[PJL - Owner Portal|Project log]]
+- Bulk signup emails and final review still needed -- [[PJL - Owner Portal|Project log]]
 #### Document Generator
 - **Shipped the guided document creation flow** -- overlay wizard walks users through research and generation -- [[PJL - Document Generator|Project log]]
 
@@ -195,18 +200,18 @@ Phase numbers, task counts, and migration counts are for the PJL.
 
 ## Formatting Rules
 
-Follow the daily note style preferences:
+Load and follow any writing profiles configured for daily notes in your vault. Workflow-specific rules that stay here:
+
 - **Three-level hierarchy:** `## Worked on` > `### Group` > `#### Project`
-- **ONE `####` heading per project** -- never per plan, phase, or activity
+- **ONE `####` heading per project**, never per plan, phase, or activity
 - **4 lines or fewer per project** (heading + 3 bullets max)
-- Lead with what moved the project forward -- features added, bugs fixed, things shipped
 - Bold the key accomplishment or outcome
 - Wikilink output artifacts and the PJL file
 - **Nothing technical in the DN.** No commit hashes, migration filenames, component lists, file counts, phase numbers, pass/fail counts, row counts, column names, function names, container names, or validation metrics
-- No prose paragraphs -- bullets only
+- No prose paragraphs, bullets only
 - Newer groups at top of `## Worked on` section
 - Standalone items (no group) use `###` directly
-- NO "Lifelogs & Meeting Notes" subsection -- those go in Meetings
+- NO "Lifelogs & Meeting Notes" subsection, those go in Meetings
 
 ## Examples
 

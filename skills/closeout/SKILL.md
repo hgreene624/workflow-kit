@@ -1,6 +1,6 @@
 ---
 name: closeout
-description: End-of-day closeout — log work to the daily note and create pickup docs (PIC) for the next workday. Use this skill when the user says "closeout", "close out", "wrap up", "end of day", "EOD", "wind down", "done for the day", "call it a day", "closing out this session", or wants to finalize a work session and set up tomorrow's context. Also trigger when the user says "create a pickup", "make a PIC", or wants to carry forward work context to the next session. Even casual requests like "ok I'm done" or "wrapping up" at the end of a work session should trigger this skill.
+description: End-of-session closeout — log work to the daily note and create pickup docs (PIC) for the next workday. Use this skill when the user says "closeout", "close out", "wrap up", "end of day", "EOD", "wind down", "done for the day", "call it a day", "closing out this session", or wants to finalize a work session and set up tomorrow's context. Also trigger when the user says "create a pickup", "make a PIC", or wants to carry forward work context to the next session. Even casual requests like "ok I'm done" or "wrapping up" at the end of a work session should trigger this skill.
 ---
 
 # Closeout
@@ -11,23 +11,23 @@ You are closing out a work session. Your job is to capture what was done, log it
 
 Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - YYYY-MM-DD.md`). If the file doesn't exist, use defaults and warn once.
 
-## Step 0: Strategic Context
+## Step 0: Roadmap Context
 
-Read any strategic planning documents that exist in the vault (roadmaps, weekly focus files, goal statements). Use these to:
+Read the current **RM** (most recent file in `01_Notes/Roadmaps/`) and **WF** (most recent `WF - *.md` in the latest dated subfolder of `Reports/`). Use these to:
 
 1. **Group the session summary by goal** in Step 1d. Instead of a flat list of topics, present work grouped by which strategic goal it served: "Goal A: [work done]. Goal B: [work done]. Off-focus: [work done]." This makes goal-level progress visible at closeout.
 
-2. **Flag off-focus work** when deciding which topics need PICs (Step 3). If a topic doesn't serve any current goal, note it: "This work isn't on a current goal. PIC it, or just log to PJL?" This is informational, not a gate. Sometimes reactive work is necessary. The flag just makes the choice conscious.
+2. **Flag off-focus work** when deciding which topics need PICs (Step 3). If a topic doesn't serve any current weekly goal, note it: "This work isn't on the weekly focus. PIC it, or just log to PJL?" This is informational, not a gate. Sometimes reactive work is necessary. The flag just makes the choice conscious.
 
-3. **Pass goal context to /create-pickup** (Step 3). The create-pickup skill has its own capacity gate and goal-tagging. Pass the goal name so it can tag the PIC's frontmatter without re-reading the planning docs.
+3. **Pass goal context to /create-pickup** (Step 3). The create-pickup skill has its own capacity gate and goal-tagging. Pass the RM goal name so it can tag the PIC's frontmatter without re-reading the RM.
 
-If no strategic planning documents exist, skip this step. All downstream behavior works without it.
+If no RM or WF exists, skip this step. All downstream behavior works without it.
 
 ## Step 0b: PIC State Snapshot (MANDATORY)
 
 Before logging work or deciding what needs new PICs, scan the current PIC landscape. This prevents duplicate PICs, catches PICs closed by parallel sessions, and shows what's already tracked.
 
-**Run two Grep calls in parallel:**
+**Run two Grep calls in parallel (same pattern as /pickup):**
 - `Grep pattern="^status: open" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
 - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
 
@@ -41,16 +41,16 @@ Filter results to files whose basename starts with `PIC -` (discard IRs, DTs, te
 
 This snapshot is context, not output. Don't present the full PIC list to the user unless they ask. Just use it to make better decisions about what to create, update, or close.
 
-## Step 0a: Environment Verification (MANDATORY for deployable code)
+## Step 0a: Environment Verification (MANDATORY for deployed apps)
 
-Before logging anything, audit the session for code changes to deployable applications and verify the deployment state of every production-affecting change. The closeout log will end up in the daily note where future agents read it as ground truth, so false claims here cause cascading bugs.
+Before logging anything, audit the session for code changes to deployed services and verify the deployment state of every change. The closeout log will end up in the daily note where future agents read it as ground truth, so false claims here cause cascading bugs.
 
-For every app code change in this session, answer:
+For every service you touched this session that has a deployed component, answer:
 
 1. **Was it deployed to production?** Check by:
    - Did anyone run the project's deploy command? Look for the actual command in the conversation/JSONL.
    - If yes, verify via CI/CD logs or the live URL that the deployment succeeded.
-   - Do NOT count "git push" as a deploy unless your CI/CD auto-deploys on push. Many projects use a Push =/= Deploy model where pushing to main does NOT trigger deployment.
+   - Do NOT count `git push` as a deploy unless your CI/CD auto-deploys on push. Many projects use a Push =/= Deploy model where pushing to main does NOT trigger deployment.
 
 2. **If it was LOCAL ONLY**, the closeout log MUST say so explicitly: "(local, verified at http://localhost:<port>/<path>) -- NOT deployed to production".
 
@@ -172,7 +172,7 @@ Check whether this session modified infrastructure. Indicators:
 
 If **any** infrastructure changes occurred, verify these reference docs are still accurate:
 1. Infrastructure reference docs (server work rules, service route maps, app location maps)
-2. Relevant project `agents.md` files (architecture descriptions, container references)
+2. Relevant project `CLAUDE.md` files (architecture descriptions, container references)
 
 For each doc, spot-check the sections that would be affected by this session's changes. If a doc is stale (references old containers, removed paths, or pre-migration architecture), either:
 - **Update it now** as part of closeout, or
@@ -194,10 +194,10 @@ If you cannot determine whether a change is yours vs another session's, **leave 
 ### 1.6a -- Identify this session's repos
 
 Walk the JSONL tool_use entries and extract every file path that was edited/written. Map each file to its parent git repo by walking up to find a `.git` directory. Common candidates:
-- Project code repositories (find via `find ~/Repos -maxdepth 2 -name .git -type d`)
-- Vault directory (if it's a git repo)
-- `~/.claude/skills/` (only if a `.git` directory exists)
-- Remote repos on deployment targets (check project `agents.md` for server repo locations)
+- Your vault directory (e.g., `~/Documents/Vaults/`)
+- Your code repos (e.g., `~/Repos/{{MONOREPO_NAME}}/`)
+- `~/.claude/skills/` (only if a `.git` directory exists -- otherwise changes may be backed up via a vault mirror instead)
+- Remote repos on deployment targets (check via SSH if applicable)
 
 For each repo, build a list of files **this session touched**.
 
@@ -212,7 +212,7 @@ cd <repo> && git status --short -- <files...>
 For any file that shows as `M` (modified, uncommitted) or `??` (untracked):
 - **Is this session responsible for the change?** Cross-check against the JSONL Edit/Write entries.
 - If yes, **commit immediately** using `/git-safe`. Don't ask. Closeout implies "wrap up my work," which includes committing it. Use a descriptive message referencing the session's work.
-- If no (e.g., another session's WIP, framework auto-mods, machine-state files), leave alone, list in the closeout summary as "uncommitted state present in [repo] not from this session -- flagged but not touched."
+- If no (e.g., another session's WIP, framework auto-mods, machine-state files), leave alone. List in the closeout summary as "uncommitted state present in [repo] not from this session -- flagged but not touched."
 
 **Never `git add -A` blindly.** Always stage specific files from the session's edit list. Other agents may have their own staged work you don't see.
 
@@ -225,21 +225,21 @@ cd <repo> && git fetch origin --quiet && git log origin/main..HEAD --oneline
 ```
 
 For each unpushed commit, verify it's yours:
-- `git log --format="%h %an %s" origin/main..HEAD` -- author should be the human user (commits you made on their behalf are authored as them per agents.md)
+- `git log --format="%h %an %s" origin/main..HEAD` -- author should be the human user
 - Cross-check the commit time against the session start time (JSONL first message timestamp)
 - Cross-check the commit message against the session's work (the topics from Step 0/1)
 
 If yes, **push immediately** via `git push origin main` (after verifying branch via `git branch --show-current`). Don't ask. Closeout implies "wrap up my work," which includes pushing it. The user approved this by running `/closeout`.
 
-If the commit is from another session (older timestamp, unrelated message, or matches commits from another machine), leave it alone, flag it in the closeout summary.
+If the commit is from another session (older timestamp, unrelated message), leave it alone. Flag it in the closeout summary.
 
-**Per git-safe**: always verify the branch first, never force push. But pushing your own session's commits to main during closeout does not require a separate approval, the closeout invocation IS the approval.
+**Per git-safe**: always verify the branch first, never force push. But pushing your own session's commits to main during closeout does not require a separate approval -- the closeout invocation IS the approval.
 
-### 1.6d -- Check deploy state for app code changes
+### 1.6d -- Check deploy state for code changes
 
-This step is MANDATORY when this session edited deployable application code. Check your project's `agents.md` for the list of deployable services and their source paths.
+This step is MANDATORY when this session edited any file in a service that has a deployed production component.
 
-For each touched service, verify the running production instance has this session's code:
+For each service you touched this session, verify the running production instance has this session's code:
 
 1. **Find the latest commit touching the service's paths:**
    ```bash
@@ -258,6 +258,8 @@ If the running service does NOT have your fix:
 
 **Do NOT deploy services you didn't edit in this session**, even if you notice they're stale. That's another session's responsibility (or end-day's audit step). Closeout's scope is your own work.
 
+**Hot-patched instances are NOT deployed.** If the session used `docker cp` or similar to patch files into a running container, those changes will be lost on restart. The closeout must push the code and rebuild the container properly. A hot-patch is a temporary fix during development, not a deploy.
+
 ### 1.6e -- Present the audit summary
 
 Before continuing to Step 2, output a clear table:
@@ -267,17 +269,17 @@ Session Push & Deploy Audit
 ===========================
 
 Repo: ~/Repos/my-project
-- 2 commits unpushed (mine):    [hash] [msg], [hash] [msg]    -> pushing
-- 1 service with stale deploy:  web-app (latest commit 30min newer than container) -> deploying
+- 2 commits unpushed (mine):    [hash] [msg], [hash] [msg]    -> pushed
+- 1 service with stale deploy:  web-app (latest commit 30min newer than deploy)  -> deployed
 
 Repo: ~/Documents/Vaults
-- 0 uncommitted, 0 unpushed                                   -> ok
+- 0 uncommitted, 0 unpushed                                   -> clean
 
 NOT TOUCHED (other sessions' work, flagged not acted on):
-- ~/Repos/my-project: 3 auto-generated type files (framework noise)
+- ~/Repos/my-project: 6 auto-generated type files (framework noise)
 ```
 
-Resolve all "yours" items automatically before logging work to the daily note, otherwise the daily note will lie about what was deployed.
+Wait for user input on each item before proceeding. Resolve all "yours" items before logging work to the daily note -- otherwise the daily note will lie about what was deployed.
 
 ## Step 2: Log Work
 
@@ -321,7 +323,7 @@ Work in one session often resolves items from PICs created in earlier sessions. 
 2. For each project or system touched this session, check if any open PICs have "What Needs to Happen Next" items that were addressed by this session's work. Match by:
    - Same project name
    - Same system or subsystem
-   - Same spec reference
+   - Same IR or spec reference
 3. For each match found, read the PIC's "What Needs to Happen Next" section and compare against what was done.
 4. If items were resolved: append a dated session update to the PIC documenting what was resolved and what remains. Format:
 
@@ -338,7 +340,7 @@ Work in one session often resolves items from PICs created in earlier sessions. 
 5. If ALL items are resolved: close the PIC (update frontmatter to `status: closed`, add Closing Update per the PIC lifecycle rules in `/pickup`).
 6. If the PIC was picked up by this session and work was done on it directly, its updates are handled by the normal pickup flow. This step targets PICs that were NOT picked up but had items indirectly resolved.
 
-**Why this exists:** PICs accumulate stale items when multiple sessions resolve parts of them without updating. Each intervening session's agent re-investigates systems that the prior session already fixed. This cross-reference prevents that drift.
+**Why this exists:** PICs with multiple items can have items resolved across separate sessions that work on different PICs. None of those closeouts update the original PIC. It stays listed as fully open for days until a manual audit discovers half the items are resolved. Each intervening session's agent re-investigates systems that the prior session already fixed.
 
 ## Step 3: Create Pickup Documents
 
@@ -357,7 +359,7 @@ If there are multiple topics needing pickups, invoke `/create-pickup` for each o
 After creating PICs for obvious topics, check every active plan updated in Step 2.5. For each plan with remaining `todo` or `in-progress` tasks, determine whether the plan itself is sufficient context for the next session or whether a PIC is needed.
 
 **A PIC is needed when:**
-- The plan's remaining tasks depend on context not captured in the plan (session decisions, discovered blockers, environment state)
+- The plan's remaining tasks depend on context not captured in the plan (session decisions, discovered blockers, environment state, oracle findings)
 - The next step requires specific commands, credentials, or verification that the plan doesn't spell out
 - Work was partially completed and the boundary between "done" and "todo" needs explanation
 
