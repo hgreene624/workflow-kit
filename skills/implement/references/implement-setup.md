@@ -53,7 +53,7 @@ Load context, create the team, and spin up the PM tracker and QA auditor. This p
 
 ## Key Design Decisions
 
-Proven in Flora Migration Orchestration, 2026-03-20:
+Proven in {{ORG}} Migration Orchestration, 2026-03-20:
 - **PM is event-driven, not polling** — workers message PM on status change, PM doesn't loop. Saves context tokens.
 - **PM can't spawn workers** — flat roster restriction. Orchestrator dispatches, PM manages.
 - **QA auditor is independent** — reports to orchestrator, not PM. Runs after each phase and on orchestrator request. Catches drift that PM misses because PM trusts worker self-reports.

@@ -61,14 +61,14 @@ SELECT column_name, COUNT(*) FILTER (WHERE column_name IS NULL) as null_count
 FROM table GROUP BY 1;
 ```
 
-**Cross-ref:** FWIS L7 (insert_signal silently dropped signal_type)
+**Cross-ref:** {{SIGNAL_ENGINE}} L7 (insert_signal silently dropped signal_type)
 
 ## Common Failure Modes
 
 | Symptom | Likely Cause | Fix | Lesson |
 |---------|-------------|-----|--------|
 | "column X does not exist" | Wrong column name guessed | Run `\d table` first | Agent L7 |
-| Data written but column is NULL | INSERT SQL missing the column | Check column list + VALUES + param tuple | FWIS L7 |
+| Data written but column is NULL | INSERT SQL missing the column | Check column list + VALUES + param tuple | {{SIGNAL_ENGINE}} L7 |
 | 500 on page load | Agent-generated queries assumed wrong schema | Audit ALL queries against real schema | Agent L11, L18 |
 | "relation X does not exist" | Wrong table name or schema prefix | Check `\dt schema.*` | Agent L20 |
 | Heredoc INSERT over SSH returns 0 rows | Heredoc feeds local stdin to ssh | Use `-c` with escaped quotes | VPS L16 |
@@ -99,5 +99,5 @@ FROM table GROUP BY 1;
 
 ## Lessons Files
 - `04_ Tools/Reference/REF - Agent Lessons.md` — L7 (schema inspection), L9 (query for IDs), L11 (validate agent SQL), L18 (audit all queries)
-- `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` — L7 (insert_signal SQL)
+- `{{PROJECT_PATH}}/{{INTELLIGENCE_PROJECT}}/lessons.md` — L7 (insert_signal SQL)
 - `01_Work/03_Projects/VPS/lessons.md` — L8 (password URI), L16-18 (shell/heredoc issues)

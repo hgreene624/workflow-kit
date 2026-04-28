@@ -13,7 +13,7 @@ description: >-
 
 Load the configuration files that tell you how to behave in this workspace. Without this step, you'll miss project-specific rules, interaction preferences, and lessons that prevent repeated mistakes.
 
-This matters because agent config files form a chain — root AGENTS.md may reference project-level agents.md files, which reference lessons files. Missing any link means you'll violate rules you didn't know existed or repeat mistakes that were already captured.
+This matters because agent config files form a chain — root AGENTS.md may reference project-level CLAUDE.md files, which reference lessons files. Missing any link means you'll violate rules you didn't know existed or repeat mistakes that were already captured.
 
 ## Path Resolution
 
@@ -39,25 +39,23 @@ Do all of these before responding to the user:
 
 4. **Vault/project structure** — Read any structure reference doc to understand the file tree and folder purposes. This prevents you from creating files in wrong locations or missing existing work.
 
-5. **Local agent config** — If your current working directory is different from the vault root, check for a local `agents.md`. Project-level configs add constraints and context on top of the root config.
+5. **Local agent config** — If your current working directory is different from the vault root, check for a local `CLAUDE.md`. Project-level configs add constraints and context on top of the root config.
 
 6. **Lessons files** — Read the general lessons file (cross-project lessons) and any local `lessons.md` in the current project. These are hard-won knowledge from past sessions — ignoring them means repeating the same mistakes.
 
-7. **Period reports** — Read these from `{vault_root}/{paths.reports}/` to understand what's been happening and what the user's priorities are. Read in parallel:
+7. **Period reports** — Read these from `Work Vault/01_Notes/Reports/` to understand what's been happening and what Holden's priorities are. Read in parallel:
    - **SOD** (daily context): Most recent file in `Reports/SOD/`. Check today first, fall back to most recent. This has the WTD summary, priorities, open PICs, and suggested start.
    - **EOW** (last week): Most recent file in `Reports/EOW/`. This is the weekly rollup — what shipped, goal progress, retro findings, and next-week setup.
-   - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has the user's monthly objectives that should frame all work.
+   - **SOM** (monthly objectives): Current month's file in `Reports/SOM/` (e.g., `SOM - 2026-03.md`). This has Holden's monthly objectives that should frame all work.
    - **EOM** (last month): Most recent file in `Reports/EOM/`. This has the prior month's retrospective and carry-forwards.
 
    Skip any that don't exist. The SOD is the most important, it's the freshest context. The others provide progressively wider framing.
 
-7b. **Strategic context** - Read any strategic planning documents that exist in the vault:
-   - **Roadmap**: A file mapping all active work to strategic goals, defining what's parked, and providing decision rules for incoming requests. This is the "why" behind every PIC and SOD priority.
-   - **Weekly focus**: A file naming the current week's goals and listing what's explicitly not this week.
+7b. **Strategic context** — Read the current Roadmap and Weekly Focus to understand what goals are driving all work:
+   - **RM** (roadmap): Most recent file in `01_Notes/Roadmaps/`. This maps all active work to strategic goals, defines what's parked, and provides decision rules for incoming requests. It is the "why" behind every PIC and SOD priority.
+   - **WF** (weekly focus): Most recent file matching `WF - *.md` in the latest dated subfolder of `Reports/`. This names the 3 goals for the current week and lists what's explicitly not this week.
 
-   Look for these in `{vault_root}/{paths.reports}/` or wherever the user's vault organizes planning documents. If both exist, present a brief strategic summary in the orient output: "Active goals: [goal 1], [goal 2], [goal 3]. [N] open PICs aligned. [M] parked." This anchors the session in strategy, not just tasks.
-
-   If no strategic planning documents exist, skip this step. The workflow functions without them.
+   If both exist, present a brief strategic summary in the orient output: "Active goals: [goal 1], [goal 2], [goal 3]. [N] open PICs aligned. [M] parked." This anchors the session in strategy, not just tasks.
 
 8. **Cross-reference reports with open work** — This step prevents wasted investigation. After reading the SOD and EOW:
    - For each open PIC in the SOD, check whether the EOW mentions the same system, pipeline, or project as recently shipped/deployed/built
@@ -113,7 +111,3 @@ After loading, give a short summary:
 - Ask what the user wants to work on
 
 Keep the summary concise — the user doesn't need a recitation of everything you read, just confirmation you loaded context and any standout items.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -14,7 +14,7 @@ description: >-
   this video", "what can we use from this", "process this playlist", "scan this playlist",
   or any variation of wanting YouTube content evaluated against active projects. Also
   trigger when the user pastes a YouTube link with context suggesting they want more than
-  just a transcript — e.g., "found this, might be useful for FWIS" or "someone recommended
+  just a transcript — e.g., "found this, might be useful for {{SIGNAL_ENGINE}}" or "someone recommended
   this for the signal engine". Also handles simple transcription requests ("transcribe
   this"), YouTube search ("find videos about X"), and channel browsing ("channel @handle")
   — this is the single skill for all YouTube intelligence work.
@@ -24,11 +24,11 @@ description: >-
 
 Transform a YouTube video into actionable project intelligence. The pipeline has five phases, each gated so you don't waste time on content that turns out to be irrelevant. Supports single videos and playlists.
 
+**Arguments:** $ARGUMENTS
+
 ## Path Resolution
 
 Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - {today}.md`, `{paths.projects}/`, `{paths.reference}/`). If the file doesn't exist, use defaults and warn once.
-
-**Arguments:** $ARGUMENTS
 
 ## Phase 0: Input Routing
 
@@ -128,7 +128,7 @@ This is where the skill earns its keep. You need to understand what the user is 
 Dispatch a **haiku-model Explore subagent** to quickly gather project context. It should:
 
 1. Read `02_Projects/` directory listing to identify active project folders
-2. For each project that has an `agents.md`, read the first 50 lines to get the project scope
+2. For each project that has an `CLAUDE.md`, read the first 50 lines to get the project scope
 3. Read the most recent daily note (`01_Notes/Daily/DN - <today or most recent>.md`) to see what the user is actively working on right now
 4. Check for any active specs (`SPC - *.md`) or plans (`PL - *.md`) in the top 3-4 most active project folders (judged by recent daily note mentions)
 5. Return a structured brief: project name, current focus, key technologies, open problems
@@ -171,7 +171,7 @@ Use `TeamCreate` to spin up a team with these roles:
 
 Write findings to `ARE - <Video Title> Research Notes.md` in the same directory as the TR/TS files.
 
-**2. Architect** — Maps findings to the specific project(s) that scored high. Reads the project's agents.md, specs, plans, and existing codebase context to produce:
+**2. Architect** — Maps findings to the specific project(s) that scored high. Reads the project's CLAUDE.md, specs, plans, and existing codebase context to produce:
 - How to apply the video's insights to the user's specific stack
 - What changes would be needed (new dependencies, schema changes, config)
 - Implementation phases with effort estimates
@@ -318,7 +318,3 @@ Follow the standard playlist path (Phase 0 → playlist routing). This makes `/v
 - **Large playlist (50+ videos)**: Warn the user about credit cost (1 credit per transcript + 1 per playlist page). Suggest processing in batches or filtering by title keywords.
 - **Mixed playlist (some already processed)**: Only process new videos. The batch report should still mention the total count and how many were skipped as "previously scanned."
 - **Playlist pagination**: Some playlists exceed 100 videos. Always check `has_more` and paginate with `continuation` tokens until all videos are collected before presenting the batch summary.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

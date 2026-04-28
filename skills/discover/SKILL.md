@@ -37,11 +37,11 @@ Gather signals about what the user is doing. Read in parallel, skip missing file
 
 4. **Vault structure** - quick scan of `02_Projects/`
    - How many active projects?
-   - Do projects have agents.md and lessons.md?
+   - Do projects have CLAUDE.md and lessons.md?
    - Do projects have PJL files? (missing PJLs = knowledge not compounding)
    - Are there specs without plans? Plans without implementation?
 
-5. **User profile** - read `agents.md` at vault root
+5. **User profile** - read `CLAUDE.md` at vault root
    - What's the `wfk_role`?
    - Any queued context or preferences?
 
@@ -91,7 +91,6 @@ For each skill, note what vault state would make it relevant:
 | No SOD for today | `/orient` |
 | Open PICs exist | `/pickup` |
 | Work done but no DN entry | `/log-work` |
-| User says "done" or "wrapping up" | `/closeout` |
 | Multiple closeouts, no EOD | `/end-day` |
 | 5+ open PICs, long conversation | `/recap` |
 | Feature described with no spec | `/create-spec` |
@@ -124,7 +123,7 @@ Not skills, but patterns the user should know. These stay as a curated list beca
 | **Both layers on every log** | PJL has timeline gaps | Work logged to daily note but PJL has no entry for that date |
 | **One heading per project in daily notes** | Daily note is a wall of text | Multiple entries for same project as separate headings |
 | **Date subfolders for project docs** | Files sitting in specs/ or plans/ directly | Spec or plan file not in a YYYY-MM-DD/ subfolder |
-| **agents.md + lessons.md per project** | Project has no agent context | Active project missing these files |
+| **CLAUDE.md + lessons.md per project** | Project has no agent context | Active project missing these files |
 | **Verify before logging** | Closeout logged unverified claims | Daily note says "deployed" but no deploy command was run |
 | **Session boundaries in the PJL** | PJL only has work entries, no start/end | Pickup and create-pickup should log session boundaries |
 

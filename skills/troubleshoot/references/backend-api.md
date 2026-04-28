@@ -4,11 +4,11 @@
 
 | API | Container | Framework | Port | Base URL |
 |-----|-----------|-----------|------|----------|
-| FWIS API | `fwis-api` | FastAPI | 8000 | `api.<YOUR_DOMAIN>` (basic auth) |
+| {{SIGNAL_ENGINE}} API | `{{API_CONTAINER}}` | FastAPI | 8000 | `api.<YOUR_DOMAIN>` (basic auth) |
 | IK Buckets | `ik-buckets` | Flask/Gunicorn | 8080 | `<YOUR_DOMAIN>/kb/sales/` |
 | Inbox Triage | `inbox-triage` | Flask/Gunicorn | 5001 | `<YOUR_DOMAIN>/mail/` |
 | MyArroyo Admin | `<YOUR_ADMIN_APP>` | Next.js API routes | 3000 | `admin.<YOUR_DOMAIN>/api/` |
-| Flora KB API | `flora-api` | Express | 3001 | Internal only |
+| {{ORG}} KB API | `flora-api` | Express | 3001 | Internal only |
 | Plane API | `plane-api-1` | Django | 8000 | `projects.<YOUR_DOMAIN>/api/` |
 
 ## Diagnostic Checklist
@@ -52,14 +52,14 @@ ssh <YOUR_VPS> "curl -s https://<YOUR_DOMAIN>/<api-path> | head -5"
 
 | Symptom | Likely Cause | Fix | Lesson |
 |---------|-------------|-----|--------|
-| "d.map is not a function" | API returned error object, not array | Guard with `Array.isArray()` | FWIS L3 |
-| Endpoint returns 404 | FastAPI catch-all `{key:path}` swallowed it | Declare specific routes before catch-alls | FWIS L5 |
+| "d.map is not a function" | API returned error object, not array | Guard with `Array.isArray()` | {{SIGNAL_ENGINE}} L3 |
+| Endpoint returns 404 | FastAPI catch-all `{key:path}` swallowed it | Declare specific routes before catch-alls | {{SIGNAL_ENGINE}} L5 |
 | "Request Header Too Large" | ForwardAuth headers exceed backend limit | Increase Gunicorn `--limit-request-field_size` | VPS L9 |
 | 500 on specific action | Wrong column name in SQL query | Inspect schema, audit all queries | Agent L7, L18 |
-| Pipeline uses old prompt | Stale `prompts.json` cache | Regenerate from API | FWIS L6 |
-| Data missing after INSERT | INSERT SQL missing column in list | Check all 4 places: signature, columns, VALUES, tuple | FWIS L7 |
+| Pipeline uses old prompt | Stale `prompts.json` cache | Regenerate from API | {{SIGNAL_ENGINE}} L6 |
+| Data missing after INSERT | INSERT SQL missing column in list | Check all 4 places: signature, columns, VALUES, tuple | {{SIGNAL_ENGINE}} L7 |
 
-## FastAPI-Specific (FWIS API)
+## FastAPI-Specific ({{SIGNAL_ENGINE}} API)
 
 - **Catch-all routes:** `{param:path}` greedily matches everything including `/`. Order specific sub-routes BEFORE catch-alls.
 - **Pipeline CLI:** `{{PROJECT_DB}}.py --mailbox EMAIL [--skip-fetch] [--verbose] [--dry-run] [--start-date YYYY-MM-DD --end-date YYYY-MM-DD] [--limit N]`
@@ -94,12 +94,12 @@ All LLM prompts live in `public.prompt_templates` ({{PROJECT_DB}} DB), managed a
 
 ```bash
 # Check a prompt exists
-ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c \"SELECT key, version FROM prompt_templates WHERE key LIKE '%keyword%'\""
+ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -c \"SELECT key, version FROM prompt_templates WHERE key LIKE '%keyword%'\""
 ```
 
-**Cross-ref:** FWIS L6 (regenerate prompts.json after DB updates)
+**Cross-ref:** {{SIGNAL_ENGINE}} L6 (regenerate prompts.json after DB updates)
 
 ## Lessons Files
-- `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` — L3-L7
+- `01_Work/03_Projects/{{ORG}} Work Intelligence System/lessons.md` — L3-L7
 - `01_Work/03_Projects/VPS/lessons.md` — L9 (header limits)
 - `04_ Tools/Reference/REF - Agent Lessons.md` — L7, L17, L18

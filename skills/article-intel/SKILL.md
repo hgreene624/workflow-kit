@@ -133,7 +133,7 @@ Dispatch a **haiku-model Explore subagent** to quickly gather project context. I
 
 1. Read `00 Command Centre/active-threads.md` to get the current work landscape
 2. Scan `Work Projects/` directory listing to identify active project folders
-3. For any project with a `CLAUDE.md`, `README.md`, or `agents.md`, read the first 50 lines to get the project scope
+3. For any project with a `CLAUDE.md`, `README.md`, or `CLAUDE.md`, read the first 50 lines to get the project scope
 4. Check for active specs (`SPC - *.md`) or plans (`PL - *.md`) in the most active project folders
 5. Return a structured brief: project name, current focus, key technologies, open problems
 
@@ -164,9 +164,9 @@ If the user provided a **hint** in Phase 0, weight the hinted project more heavi
 
 ### 3d. Project Backlinks
 
-For each project that scored **2 or higher**, write a backlink into that project's `agents.md` under a `## Queued Context` section.
+For each project that scored **2 or higher**, write a backlink into that project's `CLAUDE.md` under a `## Queued Context` section.
 
-1. Read the project's `agents.md`
+1. Read the project's `CLAUDE.md`
 2. Find or create the `## Queued Context` section (place it at the end of the file, before any `## Lessons` section if one exists)
 3. Check if a backlink to this summary file already exists (dedup by filename)
 4. If not present, append:
@@ -195,7 +195,7 @@ Use `TeamCreate` to spin up a team with these roles:
 
 Write findings to `ARE - <Article Title> Research Notes.md` in the same directory as the AR/AS files.
 
-**2. Architect** -- Maps findings to the specific project(s) that scored high. Reads the project's agents.md, specs, plans, and existing codebase context to produce:
+**2. Architect** -- Maps findings to the specific project(s) that scored high. Reads the project's CLAUDE.md, specs, plans, and existing codebase context to produce:
 - How to apply the article's insights to the user's specific stack
 - What changes would be needed (new dependencies, schema changes, config)
 - Implementation phases with effort estimates
@@ -315,7 +315,3 @@ Context hints are supported: `/article-intel <url> might be useful for the booki
 - **Non-English content**: Process as normal. Summarise in English.
 - **Very long articles (10,000+ words)**: Process normally but note the length in the summary. Consider splitting the summary into more granular topic sections.
 - **Redirect chains**: Follow redirects. Store the final URL as `source_url` and the original as `original_url` in frontmatter.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

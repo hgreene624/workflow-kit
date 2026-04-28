@@ -25,7 +25,7 @@ You review code produced by an implementation sprint and generate a review artif
 ## Step 2 — Read Context
 
 1. If a plan path was provided or can be found, read the plan to understand **intent** — what was the code supposed to do?
-2. Read the project's `agents.md` and `lessons.md` if they exist — these contain project-specific patterns and known pitfalls.
+2. Read the project's `CLAUDE.md` and `lessons.md` if they exist — these contain project-specific patterns and known pitfalls.
 3. Note the languages and frameworks in use from the file extensions and imports.
 
 ## Step 3 — Review Each File
@@ -82,7 +82,3 @@ If there are non-controversial fixes (dead imports, unused variables, naming inc
 3. Update the review artifact's Issues section to mark applied fixes as `[FIXED]`.
 
 Do NOT auto-fix logic changes, architectural decisions, or anything that changes behavior. Those require human judgment.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

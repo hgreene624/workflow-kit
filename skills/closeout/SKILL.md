@@ -50,7 +50,7 @@ For every app code change in this session, answer:
 1. **Was it deployed to production?** Check by:
    - Did anyone run the project's deploy command? Look for the actual command in the conversation/JSONL.
    - If yes, verify via CI/CD logs or the live URL that the deployment succeeded.
-   - Do NOT count "git push" as a deploy unless your CI/CD auto-deploys on push. Many projects use Push ≠ Deploy models.
+   - Do NOT count "git push" as a deploy unless your CI/CD auto-deploys on push. Many projects use a Push =/= Deploy model where pushing to main does NOT trigger deployment.
 
 2. **If it was LOCAL ONLY**, the closeout log MUST say so explicitly: "(local, verified at http://localhost:<port>/<path>) -- NOT deployed to production".
 
@@ -62,7 +62,7 @@ This step exists because the most dangerous closeout failure is logging "deploye
 
 ## Step 0: Check for Recap Output
 
-Before scanning the conversation from scratch, check if a `/recap` was run in this session. Look for recap output in the conversation — it will have a "Main Thread", "Branches", and "Unanswered Questions" structure.
+Before scanning the conversation from scratch, check if a `/recap` was run in this session. Look for recap output in the conversation -- it will have a "Main Thread", "Branches", and "Unanswered Questions" structure.
 
 If a recap was run, it already contains:
 - **What was worked on** (the main thread and resolved branches)
@@ -70,7 +70,7 @@ If a recap was run, it already contains:
 - **What was deferred** (parked items that may need PICs)
 - **Loose ends that were triaged** (decisions made about each)
 
-Use this as your primary input instead of re-scanning the conversation. The recap already did the hard work of mapping the session — don't duplicate it. Extract the topics, group by project, and proceed to Step 2.
+Use this as your primary input instead of re-scanning the conversation. The recap already did the hard work of mapping the session -- don't duplicate it. Extract the topics, group by project, and proceed to Step 2.
 
 If no recap was run, fall through to Step 1 as normal.
 
@@ -85,7 +85,7 @@ Context compaction loses detail. The live conversation context may be missing ea
 Session logs live at `~/.claude/projects/<project-slug>/`. The project slug is derived from the working directory path (slashes become dashes). Find the most recent `.jsonl` file:
 
 ```bash
-ls -lt ~/.claude/projects/-Users-username-Documents-Vaults/*.jsonl 2>/dev/null | head -5
+ls -lt ~/.claude/projects/<project-slug>/*.jsonl 2>/dev/null | head -5
 ```
 
 The current session is typically the most recently modified file.
@@ -166,7 +166,7 @@ Present your summary to the user and ask if it looks right before proceeding. Ke
 Check whether this session modified infrastructure. Indicators:
 - Docker compose file changes (new services, removed services, renamed containers)
 - Container creation, removal, or rebuild
-- Route or Traefik label changes (new paths, removed paths, domain changes)
+- Route or reverse-proxy label changes (new paths, removed paths, domain changes)
 - Deploy path changes (app moved to a different directory)
 - Service migration (old system replaced by new system)
 
@@ -178,11 +178,11 @@ For each doc, spot-check the sections that would be affected by this session's c
 - **Update it now** as part of closeout, or
 - **Create a PIC** specifically for the doc update, flagging what's stale and what the correct state is
 
-Do not skip this step. Migrations and sunsets are high-drift-risk events — the session that makes the change must also update the docs or explicitly hand off that responsibility via a PIC.
+Do not skip this step. Migrations and sunsets are high-drift-risk events -- the session that makes the change must also update the docs or explicitly hand off that responsibility via a PIC.
 
 ## Step 1.6: Session Push & Deploy Verification (MANDATORY)
 
-Before writing anything to the daily note, audit **this session's** code work to ensure everything that should be pushed and deployed actually is. This is the most common closeout failure: the session writes code, commits it, but never pushes — or pushes but never deploys — and the daily note then claims work was shipped that wasn't.
+Before writing anything to the daily note, audit **this session's** code work to ensure everything that should be pushed and deployed actually is. This is the most common closeout failure: the session writes code, commits it, but never pushes -- or pushes but never deploys -- and the daily note then claims work was shipped that wasn't.
 
 **Critical scoping rule:** Only act on changes from THIS session. Other agent sessions on the same machine may have their own uncommitted work in progress that you must NOT touch. Scope every check by:
 - Files this session edited (extract from JSONL `tool_use` entries: Edit, Write, NotebookEdit, Bash with git commit/add)
@@ -191,7 +191,7 @@ Before writing anything to the daily note, audit **this session's** code work to
 
 If you cannot determine whether a change is yours vs another session's, **leave it alone** and flag it in the closeout summary instead of acting on it.
 
-### 1.6a — Identify this session's repos
+### 1.6a -- Identify this session's repos
 
 Walk the JSONL tool_use entries and extract every file path that was edited/written. Map each file to its parent git repo by walking up to find a `.git` directory. Common candidates:
 - Project code repositories (find via `find ~/Repos -maxdepth 2 -name .git -type d`)
@@ -201,7 +201,7 @@ Walk the JSONL tool_use entries and extract every file path that was edited/writ
 
 For each repo, build a list of files **this session touched**.
 
-### 1.6b — Check commit state per repo
+### 1.6b -- Check commit state per repo
 
 For each repo + this-session's-files:
 
@@ -211,12 +211,12 @@ cd <repo> && git status --short -- <files...>
 
 For any file that shows as `M` (modified, uncommitted) or `??` (untracked):
 - **Is this session responsible for the change?** Cross-check against the JSONL Edit/Write entries.
-- If yes → **commit immediately** using `/git-safe`. Don't ask. Closeout implies "wrap up my work," which includes committing it. Use a descriptive message referencing the session's work.
-- If no (e.g., another session's WIP, framework auto-mods, machine-state files) → leave alone, list in the closeout summary as "uncommitted state present in [repo] not from this session — flagged but not touched."
+- If yes, **commit immediately** using `/git-safe`. Don't ask. Closeout implies "wrap up my work," which includes committing it. Use a descriptive message referencing the session's work.
+- If no (e.g., another session's WIP, framework auto-mods, machine-state files), leave alone, list in the closeout summary as "uncommitted state present in [repo] not from this session -- flagged but not touched."
 
 **Never `git add -A` blindly.** Always stage specific files from the session's edit list. Other agents may have their own staged work you don't see.
 
-### 1.6c — Check push state per repo
+### 1.6c -- Check push state per repo
 
 For each repo with this-session's commits:
 
@@ -225,17 +225,17 @@ cd <repo> && git fetch origin --quiet && git log origin/main..HEAD --oneline
 ```
 
 For each unpushed commit, verify it's yours:
-- `git log --format="%h %an %s" origin/main..HEAD` — author should be the human user (commits you made on their behalf are authored as them per CLAUDE.md)
+- `git log --format="%h %an %s" origin/main..HEAD` -- author should be the human user (commits you made on their behalf are authored as them per agents.md)
 - Cross-check the commit time against the session start time (JSONL first message timestamp)
 - Cross-check the commit message against the session's work (the topics from Step 0/1)
 
-If yes → **push immediately** via `git push origin main` (after verifying branch via `git branch --show-current`). Don't ask. Closeout implies "wrap up my work," which includes pushing it. The user approved this by running `/closeout`.
+If yes, **push immediately** via `git push origin main` (after verifying branch via `git branch --show-current`). Don't ask. Closeout implies "wrap up my work," which includes pushing it. The user approved this by running `/closeout`.
 
-If the commit is from another session (older timestamp, unrelated message, or matches commits from another machine) → leave it alone, flag it in the closeout summary.
+If the commit is from another session (older timestamp, unrelated message, or matches commits from another machine), leave it alone, flag it in the closeout summary.
 
 **Per git-safe**: always verify the branch first, never force push. But pushing your own session's commits to main during closeout does not require a separate approval, the closeout invocation IS the approval.
 
-### 1.6d — Check deploy state for app code changes
+### 1.6d -- Check deploy state for app code changes
 
 This step is MANDATORY when this session edited deployable application code. Check your project's `agents.md` for the list of deployable services and their source paths.
 
@@ -243,29 +243,22 @@ For each touched service, verify the running production instance has this sessio
 
 1. **Find the latest commit touching the service's paths:**
    ```bash
-   cd ~/Repos/{{MONOREPO_NAME}} && git log -1 --format="%h %ai" -- apps/<svc>/ packages/
+   cd ~/Repos/<project> && git log -1 --format="%h %ai" -- <service-path>/
    ```
 
-2. **Compare against the running container's image creation time:**
-   ```bash
-   ssh vps "docker inspect <container> --format='{{.Image}}' | xargs -I {} docker inspect {} --format='{{.Created}}'"
-   ```
+2. **Compare against the running deployment:** Use whatever verification method your project supports (container image timestamps, version endpoints, distinctive string grep, CI/CD status).
 
-3. **If the latest commit is NEWER than the image creation time:** the service is on stale code.
+3. **If the latest commit is NEWER than the deployed version:** the service is on stale code.
 
-4. **Functional verification (preferred over timestamps):** for the file you edited, check that a distinctive line from your edit is present in the running container. Example:
-   ```bash
-   ssh vps "docker exec <container> grep -F '<distinctive string>' /app/<path-to-file>"
-   ```
-   This is the most reliable check — timestamps can be misleading for cached builds, but the actual file content is ground truth.
+4. **Functional verification (preferred over timestamps):** for the file you edited, check that a distinctive line from your edit is present in the running service. This is the most reliable check -- timestamps can be misleading for cached builds, but the actual file content is ground truth.
 
-If the running container does NOT have your fix:
+If the running service does NOT have your fix:
 - **Deploy immediately** using your project's deploy command. Don't ask. If you edited code in this session and it's not deployed, deploy it. Closeout means "wrap up my work," which includes getting your code live.
-- If your project uses a Push ≠ Deploy model: pushing to main does NOT auto-deploy. You must run the deploy command explicitly.
+- If your project uses a Push =/= Deploy model: pushing to main does NOT auto-deploy. You must run the deploy command explicitly.
 
 **Do NOT deploy services you didn't edit in this session**, even if you notice they're stale. That's another session's responsibility (or end-day's audit step). Closeout's scope is your own work.
 
-### 1.6e — Present the audit summary
+### 1.6e -- Present the audit summary
 
 Before continuing to Step 2, output a clear table:
 
@@ -274,11 +267,11 @@ Session Push & Deploy Audit
 ===========================
 
 Repo: ~/Repos/my-project
-- 2 commits unpushed (mine):    [hash] [msg], [hash] [msg]    → pushing
-- 1 service with stale deploy:  web-app (latest commit 30min newer than container) → deploying
+- 2 commits unpushed (mine):    [hash] [msg], [hash] [msg]    -> pushing
+- 1 service with stale deploy:  web-app (latest commit 30min newer than container) -> deploying
 
 Repo: ~/Documents/Vaults
-- 0 uncommitted, 0 unpushed                                   → ✅
+- 0 uncommitted, 0 unpushed                                   -> ok
 
 NOT TOUCHED (other sessions' work, flagged not acted on):
 - ~/Repos/my-project: 3 auto-generated type files (framework noise)
@@ -288,13 +281,25 @@ Resolve all "yours" items automatically before logging work to the daily note, o
 
 ## Step 2: Log Work
 
-**PJL cross-reference:** Before invoking `/log-work`, check each project touched this session for an existing PJL file (`02_Projects/<project>/PJL - <Project Name>.md`). If one exists, read its most recent entry to confirm consistency with what you're about to log and to avoid duplicate entries if another closeout already ran. Pass the PJL path to `/log-work` so it can update the PJL in detailed mode. `/log-work` handles PJL writing — closeout does not write PJL entries directly.
+**PJL cross-reference:** Before invoking `/log-work`, check each project touched this session for an existing PJL file (`02_Projects/<project>/PJL - <Project Name>.md`). If one exists, read its most recent entry to confirm consistency with what you're about to log and to avoid duplicate entries if another closeout already ran. Pass the PJL path to `/log-work` so it can update the PJL in detailed mode. `/log-work` handles PJL writing -- closeout does not write PJL entries directly.
 
-Use the `/log-work` skill's conventions to update today's daily note (`01_Notes/Daily/DN - YYYY-MM-DD.md`). Follow the same formatting rules — action-oriented bullets, bold key stats, wikilinks to artifacts, max 5 bullets per topic heading.
+Use the `/log-work` skill's conventions to update today's daily note (`01_Notes/Daily/DN - YYYY-MM-DD.md`). Follow the same formatting rules -- action-oriented bullets, bold key stats, wikilinks to artifacts, max 5 bullets per topic heading.
 
 If there's already an entry for a topic in the daily note's `## Worked on` section, append to it rather than creating a duplicate heading.
 
-## Step 2.5: PJL Validation Gate (MANDATORY)
+## Step 2.5: Plan Update Gate (MANDATORY)
+
+Before creating PICs, update every active implementation plan touched this session. Stale plan task statuses cause the next agent to re-do completed work or make wrong assumptions about what's left.
+
+1. For each project worked on, check for active plans: `Glob pattern="**/PL - *.md" path="02_Projects/<project>/plans/"`
+2. For each plan found, read the task table and compare against this session's work
+3. Update task statuses: `todo` -> `done`, `in-progress`, or `partial` as appropriate
+4. Add a row to the plan's Work Log table with today's date, task numbers, and what was done
+5. Update the `completed` count in frontmatter to match actual done tasks
+
+Do not skip this step. The plan is the tracker. If you advanced tasks 3.2, 3.7, and 3.8 from `todo` to `done` during the session but leave the plan unchanged, the next agent reads stale `todo` statuses and may re-do the work.
+
+## Step 2.6: PJL Validation Gate (MANDATORY)
 
 Before creating any PICs, verify that `/log-work` wrote PJL entries for every project touched this session. This gate prevents the most common closeout failure: PICs created with no PJL record of what was actually built.
 
@@ -308,6 +313,33 @@ Before creating any PICs, verify that `/log-work` wrote PJL entries for every pr
 
 This gate exists because PIC creation (Step 3) is independent of PJL logging. Without this check, an agent can create a detailed PIC carrying forward context while the PJL -- the only machine-readable implementation record -- has no entry for the day's work. The PIC tells the next agent what to do; the PJL tells them what was done. Both are required.
 
+## Step 2.7: Cross-Reference Open PICs Against Session Work (MANDATORY)
+
+Work in one session often resolves items from PICs created in earlier sessions. Without this step, those PIC items stay listed as "open" indefinitely, causing future agents to investigate already-resolved problems.
+
+1. Use the PIC landscape from Step 0b (the grep results of all open/picked-up PICs).
+2. For each project or system touched this session, check if any open PICs have "What Needs to Happen Next" items that were addressed by this session's work. Match by:
+   - Same project name
+   - Same system or subsystem
+   - Same spec reference
+3. For each match found, read the PIC's "What Needs to Happen Next" section and compare against what was done.
+4. If items were resolved: append a dated session update to the PIC documenting what was resolved and what remains. Format:
+
+```markdown
+## YYYY-MM-DD Session Update
+
+**Resolved by [topic/commit/deploy]:**
+- S{N}: {description of what was done}
+
+**Still open:**
+- S{M}: {remaining item}
+```
+
+5. If ALL items are resolved: close the PIC (update frontmatter to `status: closed`, add Closing Update per the PIC lifecycle rules in `/pickup`).
+6. If the PIC was picked up by this session and work was done on it directly, its updates are handled by the normal pickup flow. This step targets PICs that were NOT picked up but had items indirectly resolved.
+
+**Why this exists:** PICs accumulate stale items when multiple sessions resolve parts of them without updating. Each intervening session's agent re-investigates systems that the prior session already fixed. This cross-reference prevents that drift.
+
 ## Step 3: Create Pickup Documents
 
 For each topic that has a logical next step, invoke `/create-pickup` to generate a verified PIC document.
@@ -320,16 +352,50 @@ The `/create-pickup` skill handles everything: verification of system state clai
 
 If there are multiple topics needing pickups, invoke `/create-pickup` for each one. The skill will confirm each PIC with the user before writing.
 
+### Unfinished plan check (MANDATORY)
+
+After creating PICs for obvious topics, check every active plan updated in Step 2.5. For each plan with remaining `todo` or `in-progress` tasks, determine whether the plan itself is sufficient context for the next session or whether a PIC is needed.
+
+**A PIC is needed when:**
+- The plan's remaining tasks depend on context not captured in the plan (session decisions, discovered blockers, environment state)
+- The next step requires specific commands, credentials, or verification that the plan doesn't spell out
+- Work was partially completed and the boundary between "done" and "todo" needs explanation
+
+**The plan alone is sufficient when:**
+- The remaining tasks are self-contained and fully described in the plan
+- No session-specific context is needed to continue
+- An existing open PIC already covers this plan's work
+
+Ask the user for each unfinished plan: "The [plan name] has [N] remaining tasks. The existing PIC [name] covers this / there's no PIC for this work. Create or update a PIC, or is the plan sufficient?" Present the remaining task summary so the user can decide without reading the plan.
+
 ## Asking Good Questions
 
-When confirming summaries, pickup content, or asking about lessons — always provide enough context for the user to answer without further research. State the situation, state what you're proposing, state the impact, then ask. If the user has to say "I don't have enough context," the question was poorly framed.
+When confirming summaries, pickup content, or asking about lessons -- always provide enough context for the user to answer without further research. State the situation, state what you're proposing, state the impact, then ask. If the user has to say "I don't have enough context," the question was poorly framed.
 
-## Step 4: Confirm
+## Step 4: Final Summary and Tab-Close Signal
 
-Tell the user what you created:
-- Which daily note entries were added/updated
-- Which PIC docs were created and where
+End with a clear, unambiguous closeout confirmation. The user needs to know at a glance that everything is done and they can close the tab without losing anything.
 
-PICs automatically appear in the "Pending Pickups" dataview section on every daily note (filtered to `status: open`). No need to manually add TODOs — the pickup skill finds open PICs from the dataview query.
+**Format (mandatory):**
 
-Keep it brief — just a table or short list so they can verify at a glance.
+```
+---
+## Session Closed
+
+**DN:** [updated / created] -- [count] entries logged
+**PJL:** [list of project logs updated]
+**Plans updated:** [list of plans updated with task counts, or "none active"]
+**PICs created:** [count] -- [names, or "none needed"]
+**PICs closed:** [count] -- [names, or "none"]
+**Deploys:** [all verified / none this session / list any pending]
+**Unpushed work:** none [or list]
+
+Everything is saved. You can close this tab.
+---
+```
+
+The last line ("Everything is saved. You can close this tab.") is the explicit signal. Do not omit it. Do not hedge it with "I think" or "should be." If there IS something unresolved (a deploy still running, a question unanswered), say so instead: "Deploy still running for [service]. Check back in ~2 min, or close and it'll finish on its own."
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

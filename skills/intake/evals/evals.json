@@ -1,0 +1,49 @@
+{
+  "skill_name": "intake",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "dad just sent me a bunch of app specs, can you figure out where these go? they're in <DOWNLOADS>/New App Specs/",
+      "expected_output": "Should read all 7 files, identify at least 3-4 distinct app concepts, detect App3_App4 needs splitting, check existing projects, propose new projects where needed, present detailed assessment.",
+      "files": [],
+      "expectations": [
+        "Assessment reads and summarizes all 7 files from the directory",
+        "Assessment identifies at least 3 distinct app concepts (Recipe/Kitchen Ops, Culinary Cottages Owner Portal, Reservation Manager)",
+        "Assessment detects that App3_App4_Placeholders.md covers multiple topics and proposes splitting it",
+        "Assessment checks existing vault projects before proposing new ones",
+        "Assessment maps each file or group to a specific project path with reasoning",
+        "Assessment distinguishes between materials that fit existing projects vs. needing new projects",
+        "Assessment proposes full project scaffolding for any new projects (agents.md, lessons.md, specs/, plans/, reports/)",
+        "Assessment suggests next steps for each project (e.g., create-spec for detailed materials, needs more info for placeholders)"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Christian sent over some notes about the Odoo BI field mappings for the signal engine, here: <DOWNLOADS>/odoo-bi-fields.md — can you file this somewhere useful?",
+      "expected_output": "Should recognize this relates to signal-engine and/or work-for-dad. Should check candidate projects' agents.md files. Should present reasoned assessment.",
+      "files": [],
+      "expectations": [
+        "Assessment reads the full content of odoo-bi-fields.md",
+        "Assessment identifies signal-engine ({{ORG}} Intelligence) as a candidate project",
+        "Assessment checks at least 2 candidate projects before recommending placement",
+        "Assessment explains why the chosen project is the best fit",
+        "Assessment proposes placing the file in a source subfolder (e.g., Christian Files/) within the target project",
+        "Assessment does NOT propose creating a new project for a single reference file that fits an existing one"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I've got a folder of research PDFs and notes about competitor reservation systems — SevenRooms alternatives, OpenTable API docs, and a few restaurant tech articles. They're at ~/Downloads/reservation-research/. File these for me.",
+      "expected_output": "Should identify ambiguity in placement, consider multiple candidate projects, and present reasoning. Should flag uncertainty and ask for clarification.",
+      "files": [],
+      "expectations": [
+        "Assessment reads all files in the reservation-research directory",
+        "Assessment identifies the ambiguity — these could fit multiple projects",
+        "Assessment considers at least 2 candidate locations (e.g., Restaurant Ops and a potential new reservation project)",
+        "Assessment explains the trade-offs of each placement option",
+        "Assessment flags uncertainty about placement and indicates it would ask the user to clarify",
+        "Assessment suggests next steps appropriate to the material's readiness level"
+      ]
+    }
+  ]
+}

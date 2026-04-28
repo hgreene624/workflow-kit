@@ -34,7 +34,7 @@ Before dispatching the team:
 1. Read the spec file to understand what's being proposed
 2. Infer the project from the spec's location in the vault directory tree:
    - `01_Work/03_Projects/<ProjectName>/` → that's your project
-   - Also check for sub-projects (e.g., `{{ORG}} Hub/`, `Inbox Triage/`, `Signal Engine/` under FWIS)
+   - Also check for sub-projects (e.g., `{{ORG}} Hub/`, `Inbox Triage/`, `Signal Engine/` under {{SIGNAL_ENGINE}})
 3. Check for `agents.md` and `lessons.md` in that project directory
 4. Read the vault-root `AGENTS.md` file, then the project-level `agents.md` if one exists — these contain critical context about how work should be done in that project
 

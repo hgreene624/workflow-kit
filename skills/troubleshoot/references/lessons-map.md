@@ -9,7 +9,7 @@ Load ALL applicable files based on what domain the issue touches. Always load th
 | Domain | File |
 |--------|------|
 | VPS, Docker, Traefik, deployment | `01_Work/03_Projects/VPS/lessons.md` |
-| Flora Work Intelligence System | `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` |
+| {{ORG}} Work Intelligence System | `{{PROJECT_PATH}}/{{INTELLIGENCE_PROJECT}}/lessons.md` |
 | Frontend, UI, CSS, SvelteKit, Next.js | `04_ Tools/Reference/REF - Frontend Lessons.md` |
 | Plane project tracker | `04_ Tools/Reference/REF - Plane Lessons.md` |
 | Project planning, implementation plans | `04_ Tools/Reference/REF - Project Planning Lessons.md` |

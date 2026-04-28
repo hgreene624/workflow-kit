@@ -6,15 +6,15 @@ Use this table to pick the narrowest scope that covers where the lesson applies.
 
 | Domain | Lessons file | Rules file |
 |--------|-------------|------------|
-| VPS / Docker / Traefik | `01_Work/03_Projects/VPS/lessons.md` | that dir's `agents.md` |
+| VPS / Docker / Traefik | `01_Work/03_Projects/VPS/lessons.md` | that dir's `CLAUDE.md` |
 | Plane tracker | `04_ Tools/Reference/REF - Plane Lessons.md` | — |
 | Frontend / UI / CSS | `04_ Tools/Reference/REF - Frontend Lessons.md` | — |
 | Project planning | `04_ Tools/Reference/REF - Project Planning Lessons.md` | — |
-| Chawdys / OpenClaw | `01_Work/03_Projects/Chawdys/lessons.md` | that dir's `agents.md` |
-| FWIS / Signal Engine | `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` | that dir's `agents.md` |
-| Specific project | that project's `lessons.md` | that project's `agents.md` |
+| Chawdys / OpenClaw | `01_Work/03_Projects/Chawdys/lessons.md` | that dir's `CLAUDE.md` |
+| {{SIGNAL_ENGINE}} / Signal Engine | `{{PROJECT_PATH}}/{{INTELLIGENCE_PROJECT}}/lessons.md` | that dir's `CLAUDE.md` |
+| Specific project | that project's `lessons.md` | that project's `CLAUDE.md` |
 | Specific file's gotcha | `## Lessons` section in that file | — (rules don't go in content files) |
-| General agent behavior | `04_ Tools/Reference/REF - Agent Lessons.md` | root `agents.md` |
+| General agent behavior | `04_ Tools/Reference/REF - Agent Lessons.md` | root `CLAUDE.md` |
 
 ## How to Pick a Scope
 
@@ -27,4 +27,4 @@ Use this table to pick the narrowest scope that covers where the lesson applies.
 
 If a project doesn't have a `lessons.md` yet:
 1. Create `lessons.md` in the project directory with the same frontmatter pattern as existing ones
-2. Add a breadcrumb in the project's `agents.md`: `- **Lessons**: See [[lessons]]`
+2. Add a breadcrumb in the project's `CLAUDE.md`: `- **Lessons**: See [[lessons]]`

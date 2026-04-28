@@ -4,7 +4,7 @@
 
 | Integration | Used By | Protocol | Key Details |
 |-------------|---------|----------|-------------|
-| Microsoft Graph API | FWIS, Inbox Triage, Chawdys | REST + OAuth | App ID `4935ad02` (client_credentials) |
+| Microsoft Graph API | {{SIGNAL_ENGINE}}, Inbox Triage, Chawdys | REST + OAuth | App ID `4935ad02` (client_credentials) |
 | Microsoft Entra ID | All ForwardAuth services | OAuth 2.0 | App ID `a79fcf06` (authorization code) |
 | Telegram Bot | Chawdys, cron alerts | Bot API | `TELEGRAM_TARGET` in config.py |
 | 7rooms | Reservation Scraper | Playwright scrape | **Currently broken** (auth failing since 2026-03-04) |
@@ -19,10 +19,10 @@
 
 ```bash
 # Test Graph API connectivity
-ssh <YOUR_VPS> "docker exec fwis-api python3 -c 'from graph_client import get_access_token; print(get_access_token())'"
+ssh <YOUR_VPS> "docker exec {{API_CONTAINER}} python3 -c 'from graph_client import get_access_token; print(get_access_token())'"
 
 # Check token expiry
-ssh <YOUR_VPS> "docker exec fwis-api python3 -c '
+ssh <YOUR_VPS> "docker exec {{API_CONTAINER}} python3 -c '
 from graph_client import get_access_token
 import json, base64
 token = get_access_token()
@@ -40,7 +40,7 @@ Never use the Graph API app for user-facing OAuth, or vice versa.
 
 ```bash
 # Test Telegram delivery
-ssh <YOUR_VPS> "docker exec fwis-api python3 -c '
+ssh <YOUR_VPS> "docker exec {{API_CONTAINER}} python3 -c '
 from config import TELEGRAM_BOT_TOKEN, TELEGRAM_TARGET
 import requests
 r = requests.post(f\"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage\",
@@ -51,7 +51,7 @@ print(r.status_code, r.json().get(\"ok\"))
 
 **Disable during bulk operations:** Set `TELEGRAM_TARGET=""` in config.py to avoid spam.
 
-**Cross-ref:** FWIS L2
+**Cross-ref:** {{SIGNAL_ENGINE}} L2
 
 ### 3. Reservation Scraper (currently broken)
 
@@ -92,10 +92,10 @@ ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c 
 |---------|-------------|-----|--------|
 | Graph API 401 | Token expired or wrong app ID | Refresh token, verify app ID | VPS L3 |
 | Graph API 401 on SharePoint REST | Graph token != SharePoint token | Add SharePoint API permissions to app registration | 2026-03-27 |
-| Telegram flood | Bulk operation without disabling target | Set `TELEGRAM_TARGET=""` | FWIS L2 |
+| Telegram flood | Bulk operation without disabling target | Set `TELEGRAM_TARGET=""` | {{SIGNAL_ENGINE}} L2 |
 | Scraper in restart loop | 7rooms auth changed | Check login flow, update selectors | — |
 | Meeting sync empty | Graph API permissions changed | Check app permissions in Azure | — |
-| Email misattribution | Wrong email from name guess | Query `monitored_mailboxes` to verify | FWIS L1 |
+| Email misattribution | Wrong email from name guess | Query `monitored_mailboxes` to verify | {{SIGNAL_ENGINE}} L1 |
 | Entra account side effects | Disabling strips Teams memberships | Audit ALL side effects before admin ops | Agent L19 |
 | API returns 0 results but data exists | **Identity mismatch** — wrong ID format, wrong user context, or stale ID | See checklist below | 2026-03-27 |
 | API returns 404 for known resource | Meeting/call ID in DB doesn't match Graph's expected ID | Resolve via `joinWebUrl` instead of stored ID | 2026-03-27 |
@@ -126,8 +126,8 @@ This failure mode cost hours on 2026-03-27 when Graph returned 0 transcripts for
 - **Container:** `chawdys` in `/docker/openclaw/docker-compose.yml`
 - **Image:** Pre-built `ghcr.io/hostinger/hvps-openclaw`
 - **Volumes:** Mount from `/docker/flora/data/` (`.openclaw`, `.bun`, `.npm`, etc.)
-- **Network:** `root_default` (reaches Flora services via Traefik)
-- **Env vars:** `FWIS_API_URL`, `INBOX_TRIAGE_URL`, `IK_BUCKETS_URL`
+- **Network:** `root_default` (reaches app services via Traefik)
+- **Env vars:** `{{SIGNAL_ENGINE}}_API_URL`, `INBOX_TRIAGE_URL`, `IK_BUCKETS_URL`
 - **Internal crons:** Managed via `openclaw cron list/enable/disable` inside container
 - **MS Graph tools:** `/data/.openclaw/workspace/projects/ms-teams-planner/`
 
@@ -149,9 +149,9 @@ ssh <YOUR_VPS> "docker exec chawdys openclaw cron list"
 ssh <YOUR_VPS> "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -c 'SELECT email, display_name FROM monitored_mailboxes'"
 ```
 
-**Cross-ref:** FWIS L1
+**Cross-ref:** {{SIGNAL_ENGINE}} L1
 
 ## Lessons Files
-- `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` — L1 (email verification), L2 (Telegram)
+- `{{PROJECT_PATH}}/{{INTELLIGENCE_PROJECT}}/lessons.md` — L1 (email verification), L2 (Telegram)
 - `01_Work/03_Projects/VPS/lessons.md` — L3 (Entra app IDs)
 - `04_ Tools/Reference/REF - Agent Lessons.md` — L19 (admin operation side effects)

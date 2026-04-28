@@ -18,7 +18,7 @@ Resume work by loading context from pickup documents. Routes automatically: if t
 
 ## Path Resolution
 
-Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve all directory references in these instructions (e.g., `{vault_root}/{paths.reports}/Triage/` instead of `Work Vault/01_Notes/Reports/Triage/`, `{paths.projects}` instead of `02_Projects/`). If the file doesn't exist, use the defaults in these instructions and warn once: "No wfk-paths.json found. Using default paths."
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve all directory references in these instructions (e.g., `{vault_root}/{paths.reports}/Triage/` instead of hardcoded paths, `{paths.projects}` instead of `02_Projects/`). If the file doesn't exist, use the defaults in these instructions and warn once: "No wfk-paths.json found. Using default paths."
 
 ## Pre-flight: Orient Check
 
@@ -128,6 +128,18 @@ Assign batch verdicts:
 
 **Write the TRI file FIRST, before presenting anything to the user.** The TRI is not a follow-up task -- it is the output artifact of the triage. Compute the triage data (Steps 1-4 or 0a), write the TRI file (see format below), then present the summary to the user. If the TRI is not written before you show the user the "Pick a number" prompt, the triage is incomplete. No exceptions.
 
+#### Step 5a: Live Status Verification (MANDATORY before presenting)
+
+Before presenting the triage to the user, verify the frontmatter status of every PIC that will appear in the presentation. The TRI and grep results are snapshots in time. Another session or agent may have changed a PIC's status since the last scan.
+
+1. For each PIC in the triage, read lines 1-10 of the file to check the `status:` field.
+2. Filter the presentation to show only PICs with `status: open`.
+3. PICs with `status: picked-up` go into the "Validate first" cluster (they may need closing, not working).
+4. PICs with `status: closed` are removed from the presentation entirely.
+5. If a PIC's status changed since the TRI was written, update the TRI file to match before presenting.
+
+This step prevents showing stale PICs that were already picked up or closed by other sessions. It runs every time, even when the TRI was just generated moments ago. The cost is ~20 file reads (frontmatter only); the cost of skipping it is presenting work that's already done.
+
 **Presentation rules (mandatory):**
 - Present ONE grouped-by-cluster table -- not three separate views.
 - Clusters are strategic goals when available (e.g. "Goal A", "Goal B", "Unaligned"). Without strategic planning docs, fall back to project themes (e.g. "Backend / API", "Frontend / UX"). Pull the theme from the SOD priorities when possible.
@@ -140,15 +152,15 @@ Assign batch verdicts:
 **Format:**
 
 ```
-### ⚠ Validate first (if applicable)
+### Warning: Validate first (if applicable)
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 1 — e.g. Goal A / Backend API}
+### {Cluster 1 -- e.g. Goal A / Backend API}
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 2 — e.g. Goal B / Frontend UX}
+### {Cluster 2 -- e.g. Goal B / Frontend UX}
 ...
 
 ### {Blocked cluster, last}
@@ -286,9 +298,9 @@ Build understanding of: project scope, what was done, concrete next steps, block
 If the PIC's project involves deployable code (a web app, API, service, or anything that runs in both a local dev environment and a remote/production environment), declare the target environment in your "Present the Plan" output. Three valid forms:
 
 ```
-Environment: LOCAL          → iterating locally via the local dev server, no production change expected
-Environment: REMOTE         → updating production, will run the deploy command after the fix
-Environment: BOTH           → iterate locally first, then deploy to production
+Environment: LOCAL          -> iterating locally via the local dev server, no production change expected
+Environment: REMOTE         -> updating production, will run the deploy command after the fix
+Environment: BOTH           -> iterate locally first, then deploy to production
 ```
 
 Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a deploy command -> REMOTE or BOTH. If the next steps are pure code iteration with no deploy command -> LOCAL. **If unclear, ASK the user via AskUserQuestion before starting.** Don't guess.
@@ -310,7 +322,7 @@ Update the PIC's frontmatter immediately:
 If a PJL exists for this project, append a session-start entry under today's date heading (create the date heading if it doesn't exist, newest on top):
 
 ```markdown
-- **Session start** — picked up [[PIC - Topic Name]], targeting: {first 1-2 next steps from PIC}
+- **Session start** -- picked up [[PIC - Topic Name]], targeting: {first 1-2 next steps from PIC}
 ```
 
 If no PJL exists yet, create one at `{paths.projects}/<project>/PJL - <Project Name>.md` with standard frontmatter and this first entry. The PJL will accumulate as work is logged via `/log-work` and `/create-pickup`.

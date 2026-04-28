@@ -40,10 +40,10 @@ The manifest declares:
 | Core skills | `skills/` | `~/.claude/skills/` | Only `core_skills` from kit.json | Replace SKILL.md + references/ |
 | Templates | `05_System/Templates/` | Work Vault `05_System/Templates/` | Push generalized versions | Show diff, user chooses |
 | CLAUDE.md | `CLAUDE.md` | Work Vault `CLAUDE.md` | **Never overwrite repo version** | Section-marker merge |
-| agents.md | `agents.md` | Work Vault `agents.md` | **Never overwrite repo version** | Section-marker merge |
+| CLAUDE.md | `CLAUDE.md` | Work Vault `CLAUDE.md` | **Never overwrite repo version** | Section-marker merge |
 | Obsidian config | `.obsidian/` | Work Vault `.obsidian/` | Only `community-plugins.json` | Same |
 | Vault structure | `01_Notes/` through `04_Reference/` | - | Never (scaffold only) | First-run only |
-| Docs | `SETUP.md`, `README.md`, `WORKFLOW.md` | Repo only | Repo-only edits | Not pulled to vault |
+| Getting Started | `Getting Started.md`, `SETUP.md`, `README.md` | Repo only | Repo-only edits | Not pulled to vault |
 
 ## Configuration
 
@@ -69,7 +69,7 @@ github.com/YOUR_USERNAME/workflow-kit
 
 ## Default Action Detection
 
-When called with no arguments, read `wfk_role` from the vault's `agents.md`:
+When called with no arguments, read `wfk_role` from the vault's `CLAUDE.md`:
 - `wfk_role: developer` -> default to **push**
 - `wfk_role: user` (or not set) -> default to **pull**
 
@@ -200,7 +200,7 @@ Show the drafted version to the user. Ask: "This is the generalized version of [
 cp <VAULT_ROOT>/05_System/Templates/*.md /tmp/flora-skills-repo/05_System/Templates/
 ```
 
-**CLAUDE.md and agents.md - NEVER OVERWRITE:**
+**CLAUDE.md and CLAUDE.md - NEVER OVERWRITE:**
 The repo has its own generalized versions with `<!-- WFK:START -->` / `<!-- WFK:END -->` section markers. Do NOT copy the vault versions over the repo versions.
 
 If a structural change needs to go upstream:
@@ -294,7 +294,7 @@ Read the repo's `README.md`. Check whether it needs updates based on this push:
 
 1. **Key Commands table** - does it list all core skills the user should know about? If new skills were added that a user would invoke directly (not internal-only skills), add them to the table.
 2. **Skill descriptions** - if a skill's behavior changed significantly (Tier 3 rewrite), check whether the README's description is still accurate.
-3. **Getting Started section** - if the install process or setup steps changed, update them. (Getting Started content lives in the README, not a separate file.)
+3. **Getting Started section** - if the install process or setup steps changed, update them.
 4. **Any section referencing specific skill names** - if a skill was renamed, update the reference.
 
 Don't bloat the README. It's an introduction, not documentation. Only add skills to the Key Commands table if they're user-invocable entry points (like `/create-spec`, `/pickup`, `/closeout`). Internal skills (like `/git-safe`) don't need a README mention.
@@ -528,9 +528,9 @@ Diff each template file. For each that differs:
 - Preserve any content outside both marker types
 - Show the merged result and ask user to confirm before writing
 
-#### Step 10: agents.md
+#### Step 10: CLAUDE.md
 
-Same section-marker merge as CLAUDE.md. Never touch project-level agents.md files (only the vault root agents.md).
+Same section-marker merge as CLAUDE.md. Never touch project-level CLAUDE.md files (only the vault root CLAUDE.md).
 
 #### Step 11: Obsidian config
 
@@ -576,12 +576,6 @@ After all files are synced, verify consistency:
 
 3. **LOCAL.md audit** - list all LOCAL.md files and their age. Flag any older than 90 days as potentially stale.
 
-4. **Path config validation** - check `~/.claude/wfk-paths.json`:
-   - **If missing:** warn the user: "No wfk-paths.json found. Skills will use hardcoded default paths. Run `/setup` or create `~/.claude/wfk-paths.json` manually." Show the expected format.
-   - **If present:** validate each path exists as a directory under `vault_root`. Report any stale paths and offer to fix them.
-   - **Check for new path keys:** scan all pulled SKILL.md files for `{paths.<key>}` references. If any key is referenced in a skill but missing from the config, warn: "Skill `<name>` references `paths.<key>` which is not in your wfk-paths.json. Add it?" Offer to add the default value.
-   - Update `last_validated` to today's date after a successful check.
-
 #### Step 15: Update sync manifest
 
 Write the new manifest with current hashes for all synced skills:
@@ -594,7 +588,7 @@ Write the new manifest with current hashes for all synced skills:
 {
   "version": "<kit.json version>",
   "skills": { "<name>": "<md5 of installed SKILL.md>", ... },
-  "vault_files": { "CLAUDE.md": "<hash>", "agents.md": "<hash>" },
+  "vault_files": { "CLAUDE.md": "<hash>", "CLAUDE.md": "<hash>" },
   "last_sync": "<ISO timestamp>"
 }
 ```
@@ -624,52 +618,6 @@ LOCAL.md files created:
 Backup at: ~/.claude/skills/.backup/2026-04-11T09-30-00/
 ```
 
-### `contribute` - Submit changes upstream via PR
-
-Use this when the user has local skill edits they want to contribute back to the WFK repo.
-
-#### Step 1: Identify changes
-
-Compare local skills against the repo. Show which skills have local edits that aren't in the repo yet. Let the user pick which ones to contribute.
-
-#### Step 2: Fork check
-
-```bash
-gh repo view YOUR_USERNAME/workflow-kit --json isFork 2>/dev/null
-```
-
-If the user's repo is already the upstream, they can push directly. If not, check for a fork:
-
-```bash
-gh repo list --fork --json nameWithOwner,parent --jq '.[] | select(.parent.nameWithOwner == "YOUR_USERNAME/workflow-kit")'
-```
-
-If no fork exists, create one:
-```bash
-gh repo fork YOUR_USERNAME/workflow-kit --clone=false
-```
-
-#### Step 3: Push to fork and create PR
-
-```bash
-# Create a branch on the fork
-FORK_NAME=$(gh api user --jq '.login')
-cd /tmp/flora-skills-repo
-git remote add fork "https://github.com/$FORK_NAME/workflow-kit.git" 2>/dev/null || true
-git checkout -b contribute/$(date +%Y%m%d)-$(echo "$DESCRIPTION" | tr ' ' '-' | head -c 30)
-# Copy the changed skill files
-# Commit and push to fork
-git push fork HEAD
-# Create PR using gh (uses OAuth, not fine-grained PAT)
-gh pr create --repo YOUR_USERNAME/workflow-kit --head "$FORK_NAME:$(git branch --show-current)" --title "..." --body "..."
-```
-
-**Important:** `gh pr create` uses the `gh` OAuth token, which works for cross-owner PRs. Fine-grained PATs cannot create PRs against repos owned by other users, even with Triage/collaborator role. If the user hasn't run `gh auth login`, guide them through it first.
-
-#### Step 4: Report
-
-Show the PR URL and what was submitted. The user can track it from there.
-
 ### `status` - Show sync status
 
 Clone/pull repo, compute hashes, show status table for all skills and vault files.
@@ -686,7 +634,7 @@ Same as status but also shows available (not installed) skills from the repo.
 - Sync manifests
 - Skill workspaces / eval artifacts
 - data.nosync directories
-- Lessons and project agents.md
+- Lessons and project CLAUDE.md
 - CSS snippets
 
 ## Safety

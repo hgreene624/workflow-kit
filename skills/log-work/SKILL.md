@@ -12,13 +12,13 @@ description: >-
 
 Log work to **both layers**: the daily note's `## Worked on` section (brief, human-focused) and the project log PJL file (complete, agent-focused). Both are mandatory on every invocation. There is no "simple mode" -- every piece of work gets recorded in both places.
 
-**Arguments:** $ARGUMENTS — Description of work, path to a plan, or nothing (will scan conversation context).
+**Arguments:** $ARGUMENTS -- Description of work, path to a plan, or nothing (will scan conversation context).
 
 ## Path Resolution
 
 Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve directory references (e.g., `{paths.daily_notes}/DN - YYYY-MM-DD.md`, `{paths.projects}/<project>/PJL - <Name>.md`). If the file doesn't exist, use defaults and warn once.
 
-## Step 1 — Determine What to Log
+## Step 1 -- Determine What to Log
 
 If the user provided arguments, use those. Otherwise, scan the current conversation for:
 - Files created or modified (specs, reports, plans, code)
@@ -28,19 +28,19 @@ If the user provided arguments, use those. Otherwise, scan the current conversat
 
 Ask the user to confirm what should be logged if it's ambiguous.
 
-### Environment Disambiguation (MANDATORY for Flora app work)
+### Environment Disambiguation (MANDATORY for deployable code)
 
-If the work being logged touched a Flora app (KB, admin, portal, mail, fwis-viewer, home, reservations, mailbox-viewer, revenue-dashboard, culinary-cottages, or anything in `~/Repos/{{MONOREPO_NAME}}/`), the log entry MUST disambiguate which environment was affected. Three valid forms:
+If the work being logged touched a deployable application (any project that runs in both a local dev environment and a remote/production environment), the log entry MUST disambiguate which environment was affected. Three valid forms:
 
-- **Local-only iteration** — write `(local — verified at http://localhost:<port>/<path>)` after the bullet. Be explicit that this did NOT update production.
-- **Deployed to production** — write `(deployed via flora-deploy <service> — verified at https://YOUR_DOMAIN/<app>/<path>)` after the bullet. Include the verification URL you actually hit.
-- **Both** — write `(local + deployed via flora-deploy <service>)`.
+- **Local-only iteration** -- write `(local, verified at http://localhost:<port>/<path>)` after the bullet. Be explicit that this did NOT update production.
+- **Deployed to production** -- write `(deployed via [deploy command], verified at [production URL])` after the bullet. Include the verification URL you actually hit.
+- **Both** -- write `(local + deployed via [deploy command])`.
 
-Bare phrases like "fixed KB hydration", "deployed mailbox-viewer", "tested admin page" are AMBIGUOUS and create false confidence. Future agents reading the daily note will not know whether YOUR_DOMAIN was actually updated. Always include the environment label and a verification URL.
+Bare phrases like "fixed the hydration bug", "deployed the viewer", "tested the admin page" are AMBIGUOUS and create false confidence. Future agents reading the daily note will not know whether production was actually updated. Always include the environment label and a verification URL.
 
-**Push ≠ Deploy.** As of 2026-04-07, `git push origin main` does NOT auto-deploy. If the work involved a code change to a Flora app and no `flora-deploy` or `safe-build` command was run, the change is LOCAL ONLY and the log must say so. Pushing to main without running the deploy command is not a deploy.
+**Push =/= Deploy.** If your project uses a Push =/= Deploy model (where `git push` does NOT auto-deploy), then pushing without running the deploy command means the change is LOCAL ONLY and the log must say so. Check your project's `agents.md` for the deploy model.
 
-## Step 2 — Always Both Layers
+## Step 2 -- Always Both Layers
 
 Every invocation writes to **both**:
 1. **Daily note** (DN) -- brief, human-readable, scannable. What you'd say in a 30-second standup.
@@ -48,50 +48,45 @@ Every invocation writes to **both**:
 
 There is no mode selection. Both layers are mandatory. The only optional artifact is a **Work Log** (`WL -` file) for exceptionally heavy days where even the PJL entry would be too dense (10+ tasks, multi-phase sprints). On those days, the PJL links to the WL.
 
-## Step 3 — Identify the Topic and Project
+## Step 3 -- Identify the Topic and Project
 
-Match the work to a **project name** (not a plan name, not an activity name):
-- "Culinary Cottages Portal", not "CCP v3 Phase 2"
-- "Signal Engine", not "FWIS Spec Compliance Phase 3c"
-- "Document Generator", not "DocGen NLM Guided Creation"
-
-The project name is the broadest stable label. Plans, phases, and activities are detail that goes in the project log.
+Match the work to a **project name** (not a plan name, not an activity name). Use the broadest stable label. Plans, phases, and activities are detail that goes in the project log.
 
 Identify the project path under `02_Projects/` if one exists.
 
-## Step 3b — Group + Merge Check (Before Writing)
+## Step 3b -- Group + Merge Check (Before Writing)
 
 The Worked on section uses a **three-level hierarchy**: group (`###`) > project (`####`) > bullets.
 
 ### Determine the group
 
-Match the project to its group:
+Match the project to its group. Define your groups in `agents.md` or use project directory structure to infer them. Example group structure:
 
 | Group (`###`) | Projects (`####`) |
 |---|---|
-| {{ORG}} Apps | Flora KB, Document Generator, Revenue Dashboard, Reservation App, Admin Panel, Culinary Cottages Portal, Mail |
-| {{ORG}} Intelligence | Signal Engine (FWIS, MIP, transcription pipeline), AI Gateway |
-| Infrastructure | VPS, CI/GHCR, Local Dev, Cron System |
-| Restaurant Ops | Odoo, Simphony, Server Manual, Tastings, Revenue Reports |
-| Workflow Kit & Tooling | WFK, CC Analytics |
+| Apps | Web App, Admin Panel, Portal, Dashboard |
+| Intelligence / Data | Signal Engine, Data Pipeline, AI Gateway |
+| Infrastructure | Server, CI/CD, Local Dev, Cron System |
+| Operations | ERP, Reports, Manual Processes |
+| Tooling | Workflow Kit, Analytics |
 
-**Standalone items** (Video Research, Process Improvements, Pickup Triage, Vault Maintenance, etc.) get a `###` heading directly — no group wrapper.
+**Standalone items** (Video Research, Process Improvements, Pickup Triage, Vault Maintenance, etc.) get a `###` heading directly -- no group wrapper.
 
 ### Merge into existing headings
 
 Before creating a new `####` heading, scan ALL existing headings under `## Worked on`:
 
-1. **Match by project:** All work on the same project goes under ONE `####`. "CCP v3 Phase 0", "CCP Owner Portal Routing Deploy" are all `#### Culinary Cottages Portal` under `### {{ORG}} Apps`.
-2. **Common abbreviations:** MIP/FWIS/FAO → Signal Engine, CCP → Culinary Cottages Portal, DocGen → Document Generator.
+1. **Match by project:** All work on the same project goes under ONE `####`. Different plan phases, deployment ops, and bug fixes for the same project share one heading.
+2. **Common abbreviations:** Map shorthand to canonical project names (define mappings in `agents.md` if needed).
 3. **If the group `###` heading already exists**, add the new `####` project under it. If the group doesn't exist yet, create both.
 
 **The daily note should have ONE `####` heading per project, not one per plan, phase, activity, or session.**
 
-## Step 4 — Write Both Layers
+## Step 4 -- Write Both Layers
 
 Every invocation writes both. Do the PJL first (it's the source of truth), then summarize to the daily note.
 
-### 4a. Project Log (PJL) — Agent Layer
+### 4a. Project Log (PJL) -- Agent Layer
 
 1. **Find or create the PJL file** at the project root:
    - `02_Projects/<project>/PJL - <Project Name>.md`
@@ -123,17 +118,17 @@ Every invocation writes both. Do the PJL first (it's the source of truth), then 
    - What was tried and didn't work (prevents repeating failures)
    - Wikilinks to specs, plans, PICs, IRs, ADRs
 
-### Work Log File (WL) — Heavy Days Only
+### Work Log File (WL) -- Heavy Days Only
 
 Only create a WL when the PJL entry would be too dense:
 - `02_Projects/<project>/work-logs/WL - <Topic> <YYYY-MM-DD>.md`
 - **All granular detail goes here** -- commit hashes, migration numbers, per-task breakdowns, component lists, bug lists
 - Linked from the PJL entry for that date
 
-### 4b. Daily Note (DN) — Human Layer
+### 4b. Daily Note (DN) -- Human Layer
 
 1. Read today's daily note: `01_Notes/Daily/DN - YYYY-MM-DD.md`
-2. **Run the group + merge check (Step 3b)** — find the group and any existing heading for this project
+2. **Run the group + merge check (Step 3b)** -- find the group and any existing heading for this project
 3. If a matching `####` heading exists, append new bullets (consolidate if over 4 lines)
 4. If no match:
    - Find or create the `### Group Name` heading
@@ -149,29 +144,29 @@ Only create a WL when the PJL entry would be too dense:
      - Function names, table/column names, container names
      - Validation metrics, test results, row counts
    - **Good:** "Fixed two pipeline bugs that were crashing email processing and meeting tracking"
-   - **Bad:** "Phase 3a entity resolution 6/7 PASS, 2,763 stuck MIP runs cleaned up"
+   - **Bad:** "Phase 3a entity resolution 6/7 PASS, 2,763 stuck runs cleaned up"
    - **Good:** "Verified the signal pipeline works after the gateway refactor"
-   - **Bad:** "FWIS pipeline health check after gateway refactor -- gateway integration verified working"
+   - **Bad:** "Pipeline health check after gateway refactor -- gateway integration verified working"
    - Wikilink output artifacts (specs, plans, reports) only when they add context
    - Link to the PJL file: `[[PJL - Project Name|Project log]]`
-6. **HARD RULE: ≤ 4 lines per project (heading + 3 bullets max).** The daily note is a table of contents for the day. Everything else is in the PJL (and WL for heavy days).
+6. **HARD RULE: 4 lines or fewer per project (heading + 3 bullets max).** The daily note is a table of contents for the day. Everything else is in the PJL (and WL for heavy days).
 
 **Good daily note (heavy day, multiple groups):**
 ```markdown
 ## Worked on
 
-### {{ORG}} Apps
-#### Culinary Cottages Portal
-- **Built the full owner portal** -- authentication, ownership cards, voting flow, and admin controls all live at YOUR_DOMAIN/owners/
-- Ran live UAT with dad, caught and fixed 9 bugs during testing
-- Bulk signup emails and Patrick's final review still needed before owners can use it -- [[PJL - Culinary Cottages Portal|Project log]]
+### Apps
+#### Owner Portal
+- **Built the full owner portal** -- authentication, ownership cards, voting flow, and admin controls all live
+- Ran live UAT, caught and fixed 9 bugs during testing
+- Bulk signup emails and final review still needed before owners can use it -- [[PJL - Owner Portal|Project log]]
 #### Document Generator
 - **Shipped the guided document creation flow** -- overlay wizard walks users through research and generation -- [[PJL - Document Generator|Project log]]
 
-### {{ORG}} Intelligence
+### Intelligence
 #### Signal Engine
 - **Verified signal pipeline works after gateway refactor** -- fixed two bugs that were crashing email processing and meeting tracking
-- Cleaned up stuck meeting processing runs and backfilled missing staff records -- [[PJL - Signal Engine|Project log]]
+- Cleaned up stuck processing runs and backfilled missing staff records -- [[PJL - Signal Engine|Project log]]
 
 ### Infrastructure
 - **Fixed the stale image deploy bug** and built automatic cron-to-database sync -- [[PJL - Infrastructure|Project log]]
@@ -183,16 +178,16 @@ Only create a WL when the PJL entry would be too dense:
 **BAD daily note (too technical):**
 ```markdown
 #### Signal Engine
-- **FWIS pipeline health check after gateway refactor** -- gateway integration verified working, Phase 3a entity resolution 6/7 PASS, 2,763 stuck MIP runs cleaned up
-- Fixed two pipeline bugs: MIP run-tracking (dirty transaction retry) and email classification query crash (`attachment_names` column)
-- Disabled all FWIS crons until validation complete; backfilled people tiers (jamie to manager, reservations@ as system)
+- **Pipeline health check after gateway refactor** -- gateway integration verified working, Phase 3a entity resolution 6/7 PASS, 2,763 stuck runs cleaned up
+- Fixed two pipeline bugs: run-tracking (dirty transaction retry) and classification query crash (`attachment_names` column)
+- Disabled all crons until validation complete; backfilled people tiers (jamie to manager, system@ as system)
 ```
 Phase numbers, pass/fail counts, row counts, column names, function names -- all PJL material. The daily note should tell you what moved the project forward, not how the sausage was made.
 
 **Also BAD (build-log style):**
 ```markdown
-#### Culinary Cottages Portal
-- **CCP v3 Phases 0-6 complete** (62/69 tasks) -- auth, ownership, voting, admin
+#### Owner Portal
+- **Phases 0-6 complete** (62/69 tasks) -- auth, ownership, voting, admin
 - 10 schema migrations, 9 bugs fixed
 - Phase 7 cutover remaining
 ```
@@ -202,17 +197,21 @@ Phase numbers, task counts, and migration counts are for the PJL.
 
 Follow the daily note style preferences:
 - **Three-level hierarchy:** `## Worked on` > `### Group` > `#### Project`
-- **ONE `####` heading per project** — never per plan, phase, or activity
-- **≤ 4 lines per project** (heading + 3 bullets max)
+- **ONE `####` heading per project** -- never per plan, phase, or activity
+- **4 lines or fewer per project** (heading + 3 bullets max)
 - Lead with what moved the project forward -- features added, bugs fixed, things shipped
 - Bold the key accomplishment or outcome
 - Wikilink output artifacts and the PJL file
 - **Nothing technical in the DN.** No commit hashes, migration filenames, component lists, file counts, phase numbers, pass/fail counts, row counts, column names, function names, container names, or validation metrics
-- No prose paragraphs — bullets only
+- No prose paragraphs -- bullets only
 - Newer groups at top of `## Worked on` section
 - Standalone items (no group) use `###` directly
-- NO "Lifelogs & Meeting Notes" subsection — those go in Meetings
+- NO "Lifelogs & Meeting Notes" subsection -- those go in Meetings
 
 ## Examples
 
 See `references/examples.md` for good/bad daily note and work log formatting examples.
+
+## Local Customizations
+
+If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

@@ -43,7 +43,7 @@ Skip if it's purely ephemeral (a typo, a one-time config value, something the co
 **Lesson or rule?** These serve different purposes:
 
 - **Lesson** — retrospective context. "We learned X the hard way." Advisory, not mandatory. Lives in `lessons.md` files or `REF - *Lessons.md` reference docs.
-- **Rule** — prescriptive behavior. "Always do X" or "Never do Y." Mandatory for all agents working in that scope. Lives in `## Rules` sections of `agents.md` files.
+- **Rule** — prescriptive behavior. "Always do X" or "Never do Y." Mandatory for all agents working in that scope. Lives in `## Rules` sections of `CLAUDE.md` files.
 
 The distinction matters because lessons inform judgment while rules constrain behavior. A lesson says "this went wrong once, be careful." A rule says "this must always be done this way, no exceptions."
 
@@ -108,8 +108,8 @@ Present via AskUserQuestion with these options: "Approve", "Edit wording", "Skip
 
 ## Step 6: Write
 
-- **Lessons:** Append to the target file's lessons section. If creating a new `lessons.md`, add a breadcrumb reference in the nearest `agents.md`.
-- **Rules:** Append to `## Rules` in the target `agents.md`. Use the next sequential number. If no `## Rules` section exists, create one before the last section of the file.
+- **Lessons:** Append to the target file's lessons section. If creating a new `lessons.md`, add a breadcrumb reference in the nearest `CLAUDE.md`.
+- **Rules:** Append to `## Rules` in the target `CLAUDE.md`. Use the next sequential number. If no `## Rules` section exists, create one before the last section of the file.
 - Match the formatting style of existing entries in the target file — consistent heading levels, spacing, and source attribution format.
 
 ## Step 7: Update Index
@@ -119,7 +119,3 @@ After creating a new lesson, update the Rules & Patterns Index at `Documentation
 ## Examples
 
 See `references/examples.md` for good/bad lesson and rule examples. Read it when drafting entries.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

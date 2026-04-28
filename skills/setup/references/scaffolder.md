@@ -53,9 +53,9 @@ Append one `created` entry per project (top-level directory only — sub-dirs ar
 
 ---
 
-### 3. Generate Project agents.md Files
+### 3. Generate Project CLAUDE.md Files
 
-For each project in `APPROVED_PROFILE.approved_projects`, write `<vault_root>/Projects/<project.name>/agents.md` using the Write tool. Append a `created` entry per file.
+For each project in `APPROVED_PROFILE.approved_projects`, write `<vault_root>/Projects/<project.name>/CLAUDE.md` using the Write tool. Append a `created` entry per file.
 
 **Template:**
 
@@ -133,17 +133,17 @@ Use the Edit tool to insert the rows in place. Do not rewrite the entire file.
 
 ---
 
-### 5. Generate Vault-Root agents.md
+### 5. Generate Vault-Root CLAUDE.md
 
-If `<vault_root>/agents.md` already exists, back it up:
+If `<vault_root>/CLAUDE.md` already exists, back it up:
 
 ```bash
-cp "<vault_root>/agents.md" "<vault_root>/.setup-backups/agents.md"
+cp "<vault_root>/CLAUDE.md" "<vault_root>/.setup-backups/CLAUDE.md"
 ```
 
 Append `backed_up` + `modified` entries. If no existing file, append `created` only.
 
-Write `<vault_root>/agents.md` using the Write tool:
+Write `<vault_root>/CLAUDE.md` using the Write tool:
 
 ```markdown
 ---
@@ -233,9 +233,9 @@ Print a brief summary:
 ```
 Scaffold complete:
   • <N> project folders created under Projects/
-  • <N> project agents.md files written
+  • <N> project CLAUDE.md files written
   • <N> custom prefixes added to CLAUDE.md   (or "No custom prefixes")
-  • Vault-root agents.md written
+  • Vault-root CLAUDE.md written
 ```
 
 ---

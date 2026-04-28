@@ -1,0 +1,44 @@
+{
+  "description": "Maps org-specific values to public placeholders. Applied by /update-wfk before pushing to the public repo. This file stays local - never synced.",
+  "replacements": [
+    { "pattern": "projects.myarroyo.com", "replacement": "YOUR_PLANE_URL", "type": "literal" },
+    { "pattern": "admin.myarroyo.com", "replacement": "YOUR_ADMIN_URL", "type": "literal" },
+    { "pattern": "myarroyo.com", "replacement": "YOUR_DOMAIN", "type": "literal" },
+    { "pattern": "31.220.55.98", "replacement": "YOUR_VPS_IP", "type": "literal" },
+    { "pattern": "192.168.10.250", "replacement": "YOUR_INTERNAL_IP", "type": "literal" },
+    { "pattern": "/Users/holdengreene/Documents/Vaults/Work Vault", "replacement": "{{VAULT_PATH}}/Work Vault", "type": "literal" },
+    { "pattern": "/Users/holdengreene/Documents/Vaults/Personal Vault", "replacement": "{{VAULT_PATH}}/Personal Vault", "type": "literal" },
+    { "pattern": "/Users/holdengreene/Documents/Vaults", "replacement": "{{VAULT_PATH}}", "type": "literal" },
+    { "pattern": "/Users/holdengreene", "replacement": "{{USER_HOME}}", "type": "literal" },
+    { "pattern": "/Volumes/Dock Storage/Repos/", "replacement": "~/Repos/", "type": "literal" },
+    { "pattern": "flora-monorepo", "replacement": "{{MONOREPO_NAME}}", "type": "literal" },
+    { "pattern": "flora-ai-dev", "replacement": "YOUR_WORKSPACE", "type": "literal" },
+    { "pattern": "flora_signal", "replacement": "{{PROJECT_DB}}", "type": "literal" },
+    { "pattern": "flora-postgres", "replacement": "{{DB_CONTAINER}}", "type": "literal" },
+    { "pattern": "__flora_session", "replacement": "{{SESSION_COOKIE}}", "type": "literal" },
+    { "pattern": "@flora/", "replacement": "@{{ORG}}/", "type": "literal" },
+    { "pattern": "Flora Apps", "replacement": "{{ORG}} Apps", "type": "literal" },
+    { "pattern": "Flora Intelligence", "replacement": "{{ORG}} Intelligence", "type": "literal" },
+    { "pattern": "Flora Hub", "replacement": "{{ORG}} Hub", "type": "literal" },
+    { "pattern": "flora_dev_pwd", "replacement": "YOUR_DB_PASSWORD", "type": "literal" },
+    { "pattern": "America/Mexico_City", "replacement": "{{TIMEZONE}}", "type": "literal" },
+    { "pattern": "hgreene624", "replacement": "YOUR_USERNAME", "type": "literal" },
+    { "pattern": "holden@flora-farms.com", "replacement": "user@YOUR_DOMAIN", "type": "literal" },
+    { "pattern": "hugo@flora-farms.com", "replacement": "user2@YOUR_DOMAIN", "type": "literal" },
+    { "pattern": "patrick@flora-farms.com", "replacement": "admin@YOUR_DOMAIN", "type": "literal" },
+    { "pattern": "flora-farms.com", "replacement": "YOUR_DOMAIN", "type": "literal" },
+    { "pattern": "flora-farms", "replacement": "YOUR_ORG_DOMAIN", "type": "literal" },
+    { "pattern": "-Users-holdengreene-", "replacement": "-Users-username-", "type": "literal" },
+    { "pattern": "plane-plane-db-1", "replacement": "{{PLANE_DB_CONTAINER}}", "type": "literal" },
+    { "pattern": "plane_api_f64aa84708e84684927347d764006082", "replacement": "YOUR_PLANE_API_KEY", "type": "literal" },
+    { "pattern": "fce258a5ac2fc85d3c5e0246", "replacement": "YOUR_PLANE_DB_PASSWORD", "type": "literal" }
+  ],
+  "skip_files": [
+    "*.png", "*.jpg", "*.gif", "*.db", "*.pyc"
+  ],
+  "flora_only_skills": [
+    "chawdys", "create-agent", "create-flora-agent", "cron", "dad-eod",
+    "flora-app", "groom-plane", "kb-doc", "kb-site", "ms-graph", "ssh-win",
+    "stream-transcripts", "tasting-upload", "triage-admin-issues", "triage-handoffs"
+  ]
+}

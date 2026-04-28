@@ -17,7 +17,7 @@ The vault lives at `<VAULT_ROOT>/`. Projects are under `02_Projects/` and organi
 
 ```
 02_Projects/<group>/<project-name>/
-├── agents.md
+├── CLAUDE.md
 ├── lessons.md
 ├── specs/
 │   └── YYYY-MM-DD/
@@ -52,12 +52,12 @@ Take your time here. A good triage depends on actually understanding the content
 
 For each piece of material (or logical group of related materials), ask yourself:
 
-1. Does this clearly belong to an existing project? Check not just by name but by reading the project's `agents.md` to understand its scope.
+1. Does this clearly belong to an existing project? Check not just by name but by reading the project's `CLAUDE.md` to understand its scope.
 2. Is this adjacent to an existing project but not quite within its scope? Maybe it extends an existing project's mandate.
 3. Is this something entirely new that needs its own project?
 
 When matching, consider:
-- The project's stated scope in its `agents.md`
+- The project's stated scope in its `CLAUDE.md`
 - Related specs and plans already in the project
 - The umbrella group the project sits under — does the material fit that group's theme?
 - Whether other projects depend on or relate to this material
@@ -105,14 +105,14 @@ Once approved, do the work:
 2. Create the full scaffold:
    ```
    project-name/
-   ├── agents.md
+   ├── CLAUDE.md
    ├── lessons.md
    ├── specs/
    ├── plans/
    ├── reports/
    └── reviews/
    ```
-3. Write a starter `agents.md` that captures the project's scope based on what you learned from the materials. Include a brief description of what the project is, its key domains, and any known dependencies on other projects. Follow the style of existing project agents.md files in the vault.
+3. Write a starter `CLAUDE.md` that captures the project's scope based on what you learned from the materials. Include a brief description of what the project is, its key domains, and any known dependencies on other projects. Follow the style of existing project CLAUDE.md files in the vault.
 4. Write an empty `lessons.md` with the standard template.
 5. Create the source material subfolder and copy the originals in.
 
@@ -123,7 +123,7 @@ Once approved, do the work:
 
 ### Frontmatter and naming:
 - Source material files keep their original names — do not rename or add prefixes. These are reference materials, not vault-native documents.
-- If you create any new vault-native documents (like the agents.md), follow the vault's frontmatter and naming conventions.
+- If you create any new vault-native documents (like the CLAUDE.md), follow the vault's frontmatter and naming conventions.
 
 ## Step 7: Suggest Next Steps
 
@@ -135,7 +135,3 @@ After filing is complete, briefly suggest logical next actions for each project 
 - **Material that raises questions**: suggest specific questions the user might want to ask the source (e.g., "App 3 is marked as a placeholder — worth asking dad for more detail before spec'ing")
 
 Keep this brief — a sentence or two per project. The user will decide what to prioritize.
-
-## Local Customizations
-
-If `LOCAL.md` exists in this skill directory, load and follow it after these instructions. Local instructions override upstream where they conflict.

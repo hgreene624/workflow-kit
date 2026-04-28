@@ -227,7 +227,7 @@ After deploying, test with REAL production data — not just health checks:
    // RIGHT: const total = response?.total ?? 0;
    ```
    This applies especially to:
-   - FWIS API endpoints that may be stubs (return null/empty)
+   - {{SIGNAL_ENGINE}} API endpoints that may be stubs (return null/empty)
    - `Promise.allSettled` results where the value may be undefined
    - Any endpoint that returns different shapes for empty vs populated responses
    **Test with empty/stub endpoints, not just populated ones.**
@@ -362,7 +362,7 @@ After scaffolding `requirements.txt` with `>=` bounds:
 3. Pin: `pip freeze > requirements.txt`
 4. Verify the Docker image uses the SAME versions as local dev
 
-Loose bounds (`>=`) cause deploy breaks when Docker installs a newer version with API changes. This caused a 3-commit fix cycle in the FloraDB MCP sprint when MCP SDK 1.9 to 1.26 broke the `@server.tool()` API.
+Loose bounds (`>=`) cause deploy breaks when Docker installs a newer version with API changes. This caused a 3-commit fix cycle in the {{ORG}}DB MCP sprint when MCP SDK 1.9 to 1.26 broke the `@server.tool()` API.
 
 ### Docker CLI Dependency Check (MANDATORY — scripts calling external tools)
 

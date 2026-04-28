@@ -3,11 +3,11 @@ name: end-day
 description: "Aggregate the day's work into an EOD report and generate tomorrow's SOD (agent context document). Rolls up all closeout entries from the daily note, compares against SOD priorities, runs a mini-retro, discovers goals for user confirmation, then writes the SOD that orient will load tomorrow. On Fridays, also produces an EOW. On the last workday of the month, also produces an EOM. Use this skill when the user says 'end day', 'end of day report', 'EOD report', 'daily report', 'wrap up the day', 'day summary', 'how did today go', 'end-day', or wants a synthesized view of what happened across all sessions. This is different from /closeout (which wraps a single terminal session and creates PICs) — end-day aggregates ALL closeouts into the day's official record and prepares tomorrow's agent context. Should typically run after the last /closeout of the day."
 ---
 
-# End of Day — Daily Aggregation Report
+# End of Day -- Daily Aggregation Report
 
 The EOD is the **official record of what happened today**. It aggregates all closeout entries from the daily note into a single synthesized report, compares reality against the SOD's stated priorities, and discovers goals for user confirmation.
 
-After producing the EOD, this skill also generates **tomorrow's SOD** — the agent context document that orient loads at session start. This keeps everything in one place: end-day is the only skill that writes reports.
+After producing the EOD, this skill also generates **tomorrow's SOD** -- the agent context document that orient loads at session start. This keeps everything in one place: end-day is the only skill that writes reports.
 
 On Fridays, this skill also produces an **EOW (End of Week)** report rolling up the week's EODs. On the last workday of the month, it also produces an **EOM (End of Month)** report rolling up the month's EOWs.
 
@@ -46,11 +46,13 @@ Add the rating to today's daily note frontmatter as `day_rating: N`. If the user
 
 This runs first because it captures the user's subjective feeling before the analytical steps reframe their perception. Don't skip it.
 
-## Step 0a: Working Environment Health Check
+## Step 0a: Working Environment Health Check (MANDATORY)
 
-Before writing the EOD, scan the user's working environment for loose ends. While `/closeout` audits a single session's own work, end-day checks everything across the machine and surfaces anything that slipped through.
+End-day is the **machine-wide** truth check. While `/closeout` audits a single session's own work, end-day audits **everything** across the machine and surfaces anything that slipped through.
 
-This is a READ-ONLY audit. It reports state and asks the user what to do. It does NOT auto-fix.
+This is a READ-ONLY audit that REPORTS state. It does NOT auto-fix unless the user explicitly asks.
+
+**Why this matters:** Multiple agent sessions run in parallel. By end of day there may be commits authored by sessions that finished hours ago but never pushed, files committed on a server but not synced to a remote, services running stale code from before today's deploys, or skill edits that never made it into a backup. End-day catches all of it before tomorrow's first session.
 
 ### 0a. Git repo audit
 
@@ -74,10 +76,10 @@ git log HEAD..@{u} --oneline 2>/dev/null
 ```
 
 Categorize findings:
-- **Uncommitted changes** — list files, note if they look like today's work or older
-- **Unpushed commits** — show hash, author, message, age
-- **Behind remote** — local is out of date, someone else pushed
-- **Detached HEAD or wrong branch** — flag prominently
+- **Uncommitted changes** -- list files, note if they look like today's work or older
+- **Unpushed commits** -- show hash, author, message, age
+- **Behind remote** -- local is out of date, someone else pushed
+- **Detached HEAD or wrong branch** -- flag prominently
 
 **Remote repos:** If the user's environment includes git repos on remote servers (deploy targets, CI runners, VPS hosts), check those too via SSH. Look for indicators in the project's `agents.md` or CLAUDE.md for remote repo locations. Remote repos are easy to forget, and direct edits on servers (outside normal git flow) are a common source of drift. For each remote repo, run the same git status checks and flag any uncommitted changes or unpushed commits.
 
@@ -87,14 +89,14 @@ If the user's environment includes deployment targets (production servers, stagi
 
 **Detection:** Look for indicators in the vault's project `agents.md` files, REF docs, or CLAUDE.md for deployment infrastructure references (Docker, CI/CD pipelines, server hosts, deploy scripts). If none are found, skip this step.
 
-**If deployment targets exist:** For each service that had code changes today, compare the deployment timestamp against the latest relevant commit. The specific verification method depends on the user's infrastructure — check the project's `agents.md` for deploy verification commands.
+**If deployment targets exist:** For each service that had code changes today, compare the deployment timestamp against the latest relevant commit. The specific verification method depends on the user's infrastructure -- check the project's `agents.md` for deploy verification commands.
 
 **Drift classification: not all drift needs action.** Before reporting, classify each drifted service:
 
-- **Real code change** (application logic, configs baked into builds, Dockerfiles, compose files) — NEEDS DEPLOY. Flag prominently.
-- **Doc-only change** (README, agents.md, markdown not baked into images) — NO DEPLOY needed. Docs aren't part of the deployed artifact.
-- **Framework auto-mods** (generated type files, lock file dev-path changes, auto-flipped config values) — usually NO functional impact. Mark as "framework noise."
-- **Config/env changes outside the build** (mounted env files, external config) — NO DEPLOY if config is mounted at runtime rather than baked in.
+- **Real code change** (application logic, configs baked into builds, Dockerfiles, compose files) -- NEEDS DEPLOY. Flag prominently.
+- **Doc-only change** (README, agents.md, markdown not baked into images) -- NO DEPLOY needed. Docs aren't part of the deployed artifact.
+- **Framework auto-mods** (generated type files, lock file dev-path changes, auto-flipped config values) -- usually NO functional impact. Mark as "framework noise."
+- **Config/env changes outside the build** (mounted env files, external config) -- NO DEPLOY if config is mounted at runtime rather than baked in.
 
 **Functional verification:** For services flagged as "real code change" drift, verify the deployed code actually matches or differs. Timestamp comparisons can lie due to cached builds. Where possible, check for a distinctive string from the latest commit in the running service (e.g., grepping a version constant or a new function name). If the string is present, the deployment has the code despite the timestamp mismatch.
 
@@ -128,25 +130,25 @@ Working Environment Health Check
 =================================
 
 Repos:
-  ~/Repos/my-project       branch=main  ⚠ 1 unpushed commit   → push? [y/n]
-  ~/Documents/Vaults        branch=main  clean                  ✅
+  ~/Repos/my-project       branch=main  ??? 1 unpushed commit   -> push? [y/n]
+  ~/Documents/Vaults        branch=main  clean                  ok
 
 Deploys:
-  ⚠ web-app    commit 30min newer (real code change)            → deploy? [y/n]
-  ⚠ dashboard  commit 4h newer (framework noise)                → no real impact
-  ✅ all other services in sync
+  ??? web-app    commit 30min newer (real code change)            -> deploy? [y/n]
+  ??? dashboard  commit 4h newer (framework noise)                -> no real impact
+  ok all other services in sync
 
 Config backup:
-  skills/      2 files newer in source than backup              → sync? [y/n]
-  settings.json ✅ in sync
+  skills/      2 files newer in source than backup              -> sync? [y/n]
+  settings.json ok in sync
 
 Memory:
-  1 new file today, indexed in MEMORY.md                        ✅
+  1 new file today, indexed in MEMORY.md                        ok
 ```
 
 Do NOT auto-fix. The user decides each one. Unpushed commits may be intentional. Undeployed code may belong to another session. Backup drift may be intentional if the user is mid-edit.
 
-**If no issues:** print one line — `Environment health: clean.` — and proceed.
+**If no issues:** print one line -- `Environment health: clean.` -- and proceed.
 
 **If issues are deferred** (user skips them): record them in the EOD report's "What Didn't" section so they're visible tomorrow morning.
 
@@ -154,25 +156,25 @@ Do NOT auto-fix. The user decides each one. Unpushed commits may be intentional.
 
 Read in parallel. Skip missing files silently.
 
-**Base path:** `{{VAULT_PATH}}/Work Vault`
+**Base path:** `{vault_root}`
 
-1. **Today's daily note** — `01_Notes/Daily/DN - {today}.md`
+1. **Today's daily note** -- `01_Notes/Daily/DN - {today}.md`
    - Extract the full `## Worked on` section (this is what closeouts wrote)
    - Extract `## TODO` to check completion
    - Extract `## Meetings` for context
-2. **Today's SOD** — `01_Notes/Reports/SOD/SOD - {today}.md`
+2. **Today's SOD** -- `01_Notes/Reports/SOD/SOD - {today}.md`
    - Read the user's Priorities and Suggested Start sections
    - This is the intent baseline to compare against
-3. **PICs created today** — glob `02_Projects/**/PIC - *.md` where `date created` = today
+3. **PICs created today** -- glob `02_Projects/**/PIC - *.md` where `date created` = today
    - These represent carry-forward work from today's closeouts
-4. **PICs closed today** — glob for PICs where `closed_date` = today
+4. **PICs closed today** -- glob for PICs where `closed_date` = today
    - These represent completed work
-5. **Current SOW** — most recent in `01_Notes/Reports/SOW/` (if exists)
+5. **Current SOW** -- most recent in `01_Notes/Reports/SOW/` (if exists)
    - For week-level goal context
 
 ## Step 2: Synthesize the EOD
 
-Build the report. Keep it **under 350 words** — this gets loaded into tomorrow's SOD context.
+Build the report. Keep it **under 350 words** -- this gets loaded into tomorrow's SOD context.
 
 ### EOD document structure
 
@@ -190,46 +192,41 @@ period: {today}
 ## What Happened
 {3-5 sentences. What was accomplished across all sessions today. Group by
 project/initiative. Name specific artifacts shipped (specs, plans, deploys,
-fixes). Be concrete — "shipped X" not "worked on X."}
+fixes). Be concrete -- "shipped X" not "worked on X."}
 
 ## Priority Check
 {Compare today's work against the SOD priorities. For each priority:}
-- **Priority name**: hit / partial / missed — one-line explanation
+- **Priority name**: hit / partial / missed -- one-line explanation
 {If no SOD existed: "No SOD priorities were set today."}
 
 ## What Went Well
-{2-3 bullets. Patterns worth repeating — fast debugging, good skill usage,
+{2-3 bullets. Patterns worth repeating -- fast debugging, good skill usage,
 clean handoffs, effective parallelism.}
 
 ## What Didn't
 {2-3 bullets. Friction, time sinks, avoidable mistakes, scope creep.
-Be honest — this feeds process improvement. If nothing: "Clean day."}
+Be honest -- this feeds process improvement. If nothing: "Clean day."}
 
 ## Goal Discovery
 {Based on today's work patterns, suggest 2-3 goals the user appears to be
-pursuing. These are proposals — the user confirms or rejects them, and
+pursuing. These are proposals -- the user confirms or rejects them, and
 confirmed goals appear in tomorrow's SOD priorities.
 
 Format:}
-- [ ] **Proposed goal** — evidence (what you saw today that suggests this)
-- [ ] **Proposed goal** — evidence
+- [ ] **Proposed goal** -- evidence (what you saw today that suggests this)
+- [ ] **Proposed goal** -- evidence
 {If goals already exist from SOW/previous EODs, carry them forward and
 update their status rather than proposing duplicates.}
 
 ## Carry Forward
 {PICs created today, grouped by project. One line each with the key next step.
-If none: "Nothing deferred — all work completed or already tracked."}
+If none: "Nothing deferred -- all work completed or already tracked."}
 
 ## System Changes
 {Skills, CLAUDE.md, agents.md, templates, or workflow infrastructure that was
-created, modified, or restructured today. This is meta-work — changes to how
+created, modified, or restructured today. This is meta-work -- changes to how
 agents operate, not project deliverables. Include what changed and why.
 If none: omit this section entirely.
-
-Examples:
-- "Created `grill` and `test-check` skills — new capabilities from video-intel research"
-- "Restructured `create-plan` to include design exploration and structure verification inline — previously required 3 separate skill invocations"
-- "Refactored `git-safe` — moved incident narratives to references/ for token savings"
 
 These entries carry forward in the SOD so future agents know what's new/experimental
 vs battle-tested. Treat anything changed in the last 3 days as experimental.}
@@ -241,7 +238,7 @@ Write to `01_Notes/Reports/EOD/EOD - {today}.md`. Create directory if needed.
 
 ## Step 3: Present to user
 
-Show the full EOD (it's short enough) and specifically call out the Goal Discovery section — ask the user to confirm or reject each proposed goal with a checkbox interaction:
+Show the full EOD (it's short enough) and specifically call out the Goal Discovery section -- ask the user to confirm or reject each proposed goal with a checkbox interaction:
 
 "Here are the goals I think you're working toward. Confirm the ones that are right, and I'll carry them into tomorrow's SOD:"
 
@@ -249,18 +246,18 @@ Then list the goals. User responds with which to keep. Update the EOD to check t
 
 ## Step 4: Generate tomorrow's SOD
 
-The SOD is an **agent-facing document** — every agent reads it via orient to understand the state of the world and the user's priorities. It's a rolling week-to-date (WTD) context window that resets when an EOW drops.
+The SOD is an **agent-facing document** -- every agent reads it via orient to understand the state of the world and the user's priorities. It's a rolling week-to-date (WTD) context window that resets when an EOW drops.
 
 ### Determine the WTD window
-- Find the most recent EOW in `Reports/EOW/` — this is the window start
+- Find the most recent EOW in `Reports/EOW/` -- this is the window start
 - If no EOW exists, the window starts from the earliest available EOD
 - The window covers everything from that point through today's EOD (just written)
 
 ### Gather SOD context
-- **EODs within the window** — all EODs from window start through today (already in memory from this run)
-- **Current SOW** — most recent in `Reports/SOW/` (for week-level goals)
-- **Open pickups** — glob `02_Projects/**/PIC - *.md`, frontmatter only, status: open or picked-up
-- **Tomorrow's daily note** — `01_Notes/Daily/DN - {next workday}.md` for TODOs and meetings (if it exists)
+- **EODs within the window** -- all EODs from window start through today (already in memory from this run)
+- **Current SOW** -- most recent in `Reports/SOW/` (for week-level goals)
+- **Open pickups** -- glob `02_Projects/**/PIC - *.md`, frontmatter only, status: open or picked-up
+- **Tomorrow's daily note** -- `01_Notes/Daily/DN - {next workday}.md` for TODOs and meetings (if it exists)
 
 ### SOD document structure
 
@@ -278,12 +275,12 @@ wtd_window_start: {date of last EOW or earliest EOD}
 
 ## Week-to-Date Summary
 {3-4 sentences max. Name what shipped, what's in progress, what stalled.
-Group by project/initiative, not by day. This is an index, not a retelling —
+Group by project/initiative, not by day. This is an index, not a retelling --
 agents can read the daily notes for detail. Be terse.}
 
 ## User's Priorities
 {Confirmed goals from today's EOD + any carried from SOW/previous EODs.
-These represent what the user is trying to accomplish — agents should align
+These represent what the user is trying to accomplish -- agents should align
 their suggestions, tradeoff decisions, and pickup recommendations with these.}
 - Priority 1
 - Priority 2
@@ -292,13 +289,13 @@ their suggestions, tradeoff decisions, and pickup recommendations with these.}
 
 ## Open Work
 {PICs grouped by project, one line each:}
-- **Project Name**: PIC title — next step
+- **Project Name**: PIC title -- next step
 {If no open PICs: "No open pickups."}
 
 {IMPORTANT: For each open PIC, check if the WTD summary or recent EODs mention
 the same system/pipeline/project as recently shipped or deployed. If so, add a
 cross-reference note:}
-- ⚠️ **[PIC topic]** touches **[system]** which was shipped [date] — if broken, check deployment state first (env vars, feature flags, container health) before investigating from scratch.
+- Warning: **[PIC topic]** touches **[system]** which was shipped [date] -- if broken, check deployment state first (env vars, feature flags, container health) before investigating from scratch.
 {This prevents agents from wasting sessions reverse-engineering recently-built systems
 when the real issue is a deployment regression.}
 
@@ -310,7 +307,7 @@ If no note exists or empty: "Nothing scheduled."}
 {Aggregate from EODs within the WTD window. Skills, CLAUDE.md, agents.md,
 or workflow infrastructure that was created or modified recently. Include
 the date of each change. Agents should treat anything changed in the last
-3 days as experimental — expect rough edges and verify behavior before
+3 days as experimental -- expect rough edges and verify behavior before
 relying on it.
 If none: omit this section.}
 
@@ -321,9 +318,9 @@ other work > time-sensitivity > natural continuation of recent work.}
 
 Save to `01_Notes/Reports/SOD/SOD - {next workday}.md`. Create directory if needed.
 
-**Next workday calculation:** Friday → Monday, otherwise next calendar day. Skip weekends.
+**Next workday calculation:** Friday -> Monday, otherwise next calendar day. Skip weekends.
 
-Keep the SOD **under 300 words** — it's loaded into every agent's context via orient.
+Keep the SOD **under 300 words** -- it's loaded into every agent's context via orient.
 
 ## Step 5: EOW (Fridays only)
 
@@ -350,11 +347,11 @@ period: {week start} to {week end}
 
 ## Week Summary
 {4-6 sentences. What shipped, what progressed, what stalled. This resets
-the SOD's WTD window — next Monday's SOD reads this instead of individual EODs.}
+the SOD's WTD window -- next Monday's SOD reads this instead of individual EODs.}
 
 ## Goal Progress
 {For each confirmed goal from SOW or accumulated from EODs:}
-- **Goal**: status (completed / on track / stalled / dropped) — evidence
+- **Goal**: status (completed / on track / stalled / dropped) -- evidence
 
 ## Week Retro
 ### Went Well
@@ -362,14 +359,12 @@ the SOD's WTD window — next Monday's SOD reads this instead of individual EODs
 ### Didn't Go Well
 {3-4 bullets}
 ### Process Changes
-{Concrete changes to carry forward — not vague intentions.}
+{Concrete changes to carry forward -- not vague intentions.}
 
 ## System Changes This Week
 {Aggregate from EODs. Skills, CLAUDE.md, agents.md, workflow infrastructure
 created, modified, or restructured this week. Summarize by theme rather than
-listing every file — e.g., "Overhauled the spec-to-implement pipeline:
-merged design/structure into plan-spec, added test-check to worker dispatch,
-made create-spec interview adaptive." Include dates.
+listing every file.
 If none: omit this section.}
 
 ## Next Week Setup
@@ -377,7 +372,7 @@ If none: omit this section.}
 This feeds Monday's SOW.}
 ```
 
-Save to `01_Notes/Reports/EOW/EOW - {YYYY}-W{ww}.md` (ISO week number format, e.g. `EOW - 2026-W13.md`). This matches the Periodic Notes plugin config so the calendar's week numbers link directly to EOW reports.
+Save to `01_Notes/Reports/EOW/EOW - {YYYY}-W{ww}.md` (ISO week number format).
 
 ## Step 5: EOM (last workday of month only)
 
@@ -405,7 +400,7 @@ period: {YYYY-MM}
 
 ## Initiative Progress
 {For each monthly objective from SOM or discovered through EOWs:}
-- **Initiative**: status — key milestones hit or missed
+- **Initiative**: status -- key milestones hit or missed
 
 ## Month Retro
 ### Wins
@@ -413,15 +408,12 @@ period: {YYYY-MM}
 ### Losses
 {4-5 bullets}
 ### Systemic Issues
-{Patterns that repeated across weeks — these need structural fixes, not willpower.}
+{Patterns that repeated across weeks -- these need structural fixes, not willpower.}
 
 ## Infrastructure & Workflow Evolution
-{Aggregate from EOWs. Major changes to how agents work — new skills, pipeline
+{Aggregate from EOWs. Major changes to how agents work -- new skills, pipeline
 restructuring, new safety protocols, workflow simplifications. This is the
 strategic view: not every file change, but the shifts in how work gets done.
-e.g., "March saw the full CRISPY pipeline go live (create-spec → plan-spec →
-implement), video-intel replaced the yt skill, and token efficiency became a
-design constraint for all new skills."
 If none: omit this section.}
 
 ## Next Month Setup
@@ -488,15 +480,15 @@ This creates a feedback loop: vault scan finds violations, parks bugs, future ag
 
 ## Step 7: Dream (memory consolidation)
 
-After all reports are written, run `/dream` to consolidate automemory. This is the natural end-of-day moment for memory hygiene — the day's work is captured in reports, and any new memories from the session should be merged, deduplicated, and pruned before the next day starts.
+After all reports are written, run `/dream` to consolidate automemory. This is the natural end-of-day moment for memory hygiene -- the day's work is captured in reports, and any new memories from the session should be merged, deduplicated, and pruned before the next day starts.
 
-Invoke the dream skill directly. No user confirmation needed — it runs automatically as the final step of end-day.
+Invoke the dream skill directly. No user confirmation needed -- it runs automatically as the final step of end-day.
 
 ## Constraints
 - Always produce EOD. EOW and EOM are conditional on the day.
-- Always run `/dream` as the final step — no exceptions.
-- Goal discovery is the key differentiator — don't skip it even on light days.
-- Don't duplicate closeout's work — closeout writes to the daily note and creates PICs. End-day reads what closeout wrote and synthesizes.
+- Always run `/dream` as the final step -- no exceptions.
+- Goal discovery is the key differentiator -- don't skip it even on light days.
+- Don't duplicate closeout's work -- closeout writes to the daily note and creates PICs. End-day reads what closeout wrote and synthesizes.
 - If no closeouts happened today (daily note Worked on is empty), produce a minimal EOD noting it was a light/off day.
 - Confirmed goals persist across EODs until completed or explicitly dropped.
 

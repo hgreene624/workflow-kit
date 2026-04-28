@@ -1,6 +1,6 @@
 {
   "$schema": "Workflow Kit manifest — declares what ships with the kit vs stays local",
-  "version": "2.3.0",
+  "version": "3.0.0",
 
   "core_skills": [
     "apikeys",
@@ -8,14 +8,9 @@
     "auto-research",
     "best-practice",
     "closeout",
-    "create-concept-brief",
-    "create-MN",
-    "create-pickup",
-    "create-plan",
-    "create-sd",
-    "create-spec",
-    "design",
+    "create-note",
     "discover",
+    "distill-lessons",
     "dream",
     "end-day",
     "explain",
@@ -33,16 +28,15 @@
     "orient",
     "park",
     "pickup",
-    "pipeline-qa",
     "pr-review",
     "prototype",
     "recap",
     "retro",
     "review-spec",
+    "roadmap",
     "setup",
     "skill-creator",
     "step-away",
-    "structure",
     "test-check",
     "troubleshoot",
     "update-wfk",
@@ -61,6 +55,7 @@
     "case-study",
     "chawdys",
     "create-agent",
+    "create-campaign",
     "create-flora-agent",
     "create-pulse-campaign",
     "cron",
@@ -69,9 +64,11 @@
     "document-change",
     "flora-app",
     "groom-plane",
+    "kb-analysis",
     "kb-content",
     "kb-doc",
     "kb-extract-edits",
+    "kb-files",
     "kb-ingest",
     "kb-site",
     "kb-structure",
@@ -82,6 +79,7 @@
     "ocg-compile",
     "ocg-extract",
     "ocg-ingest",
+    "pipeline-qa",
     "ssh-win",
     "stream-transcripts",
     "tasting-upload",
@@ -99,7 +97,15 @@
     "pickup-triage",
     "wezterm",
     "plan-spec",
-    "gateway-toggle"
+    "gateway-toggle",
+    "create-concept-brief",
+    "create-MN",
+    "create-pickup",
+    "create-plan",
+    "create-sd",
+    "create-spec",
+    "design",
+    "structure"
   ],
 
   "renamed_skills": {
@@ -107,6 +113,46 @@
       "new_name": "create-plan",
       "reason": "Rewritten with adaptive depth (light/standard/heavy). No external PM dependency.",
       "reference_update": "Replace /plan-spec with /create-plan in all skill files, CLAUDE.md, and agents.md"
+    },
+    "create-concept-brief": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: PD). One skill handles all document types.",
+      "reference_update": "Replace /create-concept-brief with /create-note PD"
+    },
+    "create-MN": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: MN). One skill handles all document types.",
+      "reference_update": "Replace /create-MN with /create-note MN"
+    },
+    "create-pickup": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: PIC). One skill handles all document types.",
+      "reference_update": "Replace /create-pickup with /create-note PIC"
+    },
+    "create-plan": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: PLN). One skill handles all document types.",
+      "reference_update": "Replace /create-plan with /create-note PLN"
+    },
+    "create-sd": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: SD). One skill handles all document types.",
+      "reference_update": "Replace /create-sd with /create-note SD"
+    },
+    "create-spec": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: SPC). One skill handles all document types.",
+      "reference_update": "Replace /create-spec with /create-note SPC"
+    },
+    "design": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: DD). One skill handles all document types.",
+      "reference_update": "Replace /design with /create-note DD"
+    },
+    "structure": {
+      "new_name": "create-note",
+      "reason": "Unified into create-note (type: SO). One skill handles all document types.",
+      "reference_update": "Replace /structure with /create-note SO"
     }
   },
 
@@ -116,8 +162,16 @@
     "yt": "Replaced by video-intel (broader scope: transcription + project evaluation)",
     "pickup-triage": "Merged into pickup (triage is now built into the pickup flow)",
     "wezterm": "Terminal-specific automation replaced by iterm (macOS) or user's own terminal config",
-    "plan-spec": "Renamed and rewritten as create-plan (adaptive depth, inline tracking, no external PM)",
-    "gateway-toggle": "Deprecated. AI gateway now uses adapter-based routing with automatic provider selection."
+    "plan-spec": "Renamed and rewritten as create-plan, then unified into create-note (type: PLN)",
+    "gateway-toggle": "Deprecated. AI gateway now uses adapter-based routing with automatic provider selection.",
+    "create-concept-brief": "Unified into create-note (type: PD). All document creation now uses one skill with type dispatch.",
+    "create-MN": "Unified into create-note (type: MN). All document creation now uses one skill with type dispatch.",
+    "create-pickup": "Unified into create-note (type: PIC). All document creation now uses one skill with type dispatch.",
+    "create-plan": "Unified into create-note (type: PLN). All document creation now uses one skill with type dispatch.",
+    "create-sd": "Unified into create-note (type: SD). All document creation now uses one skill with type dispatch.",
+    "create-spec": "Unified into create-note (type: SPC). All document creation now uses one skill with type dispatch.",
+    "design": "Unified into create-note (type: DD). All document creation now uses one skill with type dispatch.",
+    "structure": "Unified into create-note (type: SO). All document creation now uses one skill with type dispatch."
   },
 
   "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",

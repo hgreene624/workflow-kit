@@ -5,9 +5,9 @@
 | App | Framework | Base Path | Key Gotchas |
 |-----|-----------|-----------|-------------|
 | {{ORG}} Hub | SvelteKit (Svelte 5) | `/hub` | Hydration timing, `base` config |
-| Flora Portal | SvelteKit (Svelte 5) | `/portal` | Same hydration concerns |
+| {{ORG}} Portal | SvelteKit (Svelte 5) | `/portal` | Same hydration concerns |
 | MyArroyo Gateway | SvelteKit | `/` | Auth gateway, ForwardAuth provider |
-| Flora KB | SvelteKit | `/kb` | Widget loading needs delayed init |
+| {{ORG}} KB | SvelteKit | `/kb` | Widget loading needs delayed init |
 | MyArroyo Admin | Next.js 16 | `admin.<YOUR_DOMAIN>` | Standalone build, no system tools in container |
 | Email Portal | Next.js | `/email` | Panel hydration mismatch, sanitization needed |
 | Reservations Dashboard | Next.js + Ant Design | `reservations.<YOUR_DOMAIN>` | ALL pages must be `'use client'` |
@@ -25,7 +25,7 @@
 ssh <YOUR_VPS> "grep -r 'PathPrefix' /docker/*/docker-compose.yml /root/*/docker-compose.yml 2>/dev/null | grep '<path>'"
 ```
 
-**Cross-ref:** FWIS L8 (confirm URL before debugging), VPS L21 (identify container first)
+**Cross-ref:** {{SIGNAL_ENGINE}} L8 (confirm URL before debugging), VPS L21 (identify container first)
 
 ### 2. Take a screenshot (MANDATORY for UI issues)
 
@@ -55,7 +55,7 @@ open /tmp/debug.png
 
 ```bash
 # 1. Get a valid session from the DB
-SESSION=$(ssh vps "docker exec {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -t -c \"SELECT id FROM auth.sessions WHERE user_id = (SELECT id FROM auth.users WHERE email = 'user@YOUR_DOMAIN') AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1;\"" | tr -d ' \n')
+SESSION=$(ssh vps "docker exec {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -t -c \"SELECT id FROM auth.sessions WHERE user_id = (SELECT id FROM auth.users WHERE email = 'user@YOUR_DOMAIN') AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1;\"" | tr -d ' \n')
 
 # 2. Write a Playwright script that uses the session cookie
 ssh vps "cat > /tmp/auth-screenshot.mjs << 'SCRIPT'
@@ -113,7 +113,7 @@ Note: this bypasses auth. Only use as fallback when the authenticated method fai
 
 **Rule: Never declare a fix verified unless you've tested through Traefik with auth.** Container-direct tests are useful for isolating whether the issue is in the app vs the routing/auth layer, but they are NOT proof the user can see it.
 
-**Cross-ref:** Agent L21 (verify visually), FWIS L9 (browser-level verification), flora-app debug-checklist.md
+**Cross-ref:** Agent L21 (verify visually), {{SIGNAL_ENGINE}} L9 (browser-level verification), flora-app debug-checklist.md
 
 ### 2c. Capture Client-Side JS Errors (MANDATORY for "Application error" screens)
 
@@ -122,7 +122,7 @@ Note: this bypasses auth. Only use as fallback when the authenticated method fai
 **Use Playwright with `pageerror` event capture:**
 
 ```bash
-SESSION=$(ssh vps "docker exec -i {{DB_CONTAINER}} psql -U flora -d {{PROJECT_DB}} -t -A -c \"SELECT id FROM auth.sessions WHERE expires_at > NOW() AND deleted_at IS NULL ORDER BY last_active_at DESC LIMIT 1;\"")
+SESSION=$(ssh vps "docker exec -i {{DB_CONTAINER}} psql -U {{DB_USER}} -d {{PROJECT_DB}} -t -A -c \"SELECT id FROM auth.sessions WHERE expires_at > NOW() AND deleted_at IS NULL ORDER BY last_active_at DESC LIMIT 1;\"")
 
 ssh vps "cd /tmp && node -e \"
 const { chromium } = require('playwright');
@@ -191,8 +191,8 @@ Before adding `overflow`, `scroll`, or rendering HTML content, trace the full ch
 
 | Symptom | Likely Cause | Fix | Lesson |
 |---------|-------------|-----|--------|
-| Widget/script not appearing | Wrong app being modified | Check routing-map.md | FWIS L8 |
-| Script loads in dev but not prod | Hydration strips DOM changes | Use `onMount` or delayed `window.load` | FWIS L10 |
+| Widget/script not appearing | Wrong app being modified | Check routing-map.md | {{SIGNAL_ENGINE}} L8 |
+| Script loads in dev but not prod | Hydration strips DOM changes | Use `onMount` or delayed `window.load` | {{SIGNAL_ENGINE}} L10 |
 | SSR looks right, browser looks wrong | Hydration mismatch | Screenshot the actual page | Frontend L4 |
 | Styles break in opposite theme | Hardcoded dark/light colors | Use DaisyUI semantic tokens | Frontend L3 |
 | Component class doesn't work | DaisyUI 5 naming change | Read the library CSS source | Frontend L1, L2 |
@@ -222,7 +222,7 @@ Before adding `overflow`, `scroll`, or rendering HTML content, trace the full ch
 - **Template caching:** Flask caches templates — restart container after editing
 - **No framework hydration:** Scripts in `<body>` run directly, no timing issues
 
-## Widget Loading (Flora AI Chat)
+## Widget Loading ({{ORG}} AI Chat)
 
 The `<flora-chat>` web component loads from `/ai/widget.js` (served by <YOUR_ADMIN_APP>, NO auth). To embed in any app:
 
@@ -266,5 +266,5 @@ npx playwright test tests/qa/navigation.spec.ts --config tests/qa/playwright.con
 
 ## Lessons Files
 - `04_ Tools/Reference/REF - Frontend Lessons.md` — L1-L5
-- `01_Work/03_Projects/Flora Work Intelligence System/lessons.md` — L8-L11
+- `01_Work/03_Projects/{{ORG}} Work Intelligence System/lessons.md` — L8-L11
 - `01_Work/03_Projects/VPS/lessons.md` — L2, L15, L19

@@ -1,32 +1,32 @@
 ---
 name: web-theme
 description: >-
-  Scrape website styles into reusable themes, preview themes on the Flora site via Playwright
+  Scrape website styles into reusable themes, preview themes on the {{ORG}} site via Playwright
   screenshots, and manage the theme registry. Use this skill whenever the user mentions scraping
   styles from a website, capturing a site's aesthetic, theme preview, mockups, "what themes do we
   have", switching themes, "apply this theme", "scrape the theme from [url]", "show me the
-  [name] theme", "preview [name]", or any request about Flora site theming. Also trigger on
+  [name] theme", "preview [name]", or any request about {{ORG}} site theming. Also trigger on
   /web-theme, "new theme from [url]", "capture the look of [site]", "style guide from [url]",
-  "theme list", or when the user pastes a URL and wants to extract its visual design for Flora.
+  "theme list", or when the user pastes a URL and wants to extract its visual design for {{ORG}}.
   Even casual requests like "make our site look like [url]" or "I like how [site] looks" should
   trigger this skill.
 ---
 
-# Web Theme — Scrape, Preview & Manage Flora Site Themes
+# Web Theme — Scrape, Preview & Manage {{ORG}} Site Themes
 
-This skill manages a theme system for the Flora monorepo. Themes are scraped from real websites using Playwright, stored as DaisyUI v5 theme definitions with custom design tokens, and previewed by injecting CSS into the running Flora app and taking screenshots — all without modifying production code.
+This skill manages a theme system for the {{ORG}} monorepo. Themes are scraped from real websites using Playwright, stored as DaisyUI v5 theme definitions with custom design tokens, and previewed by injecting CSS into the running {{ORG}} app and taking screenshots — all without modifying production code.
 
 ## Key Paths
 
 | Path | Purpose |
 |------|---------|
-| `~/Repos/{{MONOREPO_NAME}}` | Flora monorepo root |
+| `~/Repos/{{MONOREPO_NAME}}` | {{ORG}} monorepo root |
 | `packages/ui/src/themes/` | Theme files (CSS, meta, types, registry) |
 | `packages/ui/src/themes/previews/` | Generated preview screenshots |
 | `packages/ui/src/themes/types.ts` | ThemeMeta TypeScript interface |
 | `packages/ui/src/themes/index.ts` | Theme registry — all themes registered here |
 | `scripts/scrape-theme.mjs` | Playwright scraper — extracts computed styles from any URL |
-| `scripts/preview-theme.mjs` | Playwright previewer — injects theme CSS and screenshots the Flora site |
+| `scripts/preview-theme.mjs` | Playwright previewer — injects theme CSS and screenshots the {{ORG}} site |
 | `tests/qa/.auth-state.json` | Saved Entra auth cookies — required for previewing authenticated pages |
 | `scripts/qa-auth-setup.sh` | Re-generates auth state (opens browser for Microsoft login) |
 
@@ -92,9 +92,9 @@ Trigger: URL + intent to capture styles ("scrape from", "capture the look of", "
 
 8. **Register in index.ts** — Add the import and entry to the `themes` map in `packages/ui/src/themes/index.ts`
 
-9. **Offer to preview** — Ask if the user wants to see it applied to the Flora site.
+9. **Offer to preview** — Ask if the user wants to see it applied to the {{ORG}} site.
 
-### 2. Preview — Mockup a theme on the Flora site
+### 2. Preview — Mockup a theme on the {{ORG}} site
 
 Trigger: "preview", "show me", "mockup", "how does [name] look"
 
@@ -216,7 +216,7 @@ export const themes = { ..., <name>: <name>Theme };
 - The preview system works by injecting CSS overrides at runtime — it does NOT modify any source files. This means previews are safe and non-destructive.
 - The scraper extracts computed styles from a real browser via Playwright's `page.evaluate()`, so it captures the actual rendered values, not just what's in the stylesheet.
 - When creating dark variants from a light-only source site (or vice versa), invert the color relationships — lightest background becomes darkest, etc.
-- The Flora monorepo uses Tailwind v4 + DaisyUI v5 with `data-theme` attribute switching.
+- The {{ORG}} monorepo uses Tailwind v4 + DaisyUI v5 with `data-theme` attribute switching.
 - Custom `--theme-*` tokens extend beyond DaisyUI — they control typography, spacing, shape, and layout. The preview script injects these as `!important` overrides.
 
 ## Local Customizations

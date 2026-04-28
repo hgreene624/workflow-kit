@@ -50,7 +50,7 @@ If the plan has no `ceremony_tier`, infer: <15 tasks with no DB/deploy = light. 
 Before dispatching work:
 
 0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, note it for mid-build queries. When a worker hits a design choice not covered by the plan, query the oracle: "What's the recommended approach for {specific question}?" Surface to user: "Implementation question: {question}. Oracle recommends {approach} (source: {citation}). Proceed with this approach?" Never silently apply oracle recommendations. See [[SD - Oracle System]].
-1. Read the plan, spec, project `agents.md` and `lessons.md`, and `REF - Agent Lessons.md`
+1. Read the plan, spec, project `CLAUDE.md` and `lessons.md`, and `REF - Agent Lessons.md`
 2. **Read the Project Log** — If a PJL exists at `02_Projects/<project>/PJL - <Project Name>.md`, read the most recent 3–5 date sections. This is critical context for implementation:
    - **Decisions already made** — don't re-litigate what's in the PJL
    - **What was tried and failed** — don't repeat failed approaches
@@ -61,9 +61,9 @@ Before dispatching work:
 4. Scan for activated lessons (L25 deploy != push, L27 environment declaration, L9 schema inspection)
 5. Present summary: "Plan has N phases, M tasks ({completed} done, K ready). Tier: {tier}. Ready?"
 
-## Environment Declaration (Flora apps only)
+## Environment Declaration ({{ORG}} apps only)
 
-Before dispatching ANY Flora worker, determine and declare the environment: LOCAL, REMOTE, or BOTH.
+Before dispatching ANY {{ORG}} worker, determine and declare the environment: LOCAL, REMOTE, or BOTH.
 If ambiguous, ask the user. Inject the declaration into every worker prompt. See `references/worker.md`.
 
 ## Dispatch
@@ -74,7 +74,7 @@ For each unblocked task or batch of independent tasks:
 
 1. Choose model per `references/worker.md` model guide
 2. Dispatch with the worker template, injecting: task details, context files, relevant checklists
-3. Workers report completion to YOU with: what was done, commit hash, verification URL (if Flora)
+3. Workers report completion to YOU with: what was done, commit hash, verification URL (if {{ORG}})
 4. Update the plan file: set task Status to `done`, add Notes, append to Work Log, increment
    frontmatter `completed` count
 

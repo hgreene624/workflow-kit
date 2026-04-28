@@ -1,17 +1,17 @@
-# Concept Brief Template
+# Product Definition Template
 
-Use this structure for all concept briefs. Omit sections that genuinely have no content (don't fill with placeholder text), but Vision, Goals, and Translation Guide are always required.
+Use this structure for all product definitions. Omit sections that genuinely have no content (don't fill with placeholder text), but Vision, Goals, and Translation Guide are always required.
 
 ```markdown
 ---
 date created: {YYYY-MM-DD}
-tags: [concept-brief, {topic-tags}]
-category: Concept Brief
+tags: [product-definition, {topic-tags}]
+category: Product Definition
 author: {stakeholder name}
 status: draft
 ---
 
-# CB - {Topic Title}
+# PD - {Topic Title}
 
 **Author:** {who described this idea}
 **Captured:** {date}
@@ -63,7 +63,7 @@ status: draft
 
 ## Translation Guide
 
-{How the stakeholder's language maps to existing systems in your organization. This is the grounding section.}
+{How the stakeholder's language maps to existing existing systems. This is the grounding section.}
 
 | Stakeholder term | System equivalent | Status | Notes |
 |---|---|---|---|

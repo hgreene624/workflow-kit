@@ -162,7 +162,7 @@ Record discovered cloud dirs in `cloud_storage`:
 ```json
 {
   "cloud_storage": [
-    {"provider": "OneDrive", "path": "/Users/name/OneDrive - Flora Farms"},
+    {"provider": "OneDrive", "path": "/Users/name/OneDrive - {{ORG}} Farms"},
     {"provider": "GoogleDrive", "path": "/Users/name/Google Drive"}
   ]
 }

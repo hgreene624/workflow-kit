@@ -101,7 +101,7 @@ ssh <YOUR_VPS> "ssh -T github-<alias> 2>&1"
 | `~/Projects/<YOUR_ADMIN_APP>/` | `/docker/flora/<YOUR_ADMIN_APP>/` | `<YOUR_ADMIN_APP>` |
 | `~/Projects/<APP_1>/` | `/docker/flora/<APP_1>/` | `<APP_1>` |
 | `~/Projects/<APP_2>/` | `/docker/flora/<APP_2>/` | `<APP_2>` |
-| `~/Projects/<SIGNAL_ENGINE>/` | `/docker/flora/<SIGNAL_ENGINE>/` | `fwis-api` |
+| `~/Projects/<SIGNAL_ENGINE>/` | `/docker/flora/<SIGNAL_ENGINE>/` | `{{API_CONTAINER}}` |
 | `~/Projects/reservations-dashboard-next/` | `/docker/reservations-dashboard/` | `reservations-dashboard` |
 
 ## Worktree Agent Rules

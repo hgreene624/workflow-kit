@@ -4,7 +4,7 @@ category: Template
 
 # Template: Role Description
 
-Use this template for all Flora role descriptions. Save output as `<Role Title> Role.md` in the relevant project folder with `category: Role`.
+Use this template for all role descriptions. Save output as `<Role Title> Role.md` in the relevant project folder with `category: Role`.
 
 ---
 

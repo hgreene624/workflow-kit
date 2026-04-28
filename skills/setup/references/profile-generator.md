@@ -53,7 +53,7 @@ A project is identified by the presence of any of: `.git/`, `package.json`, `pyp
 
 #### Clustering Rules (apply in order)
 
-1. **Name-prefix grouping:** Repos sharing a name prefix (e.g., `{{MONOREPO_NAME}}`, `flora-admin`, `flora-hub`) → group under a single umbrella project. Use the shared prefix as the project name (e.g., "Flora"). Strip common suffixes like `-monorepo`, `-app`, `-api`, `-web`, `-admin` when naming.
+1. **Name-prefix grouping:** Repos sharing a name prefix (e.g., `{{MONOREPO_NAME}}`, `flora-admin`, `flora-hub`) → group under a single umbrella project. Use the shared prefix as the project name (e.g., "{{ORG}}"). Strip common suffixes like `-monorepo`, `-app`, `-api`, `-web`, `-admin` when naming.
 
 2. **Parent-directory grouping:** Repos in the same parent directory that don't share a name prefix → candidate group. Mark these with `"candidate_group": true` so the report renderer presents them as an option, not a recommendation.
 
