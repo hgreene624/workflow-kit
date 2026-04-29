@@ -196,7 +196,7 @@ Think of pickups as an extension of your memory. When you're juggling 10 things 
 |---------------|------------|
 | Start a session | `/orient` |
 | Resume previous work | `/pickup` |
-| Create any document | `/create-note` (detects type, or specify: SD, SPC, PIC, MN, PD, PLN, DD, SO, RE) |
+| Create any document | `/create-note` (detects type, or specify: SD, SPC, PIC, MN, PD, PLN, DD, SO, RE, EB) |
 | Capture an idea | `/create-note PD` |
 | Start a new project | `/create-note SPC` |
 | Plan the work | `/create-note PLN` |

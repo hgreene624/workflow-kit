@@ -10,6 +10,33 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.1.0 - 2026-04-28
+
+### What this release is about
+
+Adds Executive Brief (EB) as a first-class document type in `create-note`. EBs are one-page distillates of longer reports, optimized for executive, investor, or stakeholder readers who need the thesis without the methodology. Previously, EBs were ad-hoc — there was no template, no prefix, and no routing convention.
+
+### What got better
+
+**`/create-note` now handles EB.** Pass `EB` as the type or say "executive brief" / "create EB" / "write a brief" and the skill routes the document to `{project}/reports/{date}/EB - {Name}.md` with the correct frontmatter (category `Report`) and applies the RE writing profile. A new template at `templates/EB.md` enforces the EB structure: 3-5 sentence summary, one-line product/position statement, why-it-matters table, proof table, target audience, recommended next moves, and a mandatory source link back to the underlying analysis.
+
+EBs are explicitly framed as distillates — the template tells the skill not to write a standalone EB without an underlying RE or analysis to point at.
+
+### What you need to do
+
+Update your vault's prefix table to include `EB | Executive Brief | Report` if you maintain a manual prefix list in `Work Vault/CLAUDE.md`. The kit's CLAUDE.md template already includes it.
+
+### Migration
+
+`/update-wfk pull` will:
+1. Update the `create-note` SKILL.md with the EB type entry in the trigger and lookup tables
+2. Install `skills/create-note/templates/EB.md`
+3. Bump your sync manifest to v3.1.0
+
+No deprecations, no breaking changes.
+
+---
+
 ## v3.0.0 - 2026-04-28
 
 ### What this release is about

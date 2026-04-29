@@ -1,13 +1,13 @@
 ---
 name: create-note
 description: >-
-  Unified vault document creator. Handles SD, SPC, PIC, MN, PD, DD, SO, and RE
+  Unified vault document creator. Handles SD, SPC, PIC, MN, PD, DD, SO, RE, and EB
   documents with correct frontmatter, routing, writing profiles, and type-specific
   structure. Replaces individual create-sd, create-spec, create-pickup, create-MN,
   create-concept-brief, design, and structure skills.
   Trigger: "create note", "create SD", "create spec", "create PIC", "create MN",
   "create PD", "design discussion", "structure outline", "write a report",
-  or any request to create a vault document by prefix.
+  "executive brief", "create EB", or any request to create a vault document by prefix.
 ---
 
 # Create Note
@@ -28,6 +28,7 @@ Parse the user's request or argument to identify the document type. Accept any o
 | `DD` | "design discussion", "DD for this spec" | `/design` |
 | `SO` | "structure outline", "SO for this spec" | `/structure` |
 | `RE` | "create report", "write a report" | (none) |
+| `EB` | "executive brief", "exec brief", "create EB", "write a brief" | (none) |
 
 If the type is ambiguous, ask via AskUserQuestion.
 
@@ -59,6 +60,7 @@ This is the single source of truth for document metadata. Every field is mandato
 | `DD` | `Plan` | (General only) | `{project}/designs/{date}/DD - {Name}.md` |
 | `SO` | `Plan` | (General only) | `{project}/structures/{date}/SO - {Name}.md` |
 | `RE` | `Report` | `WP - RE.md` | `{project}/reports/{date}/RE - {Name}.md` |
+| `EB` | `Report` | `WP - RE.md` | `{project}/reports/{date}/EB - {Name}.md` |
 
 `{project}` = `02_Projects/<project-name>/`
 `{date}` = today's date (YYYY-MM-DD)
