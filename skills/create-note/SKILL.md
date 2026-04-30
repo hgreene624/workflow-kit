@@ -22,6 +22,7 @@ Parse the user's request or argument to identify the document type. Accept any o
 |------|----------|-----------|
 | `SD` | "create SD", "system definition" | `/create-sd` |
 | `SPC` | "create spec", "spec this", "write a spec" | `/create-spec` |
+| `PL` | "create plan", "plan this", "make this actionable" | `/create-plan` |
 | `PIC` | "create pickup", "make a PIC", "save for later" | `/create-pickup` |
 | `MN` | "create MN", "meeting note", "write up the meeting" | `/create-MN` |
 | `PD` | "product definition", "create PD", "I have an idea" | `/create-concept-brief` |
@@ -54,6 +55,7 @@ This is the single source of truth for document metadata. Every field is mandato
 |------|----------------------|-----------------|---------|
 | `SD` | `System Definition` | `WP - SD.md` | `{project}/SD - {Name}.md` |
 | `SPC` | `Spec` | `WP - SPC.md` | `{project}/specs/{date}/SPC - {Name}.md` |
+| `PL` | `Plan` | (General only) | `{project}/plans/{date}/PL - {Name}.md` |
 | `PIC` | `Pickup` | `WP - PIC.md` | `{project}/pickups/{date}/PIC - {Name}.md` |
 | `MN` | `Meeting` | `WP - MN.md` | `01_Notes/Meetings/MN - {date} ({Topic}).md` |
 | `PD` | `Spec` | (General only) | `{project}/concepts/{date}/PD - {Name}.md` |

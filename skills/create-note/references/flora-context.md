@@ -1,4 +1,4 @@
-# {{ORG}} Ecosystem -- Technical Context
+# Flora Ecosystem -- Technical Context
 
 Single source of truth for the concept-brief skill. Covers every deployed system, its entity model, capabilities, and limitations. Updated by the development team when systems change.
 
@@ -8,7 +8,7 @@ Last updated: 2026-04-13
 
 ## 1. Platform Overview
 
-The system is a suite of web apps for managing hospitality operations (restaurant group, vacation rentals, real estate) in Baja California, Mexico. All apps live in a single Next.js/Python monorepo and deploy as Docker containers behind Traefik reverse proxy on a VPS at YOUR_DOMAIN. Database: PostgreSQL 17 (`{{PROJECT_DB}}`). Auth: Microsoft Entra ID (Azure AD) via Auth.js. LLM routing: centralized AI Gateway.
+Flora is a suite of web apps for managing hospitality operations (restaurant group, vacation rentals, real estate) in Baja California, Mexico. All apps live in a single Next.js/Python monorepo and deploy as Docker containers behind Traefik reverse proxy on a VPS at YOUR_DOMAIN. Database: PostgreSQL 17 (`{{PROJECT_DB}}`). Auth: Microsoft Entra ID (Azure AD) via Auth.js. LLM routing: centralized AI Gateway.
 
 **Users:** ~96 people across 4 departments (Farm Living, Hospitality, Trades & Services, Administration). Organizational tiers: owner, executive, manager, lead, staff, external.
 
@@ -26,28 +26,28 @@ The user's home screen. Odoo-style tile grid with 6 tool tiles: Meetings, Inbox,
 
 ---
 
-## 3. {{SIGNAL_ENGINE}} (YOUR_DOMAIN/fwis/)
+## 3. FWIS (YOUR_DOMAIN/fwis/)
 
-The org's organizational intelligence layer. The authoritative reference is the [[SD - {{SIGNAL_ENGINE}} System Definition]] at `02_Projects/{{ORG}} Intelligence/`. All concept briefs touching {{SIGNAL_ENGINE}} should read the SD. This section is a summary.
+Flora's organizational intelligence layer. The authoritative reference is the [[SD - FWIS System Definition]] at `02_Projects/{{ORG}} Intelligence/`. All concept briefs touching FWIS should read the SD. This section is a summary.
 
-### 3.1 What {{SIGNAL_ENGINE}} Is
+### 3.1 What FWIS Is
 
-{{SIGNAL_ENGINE}} builds a structured understanding of the organization by answering three questions:
+FWIS builds a structured understanding of the organization by answering three questions:
 
-- **What is the org?** Organizational identity: people, roles, departments, reporting chains, business entities. Fed by systems of record (Odoo HR, accounting) and supplemented by observation. First-class intelligence dimension with position/person separation, temporal assignments, and multi-identifier entity resolution.
-- **What is the org doing?** Observed activity attributed to projects, initiatives, and people. Built automatically from work streams (email, meetings, conversations) and work artifacts (documents, KB edits, spreadsheets). Signal velocity measures attention concentration.
-- **What did {{ORG}} commit to?** Decisions, delegations, and promises extracted from organizational activity. Each commitment has a lifecycle: requested, promised, in-progress, fulfilled, broken, renegotiated. Say-Do Ratio (delivered/committed) is the core metric.
+- **What is Flora?** Organizational identity: people, roles, departments, reporting chains, business entities. Fed by systems of record (Odoo HR, accounting) and supplemented by observation. First-class intelligence dimension with position/person separation, temporal assignments, and multi-identifier entity resolution.
+- **What is Flora doing?** Observed activity attributed to projects, initiatives, and people. Built automatically from work streams (email, meetings, conversations) and work artifacts (documents, KB edits, spreadsheets). Signal velocity measures attention concentration.
+- **What did Flora commit to?** Decisions, delegations, and promises extracted from organizational activity. Each commitment has a lifecycle: requested, promised, in-progress, fulfilled, broken, renegotiated. Say-Do Ratio (delivered/committed) is the core metric.
 
 **Organizational health** is the coherence across all three answers. Divergences reveal misalignment, stale attributions, broken commitments, and capability gaps.
 
-{{SIGNAL_ENGINE}} also serves as the **knowledge layer** that makes every AI system at {{ORG}} more effective: email triage, KB maintenance, document generation, training content all draw on {{SIGNAL_ENGINE}} organizational intelligence.
+FWIS also serves as the **knowledge layer** that makes every AI system at Flora more effective: email triage, KB maintenance, document generation, training content all draw on FWIS organizational intelligence.
 
 ### 3.2 Dual World Model
 
-{{SIGNAL_ENGINE}} maintains two parallel world models sharing infrastructure:
+FWIS maintains two parallel world models sharing infrastructure:
 
-- **Operational World Model:** Internal work activity. Entities: initiatives, projects, activities, work items, decisions, vulnerabilities. Answers: What is {{ORG}} doing internally?
-- **Market World Model:** External relationship activity. Entities: contacts, profiles, households, relationship stages, lead scores. Enriched by external research (web, public records). Answers: Who is {{ORG}} dealing with?
+- **Operational World Model:** Internal work activity. Entities: initiatives, projects, activities, work items, decisions, vulnerabilities. Answers: What is Flora doing internally?
+- **Market World Model:** External relationship activity. Entities: contacts, profiles, households, relationship stages, lead scores. Enriched by external research (web, public records). Answers: Who is Flora dealing with?
 
 Email is the shared input source. A routing layer forks signals to one or both models.
 
@@ -79,7 +79,7 @@ Information flows through three layers:
 - Organizational health metrics: not implemented
 - Corpus search: not implemented
 
-### 3.6 {{SIGNAL_ENGINE}} Viewer
+### 3.6 FWIS Viewer
 
 22 admin-facing pages. Primary audience: leadership and management. No employee self-view exists.
 
@@ -97,7 +97,7 @@ Limitless lifelog --> Speechmatics transcription
   --> consolidated_llm.py (single Claude call via CLI shim)
       Output: speaker_map + entity_map + outcomes (JSON-schema validated)
   --> context_assembler generates meeting notes
-  --> DB writes + signal injection into {{SIGNAL_ENGINE}}
+  --> DB writes + signal injection into FWIS
 ```
 
 ### 4.2 Key Facts
@@ -121,7 +121,7 @@ Limitless lifelog --> Speechmatics transcription
 
 ## 5. Portal Work Themes
 
-LLM-based clustering of unthemed work items into coherent topic groups. **Separate from {{SIGNAL_ENGINE}} initiatives** -- themes are a UX layer, not part of the entity model.
+LLM-based clustering of unthemed work items into coherent topic groups. **Separate from FWIS initiatives** -- themes are a UX layer, not part of the entity model.
 
 ### 5.1 Entity Model
 
@@ -157,25 +157,25 @@ The next major build. AI email triage tool with 71 functional requirements.
 | **Noise Review** | Auto-filtered noise emails (Teams notifications, calendar, noreply). Restore/whitelist. |
 | **Settings** | Noise rules, whitelists, category management, sync settings. |
 
-### 6.2 {{SIGNAL_ENGINE}} Integration
+### 6.2 FWIS Integration
 
-The Inbox Tool is the primary consumer of the {{SIGNAL_ENGINE}} Context Assembler. Three endpoints:
+The Inbox Tool is the primary consumer of the FWIS Context Assembler. Three endpoints:
 - `POST /api/context/user` -- user's initiatives, meetings, work items, blockers
 - `POST /api/context/email` -- batch sender profiles (tier, department, reporting structure, initiative overlap)
 - `POST /api/sales/context` -- sales pipeline data
 
-**Quality bar:** "Output should feel like a well-informed executive assistant wrote it, not generic AI. If it could be generated by any LLM with just the email text, {{SIGNAL_ENGINE}} integration is failing."
+**Quality bar:** "Output should feel like a well-informed executive assistant wrote it, not generic AI. If it could be generated by any LLM with just the email text, FWIS integration is failing."
 
 ### 6.3 Key Design Decisions
 
 - Categories are persistent, user-managed, AI-proposed entities (not ephemeral)
 - Classification has 3 dimensions: Priority (High/Medium/Low), Topic Category, Action Type (Reply Needed/FYI/Delegate/Follow Up)
 - Corrections feedback loop: user reclassifications become few-shot guidance for future classification
-- 8K token budget for LLM context; dynamic allocation based on {{SIGNAL_ENGINE}} data availability
+- 8K token budget for LLM context; dynamic allocation based on FWIS data availability
 
 ### 6.4 Blockers (Phase 0 Prerequisites)
 
-- {{SIGNAL_ENGINE}} field alignment: `email` vs `user_email`, `reporting_structure` vs `reports_to_email`
+- FWIS field alignment: `email` vs `user_email`, `reporting_structure` vs `reports_to_email`
 - `/api/context/user` queries wrong table (`work_items` with 0 rows instead of `action_items` with 1,048 rows)
 - Table name mismatch: code says `email_sync_state`, actual table is `triage_sync_state`
 
@@ -210,7 +210,7 @@ Knowledge Base (kb.knowledge_bases)
 ### 7.3 Limitations
 
 - No freshness tracking ("last verified accurate" date)
-- No signal-to-KB comparison ({{SIGNAL_ENGINE}} doesn't check if work matches KB procedures)
+- No signal-to-KB comparison (FWIS doesn't check if work matches KB procedures)
 - No drift detection (KB vs actual operations)
 - No adherence scoring
 - No content health metrics or analytics dashboard
@@ -280,11 +280,11 @@ Evaluates required capabilities (temperature? streaming? tools? json_schema?) + 
 
 ### 10.3 Key Facts
 
-- 13+ {{ORG}} consumers route through gateway
+- 13+ Flora consumers route through gateway
 - Per-consumer cost limits (monthly cap)
 - Prompt caching on claude-api (system + last 3 user messages)
 - Streaming normalized to OpenAI SSE format
-- Response headers: X-{{ORG}}-Provider, X-{{ORG}}-Tier, X-{{ORG}}-Routed-Reason
+- Response headers: X-Flora-Provider, X-Flora-Tier, X-Flora-Routed-Reason
 - Claude CLI adapter cannot forward temperature or structured output (escalates to API)
 
 ---
@@ -304,29 +304,29 @@ Evaluates required capabilities (temperature? streaming? tools? json_schema?) + 
 
 ## 12. What's Being Built Next
 
-1. **Inbox Tool** -- specced (71 FRs), implementation plan next. Critical path: {{SIGNAL_ENGINE}} field alignment.
+1. **Inbox Tool** -- specced (71 FRs), implementation plan next. Critical path: FWIS field alignment.
 2. **CCP Phase 7 Cutover** -- bulk signup to ~260 owners, Patrick UAT
 3. **Initiative Hierarchy Redesign** -- add parent/child so initiatives can nest (strategic > project > work item)
-4. **KB Signal Matching** -- classify {{SIGNAL_ENGINE}} signals against KB articles for drift detection
-5. **Earth-tone design unification** -- extend palette to KB, admin, {{SIGNAL_ENGINE}} viewer
+4. **KB Signal Matching** -- classify FWIS signals against KB articles for drift detection
+5. **Earth-tone design unification** -- extend palette to KB, admin, FWIS viewer
 
 ---
 
 ## 13. Terminology Guide
 
-| Stakeholder might say | {{ORG}} term | What it actually is |
+| Stakeholder might say | Flora term | What it actually is |
 |---|---|---|
-| "The system that reads my emails" | {{SIGNAL_ENGINE}} Signal Engine | Email classification pipeline producing weighted signals |
-| "My recording device" | Limitless pendant | Personal audio recorder, NOT called Omi in {{ORG}} |
-| "The knowledge base" | {{ORG}} KB | 4-department bilingual KB at YOUR_DOMAIN/kb/ |
+| "The system that reads my emails" | FWIS Signal Engine | Email classification pipeline producing weighted signals |
+| "My recording device" | Limitless pendant | Personal audio recorder, NOT called Omi in Flora |
+| "The knowledge base" | Flora KB | 4-department bilingual KB at YOUR_DOMAIN/kb/ |
 | "Documents" / "SOPs" | DocGen | AI-assisted document creation tool |
-| "Initiatives" | {{SIGNAL_ENGINE}} initiatives | Currently project-level entities, hierarchy redesign planned |
+| "Initiatives" | FWIS initiatives | Currently project-level entities, hierarchy redesign planned |
 | "Themes" | Portal Work Themes | LLM-clustered topic groups, separate from initiatives |
-| "The portal" | {{ORG}} Portal | Tile-grid launcher at YOUR_DOMAIN/ |
+| "The portal" | Flora Portal | Tile-grid launcher at YOUR_DOMAIN/ |
 | "The inbox" / "email tool" | Inbox Tool | Specced but not yet built (71 FRs) |
 | "Scores" / "ratings" | Signal weights | 0-10 scale, tier x action type |
 | "Who reports to who" | People table | reports_to_email field, tier assignments |
-| "Scripts" / "conversation scoring" | Does not exist | No script primitive or scoring engine in any {{ORG}} system |
-| "PIP" / "performance plans" | Does not exist | No PIP tracking in any {{ORG}} system |
+| "Scripts" / "conversation scoring" | Does not exist | No script primitive or scoring engine in any Flora system |
+| "PIP" / "performance plans" | Does not exist | No PIP tracking in any Flora system |
 | "Screen monitoring" | Does not exist | No screen capture or activity monitoring |
-| "Employee dashboard" | Does not exist | {{SIGNAL_ENGINE}} viewer is admin-only; no employee self-view |
+| "Employee dashboard" | Does not exist | FWIS viewer is admin-only; no employee self-view |

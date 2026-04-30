@@ -18,7 +18,7 @@ Resume work by loading context from pickup documents. Routes automatically: if t
 
 ## Path Resolution
 
-Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve all directory references in these instructions (e.g., `{vault_root}/{paths.reports}/Triage/` instead of hardcoded paths, `{paths.projects}` instead of `02_Projects/`). If the file doesn't exist, use the defaults in these instructions and warn once: "No wfk-paths.json found. Using default paths."
+Read `~/.claude/wfk-paths.json` at startup. Use `vault_root` and `paths` to resolve all directory references in these instructions (e.g., `{vault_root}/{paths.reports}/Triage/` instead of `Work Vault/01_Notes/Reports/Triage/`, `{paths.projects}` instead of `02_Projects/`). If the file doesn't exist, use the defaults in these instructions and warn once: "No wfk-paths.json found. Using default paths."
 
 ## Pre-flight: Orient Check
 
@@ -47,7 +47,7 @@ If the user pointed at a specific PIC file or named one explicitly, skip triage 
 
 Before scanning PICs, check for an existing triage report:
 
-1. Look for `{vault_root}/{paths.reports}/Triage/TRI - {today}.md`
+1. Look for `Work Vault/01_Notes/Reports/Triage/TRI - {today}.md`
 2. **If today's TRI exists:** load it, then run a **light scan** (Step 0a) to catch changes since it was written. Skip to Step 5 (Present the Triage) with the updated data.
 3. **If today's TRI is missing:** check for the most recent `TRI - *.md` in the same directory.
    - **If a previous TRI exists:** use it as a seed. Carry forward assessments (complexity, summary, batch verdicts) for PICs that are still open. Only run the full scan (Steps 1-4) on PICs that are **new** since that TRI was written (no matching entry in the previous report). Merge results. The TRI file is written in Step 5 before presenting to the user.
@@ -58,8 +58,8 @@ Before scanning PICs, check for an existing triage report:
 When loading a cached TRI, validate it against current PIC state:
 
 1. **Find ALL open and picked-up PICs using Grep, not Glob.** Glob truncates results when there are many PIC files, which causes missed PICs. Instead, run these two Grep calls in parallel with `head_limit: 0` (unlimited results) to guarantee complete coverage:
-   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
-   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
 2. For each PIC listed in the TRI, check whether it appears in the grep results (still open/picked-up) or is absent (now closed).
 3. Update the cached triage data:
    - PICs that no longer appear in grep results: mark as closed in the triage (confirm by reading frontmatter if unsure)
@@ -72,8 +72,8 @@ This light scan uses grep to find open PICs by content rather than globbing all 
 ### Step 1: Find All Open PICs
 
 1. **Use Grep, not Glob, to find PICs by status.** Glob truncates results when there are many PIC files (50+), which silently drops PICs from the triage. Run these two Grep calls in parallel with `head_limit: 0`:
-   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
-   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="{vault_root}/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: open" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
+   - `Grep pattern="^status: picked-up" glob="**/PIC - *.md" path="Work Vault/" output_mode="files_with_matches" head_limit=0`
 2. From the results, keep only files whose basename starts with `PIC - `. The grep may also match IRs, delegated tasks, or templates that share the `status: open` frontmatter pattern -- discard those.
 3. The filtered results ARE the complete set of open/picked-up PICs.
 4. Report the count: "Found N open pickups (and M in-progress)."
@@ -110,7 +110,7 @@ When multiple PICs exist for the same project area:
 
 **Read the current RM** (most recent file in `01_Notes/Roadmaps/`) before clustering. If an RM exists, cluster PICs by RM goal first, then by project within each goal. If no RM exists, fall back to project-only clustering.
 
-**With RM:** Clusters become goal-aligned: "Goal A (3 PICs)", "Goal B (2 PICs)", "Unaligned (1 PIC)". PICs that don't map to any RM goal get an "Unaligned" cluster, presented last. This makes strategic priority visible at a glance.
+**With RM:** Clusters become goal-aligned: "Portal for Patrick (3 PICs)", "KB v1 Shipped (2 PICs)", "Unaligned (1 PIC)". PICs that don't map to any RM goal get an "Unaligned" cluster, presented last. This makes strategic priority visible at a glance.
 
 Within each goal cluster, evaluate batch compatibility:
 
@@ -141,33 +141,33 @@ Before presenting the triage to the user, verify the frontmatter status of every
 This step prevents showing stale PICs that were already picked up or closed by other sessions. It runs every time, even when the TRI was just generated moments ago. The cost is ~20 file reads (frontmatter only); the cost of skipping it is presenting work that's already done.
 
 **Presentation rules (mandatory):**
-- Present ONE grouped-by-cluster table -- not three separate views.
-- Clusters are RM goals when available (e.g. "Goal A", "Goal B", "Unaligned"). Without an RM, fall back to project themes. Pull the theme from the SOD priorities when possible.
+- Present ONE grouped-by-cluster table — not three separate views.
+- Clusters are RM goals when available (e.g. "Portal for Patrick", "KB v1 Shipped", "Unaligned"). Without an RM, fall back to project themes. Pull the theme from the SOD priorities when possible.
 - A "Validate first" cluster always comes first if there are picked-up PICs flagged in the SOD.
-- Within each cluster, order PICs **low -> high effort** (LOW -> MED -> HIGH). Blocked PICs sink to the bottom of their cluster.
-- Cluster order: validate-first -> SOD priority order -> blocked clusters last.
+- Within each cluster, order PICs **low → high effort** (LOW → MED → HIGH). Blocked PICs sink to the bottom of their cluster.
+- Cluster order: validate-first → SOD priority order → blocked clusters last.
 - Every PIC gets a global selection number (`#`), assigned by walking the clusters top-to-bottom so #1 is the top of the first cluster.
-- Use a single table with cluster headers as separator rows, OR one small table per cluster -- either is fine, but no separate "by complexity" or "session order" tables.
+- Use a single table with cluster headers as separator rows, OR one small table per cluster — either is fine, but no separate "by complexity" or "session order" tables.
 
 **Format:**
 
 ```
-### Warning: Validate first (if applicable)
+### ⚠ Validate first (if applicable)
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 1 -- e.g. Backend API / Goal A}
+### {Cluster 1 — e.g. FWIS / Signal Engine}
 | # | PIC | Tier | Blockers | Note |
 |---|-----|------|----------|------|
 
-### {Cluster 2 -- e.g. Frontend UX / Goal B}
+### {Cluster 2 — e.g. DocGen / Patrick-facing}
 ...
 
 ### {Blocked cluster, last}
 ...
 ```
 
-The `Note` column is one short phrase: SOD priority, batch hint, or blocker reason. Skip the Project column -- the cluster header makes it redundant.
+The `Note` column is one short phrase: SOD priority, batch hint, or blocker reason. Skip the Project column — the cluster header makes it redundant.
 
 End with: "Pick a number to load, or tell me which cluster to batch."
 
@@ -262,7 +262,7 @@ Before loading the new PIC, check whether there's unlogged work from earlier in 
 
 If the PIC's `project` frontmatter maps to a vault project under `02_Projects/`, verify the project folder is properly set up before loading context:
 
-1. Check that the project directory exists (e.g., `02_Projects/<initiative>/<project>/`)
+1. Check that the project directory exists (e.g., `02_Projects/{{ORG}} Intelligence/signal-engine/`)
 2. Check for `CLAUDE.md` at the project root. If missing, create it with a minimal stub:
    ```markdown
    # Agent Context - {Project Name}
@@ -281,7 +281,7 @@ If the PIC's `project` frontmatter maps to a vault project under `02_Projects/`,
    ```
 4. Check for the PJL file at `02_Projects/<project>/PJL - <Project Name>.md`. If missing, it will be created in the "Log to Project Log" step below.
 
-Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are created by the skills that write to them (`/create-spec`, `/create-plan`, `/log-work`). This step only ensures the project root and its config files exist.
+Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are created by the skills that write to them (`/create-note SPC`, `/create-note PL`, `/log-work`). This step only ensures the project root and its config files exist.
 
 ### Load Context
 
@@ -293,23 +293,23 @@ Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are c
 
 Build understanding of: project scope, what was done, concrete next steps, blockers, and any user preferences from the previous session.
 
-### Environment Declaration (MANDATORY for deployable projects)
+### Environment Declaration (MANDATORY for Flora-touching PICs)
 
-If the PIC's project involves deployable code (a web app, API, service, or anything that runs in both a local dev environment and a remote/production environment), declare the target environment in your "Present the Plan" output. Three valid forms:
+If the PIC's project is a Flora app (KB, admin, portal, mail, fwis-viewer, home, reservations, mailbox-viewer, revenue-dashboard, culinary-cottages, or anything in `~/Repos/{{MONOREPO_NAME}}/`), declare the target environment in your "Present the Plan" output. Three valid forms:
 
 ```
-Environment: LOCAL          -> iterating locally via dev server, no production change expected
-Environment: REMOTE         -> updating production, will run the deploy command after the fix
-Environment: BOTH           -> iterate locally first, then deploy to production
+Environment: LOCAL          → iterating at localhost:3001-3011 via flora-dev, no production change expected
+Environment: REMOTE         → updating YOUR_DOMAIN/<app>/, will run flora-deploy <service> after the fix
+Environment: BOTH           → iterate locally first, then deploy to production
 ```
 
-Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a deploy command -> REMOTE or BOTH. If the next steps are pure code iteration with no deploy command -> LOCAL. **If unclear, ASK the user before starting.** Don't guess.
+Read the PIC's `## What Was Done` and `## What Needs to Happen Next` to determine which one applies. If the PIC's next steps include a `flora-deploy` or `safe-build` command → REMOTE or BOTH. If the next steps are pure code iteration with no deploy command → LOCAL. **If unclear, ASK the user via AskUserQuestion before starting.** Don't guess.
 
-**Verify the PIC's deployment-state claims before acting on them.** A PIC carrying "deployed the fix" in its `## What Was Done` is unverified hearsay until you confirm. Check:
-- CI/CD workflow history to confirm the build ran
-- The live URL to confirm the deployment behaves as expected
+**Verify the PIC's deployment-state claims before acting on them.** A PIC carrying "deployed KB hydration fix" in its `## What Was Done` is unverified hearsay until you confirm. Run:
+- `gh run list --repo YOUR_USERNAME/{{MONOREPO_NAME}} --limit 5` — confirm the GHA workflow ran
+- `curl -sf https://YOUR_DOMAIN/<app>/<path>` — confirm the live URL behaves as expected
 
-PICs carry false "deployed" claims forward when the prior session pushed code without running the deploy command. A git push is not a deployment unless your CI/CD pipeline auto-deploys.
+PICs carry false "deployed" claims forward when the prior session pushed without running `flora-deploy`. See L25.
 
 ### Mark as Picked Up
 
@@ -322,7 +322,7 @@ Update the PIC's frontmatter immediately:
 If a PJL exists for this project, append a session-start entry under today's date heading (create the date heading if it doesn't exist, newest on top):
 
 ```markdown
-- **Session start** -- picked up [[PIC - Topic Name]], targeting: {first 1-2 next steps from PIC}
+- **Session start** — picked up [[PIC - Topic Name]], targeting: {first 1-2 next steps from PIC}
 ```
 
 If no PJL exists yet, create one at `02_Projects/<project>/PJL - <Project Name>.md` with standard frontmatter and this first entry. The PJL will accumulate as work is logged via `/log-work` and `/create-pickup`.

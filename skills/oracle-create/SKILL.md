@@ -2,7 +2,7 @@
 
 Create a new oracle (NotebookLM research notebook) for a project or sub-domain. Populates it with deep research, produces a grounding report, and registers the oracle in the project's PJL frontmatter.
 
-Use this skill when the user says "create oracle", "oracle create", "set up an oracle", "research this domain", or when `/create-sd`, `/create-spec`, `/design`, or `/grill` prompts for oracle creation.
+Use this skill when the user says "create oracle", "oracle create", "set up an oracle", "research this domain", or when `/create-sd`, `/create-note SPC`, `/design`, or `/grill` prompts for oracle creation.
 
 Governed by [[SD - Oracle System]]. The oracle informs, the user decides. No silent decisions.
 

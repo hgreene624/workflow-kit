@@ -10,6 +10,40 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.2.0 - 2026-04-30
+
+### What this release is about
+
+Oracle-informed template consolidation for create-note, plus two new skills (impeccable, resolve-ir). The SD and SPC templates now have companion writing guides, structured interviews, and anti-pattern documentation. Plan (PL) template added as a first-class document type.
+
+### New skills
+
+**`/impeccable`** — Frontend design audit and polish skill. Invoked when the user wants to design, redesign, critique, or improve any frontend interface. Covers websites, dashboards, product UI, and app screens.
+
+**`/resolve-ir`** — Incident Report resolution skill. Structures IR resolution as root-cause classification (preventive vs palliative), enforces that IRs cannot close with only palliative fixes, and tracks deferred root causes.
+
+### What got better
+
+**`/create-note SD` — full consolidation.** The SD template now has a companion writing guide (`references/sd-guide.md`), scope classification (Entity/System/Framework), a structured discovery interview protocol, oracle check with SD-specific queries, prior decisions documentation, YAGNI enforcement, and a 9-point self-review checklist. Anti-patterns section covers the 8 most common SD writing failures. The guide names [[SD - Process Entity Model]] v3 as the exemplar.
+
+**`/create-note SPC` — spec guide added.** A comprehensive spec writing guide (`references/spec-guide.md`) covering the 6 elements every spec needs, section-by-section guidance, golden examples, and anti-patterns. Oracle-grounded from 55 sources.
+
+**`/create-note PL` — plan template and guide.** New template and companion guide for implementation plans. Covers task granularity, file/domain isolation for parallel dispatch, verification commands per task, and three ceremony tiers (light/standard/heavy). Plans are the primary artifact consumed by `/implement`.
+
+**`/pickup` — PJL scope-check guardrail.** Before writing to a project log, the skill now verifies that the PIC's `project:` field matches the actual work scope by scanning the PIC body for project signals.
+
+**`/review-spec` — updated references.** Skill now references `/create-note PL` instead of the deprecated `/create-plan`.
+
+### What you need to do
+
+Nothing. All changes are backwards-compatible.
+
+### Migration
+
+`/update-wfk pull` installs the new templates and guides automatically.
+
+---
+
 ## v3.1.0 - 2026-04-28
 
 ### What this release is about

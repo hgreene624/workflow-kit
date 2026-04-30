@@ -129,7 +129,7 @@ Once approved, do the work:
 
 After filing is complete, briefly suggest logical next actions for each project that received materials. Tailor suggestions to the material's readiness:
 
-- **Spec-ready material** (detailed requirements, user stories, technical specs): suggest `/create-spec` to formalize it
+- **Spec-ready material** (detailed requirements, user stories, technical specs): suggest `/create-note SPC` to formalize it
 - **Early-stage ideas** (overviews, placeholders, rough briefs): suggest the user review the material and flesh it out before spec'ing
 - **Data or reference material** (datasets, API docs, research): note that it's filed and available for when the relevant project needs it
 - **Material that raises questions**: suggest specific questions the user might want to ask the source (e.g., "App 3 is marked as a placeholder — worth asking dad for more detail before spec'ing")

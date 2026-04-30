@@ -224,7 +224,7 @@ This is where the system clicks. You're going to describe something you actually
 
 1. **Think of something you need to do.** A project, a process improvement, a document to write, a feature to build — anything structured. <If projects were discovered: "Your vault already has a **<first project name>** project folder — you could start there.">
 
-2. **Tell Claude:** "I want to create a spec for..." or run `/create-spec`
+2. **Tell Claude:** "I want to create a spec for..." or run `/create-note SPC`
 
 3. **Answer Claude's questions.** It will interview you about what you're trying to accomplish, who it's for, what success looks like, and what could go wrong. This usually takes 5-10 minutes.
 
@@ -232,7 +232,7 @@ This is where the system clicks. You're going to describe something you actually
 
 5. **(Optional) Run the review.** Tell Claude `/review-spec` and it dispatches a 3-agent team to check the spec for gaps and risks. This is powerful for complex work but optional for simple tasks.
 
-6. **(Optional) Create the plan.** Tell Claude `/create-plan` and it breaks the spec into phases with tasks and milestones.
+6. **(Optional) Create the plan.** Tell Claude `/create-note PL` and it breaks the spec into phases with tasks and milestones.
 
 ## Why This Matters
 

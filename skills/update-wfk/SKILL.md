@@ -297,7 +297,7 @@ Read the repo's `README.md`. Check whether it needs updates based on this push:
 3. **Getting Started section** - if the install process or setup steps changed, update them.
 4. **Any section referencing specific skill names** - if a skill was renamed, update the reference.
 
-Don't bloat the README. It's an introduction, not documentation. Only add skills to the Key Commands table if they're user-invocable entry points (like `/create-spec`, `/pickup`, `/closeout`). Internal skills (like `/git-safe`) don't need a README mention.
+Don't bloat the README. It's an introduction, not documentation. Only add skills to the Key Commands table if they're user-invocable entry points (like `/create-note SPC`, `/pickup`, `/closeout`). Internal skills (like `/git-safe`) don't need a README mention.
 
 Show any README changes to the user for confirmation before proceeding.
 
@@ -359,9 +359,9 @@ Read `CHANGELOG.md` from the repo. Find all version entries newer than the user'
 WFK update available: v1.0.0 -> v2.0.0
 
 What's new:
-- 3 new skills: create-plan, document-change, explain
+- 3 new skills: create-note PL, document-change, explain
 - 8 improved skills: closeout, end-day, create-spec, log-work, implement, create-pickup, pickup, pipeline-qa
-- 1 renamed skill: plan-spec -> create-plan
+- 1 renamed skill: plan-spec -> create-note PL
 - 5 deprecated skills removed
 
 See full changelog? (y/n)
@@ -390,7 +390,7 @@ Read `deprecated_skills` and `deprecation_context` from kit.json. For each depre
 1. Back it up to `$BACKUP_DIR/<skill-name>/`
 2. Check if the skill has a `LOCAL.md` - if so, preserve it separately
 3. Delete the skill directory
-4. Tell the user with context: "Removed `plan-spec` - replaced by `create-plan` (adaptive depth, no external PM dependency)"
+4. Tell the user with context: "Removed `plan-spec` - replaced by `create-note PL` (adaptive depth, no external PM dependency)"
 
 The `deprecation_context` field provides the human-readable explanation. Never just silently delete.
 
@@ -401,7 +401,7 @@ Read `renamed_skills` from kit.json. For each rename where the OLD name exists l
 1. Check if user has a `LOCAL.md` in the old skill directory
 2. If so, copy it to the new skill directory (it will be picked up after the new SKILL.md is installed)
 3. Back up and delete the old skill directory
-4. Report: "Renamed `plan-spec` -> `create-plan`. Your LOCAL.md was preserved."
+4. Report: "Renamed `plan-spec` -> `create-note PL`. Your LOCAL.md was preserved."
 
 #### Step 7: Sync skills (with user-edit preservation)
 
@@ -570,7 +570,7 @@ After all files are synced, verify consistency:
      grep -rl "/$old_name" ~/.claude/skills/*/SKILL.md 2>/dev/null
    done
    ```
-   If stale references are found, offer to update them (e.g., `/plan-spec` -> `/create-plan`).
+   If stale references are found, offer to update them (e.g., `/plan-spec` -> `/create-note PL`).
 
 2. **CLAUDE.md reference check** - verify that skill names referenced in CLAUDE.md exist as installed skills.
 
@@ -605,8 +605,8 @@ WFK updated to v2.0.0
 Updated:      12 skills (clean install)
 Preserved:     2 skills (edits saved to LOCAL.md)
 Skipped:       1 skill (user chose to keep local version)
-New:           3 skills installed (create-plan, document-change, explain)
-Deprecated:    1 skill removed (plan-spec -> create-plan)
+New:           3 skills installed (create-note PL, document-change, explain)
+Deprecated:    1 skill removed (plan-spec -> create-note PL)
 Templates:     2 updated
 CLAUDE.md:     merged (WFK sections updated, LOCAL sections preserved)
 Scripts:       3 copied

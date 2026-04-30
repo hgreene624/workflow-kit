@@ -5,7 +5,7 @@ description: >-
   generates a review artifact. Use after /implement completes or when the user wants a
   code review. Trigger on "review the code", "PR review", "code review", "check the
   implementation", "review what was built", or at the end of an /implement sprint.
-  Do NOT use this for spec review (use /review-spec) or planning (use /create-plan).
+  Do NOT use this for spec review (use /review-spec) or planning (use /create-note PL).
 ---
 
 # PR Review Skill

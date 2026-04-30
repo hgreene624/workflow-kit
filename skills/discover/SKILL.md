@@ -93,9 +93,9 @@ For each skill, note what vault state would make it relevant:
 | Work done but no DN entry | `/log-work` |
 | Multiple closeouts, no EOD | `/end-day` |
 | 5+ open PICs, long conversation | `/recap` |
-| Feature described with no spec | `/create-spec` |
+| Feature described with no spec | `/create-note SPC` |
 | Spec exists, no review artifacts | `/review-spec` |
-| Reviewed spec, no plan | `/create-plan` |
+| Reviewed spec, no plan | `/create-note PL` |
 | Plan exists, no implementation started | `/implement` |
 | Implementation done, no review | `/pr-review` |
 | Complex doc or topic being discussed | `/explain` |
@@ -182,7 +182,7 @@ Read the named skill's SKILL.md and explain what it does, when to use it, and sh
 
 Skills compose into documented chains. See [[REF - Skill Chain Map]] for the full map. Key chains:
 - **Daily**: orient → pickup → log-work → closeout → end-day → dream
-- **Build**: create-spec → review-spec → create-plan → implement → pr-review → retro
+- **Build**: create-spec → review-spec → create-note PL → implement → pr-review → retro
 - **Deploy**: git-safe → vps-deploy → document-change
 
 When recommending skills, consider where the user is in a chain and suggest the natural next step.

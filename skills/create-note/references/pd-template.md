@@ -63,9 +63,9 @@ status: draft
 
 ## Translation Guide
 
-{How the stakeholder's language maps to existing existing systems. This is the grounding section.}
+{How the stakeholder's language maps to existing Flora systems. This is the grounding section.}
 
-| Stakeholder term | System equivalent | Status | Notes |
+| Stakeholder term | Flora equivalent | Status | Notes |
 |---|---|---|---|
 | {their word} | {system/feature name} | {exists / partial / new} | {what's built, what's missing} |
 | {their word} | {system/feature name} | {status} | {notes} |

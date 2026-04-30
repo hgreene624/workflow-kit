@@ -21,7 +21,7 @@ Do NOT ask about technology, architecture, databases, or APIs. If the user volun
 
 One question at a time via AskUserQuestion.
 
-## Ground against project context
+## Ground against Flora context
 
 Read `references/flora-context.md`. For each idea, check: does something exist already? Which system is closest? Different words for the same thing? What's new vs extended?
 
@@ -33,7 +33,7 @@ Read `references/flora-context.md`. For each idea, check: does something exist a
 4. **Use Cases** - concrete scenarios with named people and real situations
 5. **Non-Negotiables** - constraints regardless of implementation
 6. **Open Questions** - things the user couldn't answer
-7. **Translation Guide** - table mapping user language to system names (exists/partial/new)
+7. **Translation Guide** - table mapping user language to Flora system names (exists/partial/new)
 8. **Stakeholder Assumptions** - technical opinions flagged as "stakeholder perspective, not requirement"
 9. **Priority Signal** - what was emphatic, repeated, urgent
 
