@@ -190,6 +190,26 @@ Say `/closeout`. Claude logs what you worked on and creates "pickup" documents: 
 
 Think of pickups as an extension of your memory. When you're juggling 10 things and your brain can't hold all the details, the pickup holds them for you. At end of day, you close out everything, and in the morning you load exactly the context you need.
 
+### Period Reporting System
+
+One of the kit's core features is an automated reporting system that keeps Claude oriented across sessions without you having to re-explain anything. It produces documents at three cadences (daily, weekly, monthly), each with a backward-looking report and a forward-looking roadmap.
+
+| Cadence | Backward (what happened) | Forward (what to focus on) |
+|---------|--------------------------|---------------------------|
+| Daily | **EOD** (End of Day) | **SOD** (Start of Day) |
+| Weekly | **EOW** (End of Week) | **WRM** (Weekly Roadmap) |
+| Monthly | **EOM** (End of Month) | **MRM** (Monthly Roadmap) |
+
+**How it works in practice:**
+- `/closeout` logs your session and creates pickups
+- `/end-day` aggregates all your sessions into an EOD report, then generates tomorrow's SOD
+- On Fridays, `/end-day` also produces an EOW and a WRM that sets 3 goals for next week
+- On the last workday of the month, it produces an EOM and an MRM that sets 3-5 objectives for the new month
+
+When you start a session with `/orient`, Claude reads today's SOD, the current WRM, and the current MRM. This gives it three layers of context: what to do today, what this week is about, and what this month optimizes for. You never have to re-explain your priorities.
+
+**The learning loop:** Every retrospective report (EOD, EOW, EOM) includes a retro section where observations are tagged with a "landing zone," the specific place where that insight produces a permanent change (a new rule, a skill improvement, a goal adjustment). This ensures patterns you notice actually change how the system behaves, instead of being documented and forgotten.
+
 ### Key Commands
 
 | What You Want | What to Say |
