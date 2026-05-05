@@ -74,7 +74,7 @@ Vault/
 │   ├── Weekly/            ← WS (WNN) - YYYY-MM-DD.md
 │   ├── Pickups/           ← PIC - Topic.md
 │   ├── Work Logs/         ← WL - Topic.md
-│   └── Reports/           ← SOD, EOD, EOW, SOM, EOM reports
+│   └── Reports/           ← SOD, EOD, EOW, WRM, MRM, EOM reports
 ├── 02_Projects/           ← All project documentation
 ├── 03_Operations/         ← Domain-specific ops content
 ├── 04_Reference/          ← Long-lived knowledge (REF docs, ADRs, runbooks)

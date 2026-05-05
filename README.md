@@ -201,7 +201,8 @@ Think of pickups as an extension of your memory. When you're juggling 10 things 
 | Start a new project | `/create-note SPC` |
 | Plan the work | `/create-note PLN` |
 | Execute the plan | `/implement` |
-| Strategic roadmap | `/roadmap` |
+| Monthly + weekly roadmap | `/roadmap` |
+| End of day report + context | `/end-day` |
 | Research a domain before designing | `/oracle-create` |
 | Ask the oracle a design question | `/oracle-ask` |
 | Define a system's principles | `/create-note SD` |
