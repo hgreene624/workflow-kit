@@ -5,10 +5,10 @@ description: >-
   Audits all open work, aligns it to the user's stated strategic goals, triages
   PICs into active/parked/blocked, sets monthly objectives with done definitions,
   derives 3 weekly goals, and produces decision rules for staying focused. See
-  [[SD - Period Reporting System]] for the full architecture. Use this skill when
+  the Period Reporting System definition for the full architecture. Use this skill when
   the user says "roadmap", "create roadmap", "refresh roadmap", "strategic plan",
   "what should I focus on", "priority reset", "workload audit", "realign priorities",
-  or after a major Patrick meeting changes strategic direction. Also use when the
+  or after a major meeting changes strategic direction. Also use when the
   current MRM is expired (past its month) and orient flags "no current MRM."
 ---
 
@@ -17,8 +17,8 @@ description: >-
 Create a goal-driven MRM (Monthly Roadmap) that maps all active work to the user's
 stated objectives, triages open PICs, phases tasks across weeks, and produces a WRM
 (Weekly Roadmap) as the operational lever. The MRM is the "why" behind every PIC and
-SOD priority. The WRM is the "what this week" derived from it. Per [[SD - Period
-Reporting System]], MRM replaces the old RM + SOM, and WRM replaces the old WF + SOW.
+SOD priority. The WRM is the "what this week" derived from it. Per the Period
+Reporting System, MRM replaces the old RM + SOM, and WRM replaces the old WF + SOW.
 
 **Design principles:**
 - Goal-driven, not project-driven. Work organizes under strategic goals, not project names.
@@ -37,7 +37,7 @@ Accept one of:
 - No argument: full roadmap creation from current state
 - `refresh`: update the existing RM with current work state (close completed phases, open new ones)
 - `weekly-focus` or `wf`: generate only a new WF from the current RM (for a new week)
-- A path to a meeting note (MN): create roadmap incorporating freshly triaged Patrick requests
+- A path to a meeting note (MN): create roadmap incorporating freshly triaged requests
 
 ## Step 0: Load context
 
@@ -45,8 +45,8 @@ Read in parallel:
 
 1. **Current MRM** (most recent file in `{vault_root}/01_Notes/Reports/MRM/`). If one exists, note its month and status. A refresh updates it; a new creation supersedes it.
 2. **Current WRM** (most recent file in `{vault_root}/01_Notes/Reports/WRM/`). Shows what was planned this week.
-3. **Patrick's strategic goals** at `{vault_root}/04_Reference/REF - Patrick Strategic Goals.md`. These are the goal headings for the RM. If this file does not exist, goals must come from the user.
-4. **Patrick Request Log** at `{vault_root}/03_Operations/Work REF/Patrick Request Log.md`. Shows all requests and their current status/tier.
+3. **Strategic goals** at `{vault_root}/04_Reference/REF - Strategic Goals.md`. These are the goal headings for the RM. If this file does not exist, goals must come from the user.
+4. **Request Log** at `{vault_root}/03_Operations/Work REF/Request Log.md` (if exists). Shows all requests and their current status/tier.
 5. **Most recent SOD**. Shows today's priorities and open work inventory.
 6. **Most recent EOW**. Shows what shipped last week, goal progress, retro findings.
 7. **Most recent EOM** (if within first week of month). Shows monthly carry-forwards.
@@ -60,9 +60,9 @@ Glob `{vault_root}/02_Projects/**/PIC - *.md` and `{vault_root}/02_Projects/**/p
 For each PIC, read its frontmatter to extract: title, status (open/closed/picked-up), date created, project.
 Count totals: open, closed, picked-up.
 
-### Patrick Requests
-Read the Patrick Request Log. Count by tier: ACT, SPEC, WATCH, PARK, DONE.
-Identify any SPEC-tier PRs that have had no activity in 7+ days.
+### Requests
+Read the Request Log (if it exists). Count by tier: ACT, SPEC, WATCH, PARK, DONE.
+Identify any SPEC-tier requests that have had no activity in 7+ days.
 
 ### Project Logs
 Glob `{vault_root}/02_Projects/**/PJL - *.md`.
@@ -80,26 +80,26 @@ Present the audit summary to the user:
 ```
 Workload snapshot:
 - [N] open PICs ([X] active, [Y] parked, [Z] blocked)
-- [N] Patrick Requests ([A] ACT, [B] SPEC, [C] WATCH)
+- [N] Requests ([A] ACT, [B] SPEC, [C] WATCH)
 - [N] active PJLs, [M] stalled (no activity >7 days)
 - Context switching: avg [N] projects/day over last 5 days
 ```
 
-Then present the strategic goals. If `REF - Patrick Strategic Goals.md` exists, show those goals and ask if they're still current. If it doesn't exist, ask the user to state 3-5 goals.
+Then present the strategic goals. If the strategic goals file exists, show those goals and ask if they're still current. If it doesn't exist, ask the user to state 3-5 goals.
 
 Use AskUserQuestion with multiSelect to confirm which goals are active for this roadmap period. Present each goal as an option with a brief description. The user can also add new goals via "Other."
 
 ## Step 3: Align work to goals
 
-For each confirmed goal, scan the open PICs, active PRs, and recent PJL entries to find related work. Build a mapping:
+For each confirmed goal, scan the open PICs, active requests, and recent PJL entries to find related work. Build a mapping:
 
-| Goal | Related PICs | Related PRs | Recent PJL activity |
+| Goal | Related PICs | Related Requests | Recent PJL activity |
 |---|---|---|---|
 
 Present the alignment to the user. Flag:
 - PICs that don't align to any goal (candidates for parking)
 - Goals with no related PICs (need new PICs or the goal is aspirational)
-- PRs at SPEC or WATCH tier that could be upgraded if they serve an active goal
+- Requests at SPEC or WATCH tier that could be upgraded if they serve an active goal
 
 Use AskUserQuestion to confirm the alignment. One question: "These [N] PICs don't align to any active goal. Park them?" with multiSelect showing each unaligned PIC.
 
@@ -139,15 +139,15 @@ Add per-goal sections as needed:
 
 Organize all non-active work into:
 - **Parked PICs** (with reason for each: "blocked on external", "future phase", "not this period")
-- **WATCH PRs** (Patrick requests not on critical path this period)
-- **PARK PRs** (prerequisites or future phases)
+- **WATCH Requests** (requests not on critical path this period)
+- **PARK Requests** (prerequisites or future phases)
 - **Stalled PJLs** (no activity >7 days, listed for visibility)
 
 ## Step 7: Write decision rules
 
 Generate 3-5 situational decision rules based on the current context. Standard rules:
 
-1. **New Patrick request?** Check against Goals 1-N. If it serves an active goal, absorb. If not, WATCH tier.
+1. **New request?** Check against Goals 1-N. If it serves an active goal, absorb. If not, WATCH tier.
 2. **Infrastructure incident?** Fix if blocking active goals. Otherwise PIC it and continue.
 3. **Minor recurring task?** Do in <30 min or park with reason.
 4. **Open PIC count exceeds [threshold]?** Triage before adding more.
@@ -217,7 +217,7 @@ When called with `wrm`:
 
 ## Writing rules
 
-Load and follow `WP - General.md` from Writing Profiles. The RM is a Plan (category: Plan). Task tables use the established column format. No em dashes. Tight spacing. Wikilink all PICs, PRs, and PJLs.
+Load and follow `WP - General.md` from Writing Profiles. The RM is a Plan (category: Plan). Task tables use the established column format. No em dashes. Tight spacing. Wikilink all PICs and PJLs.
 
 ## Error handling
 

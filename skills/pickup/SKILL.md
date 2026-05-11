@@ -322,9 +322,9 @@ Update the PIC's frontmatter immediately:
 The PIC's `project:` frontmatter is a hint, not authority. PICs sometimes bundle work across projects, get filed under the wrong one initially, or drift. Before writing to ANY PJL, validate that the work scope actually matches the named project.
 
 1. Scan the PIC body (`## Context`, `## What Needs to Happen Next`, `## Key Files`) for project signals:
-   - **File paths**: `apps/<app>/`, `services/<svc>/`, `packages/<pkg>/` from the monorepo
+   - **File paths**: `apps/<app>/`, `services/<svc>/`, `packages/<pkg>/` from the codebase
    - **Vault paths**: `02_Projects/<project>/` references
-   - **Container names**: `kb`, `flora-api`, `portal`, `admin`, etc., each map to known projects
+   - **Container names**: each maps to a known project
    - **Codebase domains**: function/file names that belong to a specific subsystem
 2. Compare the dominant signals against the `project:` field.
 3. If signals strongly disagree (the work touches a different project's surface than the PIC claims), use AskUserQuestion to confirm the target before writing. Options should include the frontmatter project, the project the signals point to, and "split into multiple PICs."

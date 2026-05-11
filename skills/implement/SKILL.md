@@ -49,8 +49,8 @@ If the plan has no `ceremony_tier`, infer: <15 tasks with no DB/deploy = light. 
 
 Before dispatching work:
 
-0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, note it for mid-build queries. When a worker hits a design choice not covered by the plan, query the oracle: "What's the recommended approach for {specific question}?" Surface to user: "Implementation question: {question}. Oracle recommends {approach} (source: {citation}). Proceed with this approach?" Never silently apply oracle recommendations. See [[SD - Oracle System]].
-1. Read the plan, spec, project `CLAUDE.md` and `lessons.md`, and `REF - Agent Lessons.md`
+0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, note it for mid-build queries. When a worker hits a design choice not covered by the plan, query the oracle: "What's the recommended approach for {specific question}?" Surface to user: "Implementation question: {question}. Oracle recommends {approach} (source: {citation}). Proceed with this approach?" Never silently apply oracle recommendations.
+1. Read the plan, spec, project `CLAUDE.md` and `lessons.md`, and agent lessons file
 2. **Read the Project Log** — If a PJL exists at `02_Projects/<project>/PJL - <Project Name>.md`, read the most recent 3–5 date sections. This is critical context for implementation:
    - **Decisions already made** — don't re-litigate what's in the PJL
    - **What was tried and failed** — don't repeat failed approaches
@@ -58,7 +58,7 @@ Before dispatching work:
    - **Known issues** — avoid tripping over documented gotchas
    Pass relevant PJL context to workers when dispatching them. A worker building Phase 2 needs to know what Phase 1 discovered.
 3. Check task statuses in the plan tables — which are `done`, `in-progress`, `todo`
-4. Scan for activated lessons (L25 deploy != push, L27 environment declaration, L9 schema inspection)
+4. Scan for activated lessons (deploy != push, environment declaration, schema inspection)
 5. Present summary: "Plan has N phases, M tasks ({completed} done, K ready). Tier: {tier}. Ready?"
 
 ## Environment Declaration ({{ORG}} apps only)
@@ -66,16 +66,66 @@ Before dispatching work:
 Before dispatching ANY {{ORG}} worker, determine and declare the environment: LOCAL, REMOTE, or BOTH.
 If ambiguous, ask the user. Inject the declaration into every worker prompt. See `references/worker.md`.
 
+## Pre-flight: Bracket Declaration (mandatory)
+
+Before dispatching ANY worker, invoke `/bracket` to write a printed contract for this implementation. This is non-negotiable. Implementations without a bracket are how scope creep enters the system silently.
+
+The bracket consumes the plan (which says what to build) and produces a contract (which says the surface, success, and out-of-scope explicitly). The two are not redundant: plans describe phased work, brackets enforce containment at each phase boundary.
+
+For an `/implement` bracket specifically:
+
+- **Surface:** the files, functions, migrations, and prompts that THIS implementation will modify. Pulled from the plan's task tables. List by phase. If the plan touches more than 5 distinct files in Phase 1, that is a sign Phase 1 is too large; consider splitting before bracketing.
+- **Success criteria:** the plan's acceptance criteria, restated as observable checks (verification commands, URLs, query results).
+- **Anti-scope:** at minimum, EVERY item the spec review (or your own judgment) explicitly placed in "future work" or "out of scope." Plus: `/review-spec` invocations during implementation, scope expansions discovered mid-build, "while I'm in here" extensions, refactors not in the plan.
+- **Validation plan:** the 3-5 input minimum reproducer per phase. Live monitoring per your QA procedure.
+- **Handoff trigger:** at minimum: 2 failed phase verifications on the same surface; any STOP signal from user; environment mismatch (worker reports REMOTE deploy when plan said LOCAL).
+
+The bracket is saved to `~/.claude/state/bracket-active.md` and printed in chat. After bracket is set, every status update to the user must reference it: "Phase X of N. Surface item Y of M. Success criterion not yet met. No anti-scope drift."
+
+Worker prompts must include the surface and anti-scope sections so workers know when their proposed change is out of bounds. A worker proposing an edit outside the surface is returned with: "Out of bracket. Reground or surface the request as a re-bracket candidate."
+
+If a phase legitimately needs to expand the surface mid-build (genuine new requirement, not creep), invoke `/bracket` again to re-bracket. Do not silently expand. The user must approve the new bracket.
+
 ## Dispatch
 
 Create a team via TeamCreate. Dispatch workers directly — you manage them, no PM relay.
 
+### Worktree Isolation (mandatory for parallel workers)
+
+When dispatching 2+ workers that target the same git repository, each worker MUST get its own
+git worktree. Workers never share HEAD. This is not optional.
+
+**Before dispatching parallel workers:**
+
+1. Identify which workers target the same repo
+2. Create a worktree per worker:
+   ```bash
+   git worktree add /tmp/{team}-{worker-name} -b {branch-name} main
+   ```
+3. Set each worker's CWD to `/tmp/{team}-{worker-name}/` in the dispatch prompt
+4. Include in the worker prompt: "You are working in a git worktree at `/tmp/{team}-{worker-name}/`. All your code changes happen here. Commit and push your branch before completing."
+
+**After all parallel workers complete:**
+
+1. Cherry-pick or merge each worker's branch into an integration branch or main
+2. Clean up worktrees: `git worktree remove /tmp/{team}-{worker-name}`
+3. Verify no worktrees are left: `git worktree list`
+
+**Sequential workers** (one at a time, same repo) do not need worktrees. They can work directly
+in the repo since there's no HEAD contention.
+
+**Why this exists:** A past incident where parallel workers sharing one HEAD caused branch contamination, hundreds of lines nearly lost, and significant orchestrator untangling time. Zero code was lost only because of manual intervention.
+
+### Worker dispatch
+
 For each unblocked task or batch of independent tasks:
 
 1. Choose model per `references/worker.md` model guide
-2. Dispatch with the worker template, injecting: task details, context files, relevant checklists
-3. Workers report completion to YOU with: what was done, commit hash, verification URL (if {{ORG}})
-4. Update the plan file: set task Status to `done`, add Notes, append to Work Log, increment
+2. If parallel dispatch to same repo, create worktrees first (see above)
+3. Dispatch with the worker template, injecting: task details, context files, relevant checklists,
+   and worktree path if applicable
+4. Workers report completion to YOU with: what was done, commit hash, verification URL (if {{ORG}})
+5. Update the plan file: set task Status to `done`, add Notes, append to Work Log, increment
    frontmatter `completed` count
 
 **Parallel dispatch:** Tasks with no dependency on each other run in parallel. Tasks with deps wait.
@@ -146,6 +196,6 @@ If session ends before sprint finishes:
 | `references/worker.md` | Worker dispatch template + model guide | When dispatching |
 | `references/smoke-checks.md` | Automated pass/fail checks | After deploys/phases |
 | `references/security-eval.md` | LLM auth code review prompt | Standard tier, auth changes |
-| `references/checklists/deploy.md` | VPS deploy verification | Workers touching production |
+| `references/checklists/deploy.md` | Deploy verification | Workers touching production |
 | `references/checklists/frontend.md` | basePath, AG Grid, rendering | Frontend workers |
 | `references/checklists/db.md` | Schema inspection, migration safety | DB workers |

@@ -41,6 +41,69 @@ Filter results to files whose basename starts with `PIC -` (discard IRs, DTs, te
 
 This snapshot is context, not output. Don't present the full PIC list to the user unless they ask. Just use it to make better decisions about what to create, update, or close.
 
+## Step 0c: Failure-Session Detection (MANDATORY)
+
+Before the standard logging flow, detect whether this session ended in failure. Failure sessions need a different closeout template that captures the failure chain, working-contract violations, and anti-patterns. A "clean" closeout for a failed session loses the most important information: what went wrong and why.
+
+**Triggers for failure-session mode (any one is sufficient):**
+
+1. **User-directed rollback during the session.** Look for: `pg_restore`, `git revert`, `docker compose down` followed by data restore, "let's roll this back", "restore from backup", or the session created an artifact named "Recover" / "Recovery" / "Rollback". Check the conversation for these patterns.
+
+2. **Stop signals from user.** Grep the user's messages for any phrase from the stop signals list in your CLAUDE.md ("just stop", "you screwed up", "this is a mess", "you're causing problems", "are you checking the work", "we need to test small chunks", "scope creep", "going in circles", profanity-flavored stops). Even one is sufficient to flag the session.
+
+3. **Explicit failure framing.** User said "this was a net regression," "we made things worse," "rough day," "today was bad," "failed session," or similar. Check both the user's last message and any mid-session retrospective phrasing.
+
+4. **Inherited working contract violations.** If a PIC marked the session with a "REQUIRED" / "Iteration Process" / "Working Contract" section, audit whether the contract's rules were violated. Common violations: ran a full-scale operation when contract said test 3-5 inputs first; added fallbacks/workarounds when contract said no fallbacks; continued past handoff threshold; skipped oracle consultation.
+
+5. **Bracket violations.** If `~/.claude/state/bracket-active.md` exists, check whether work touched any anti-scope item. Mid-session re-bracketing is fine; silent expansion past anti-scope is a violation.
+
+If ANY trigger fires, switch to **failure-session template** for the rest of closeout. Tell the user explicitly: "Detected failure-session triggers: [list]. Switching to failure-session closeout template. The PIC will document the failure chain, not just what was attempted."
+
+### Failure-session template (replaces standard PIC structure)
+
+The PIC for a failure session must include these sections, in this order:
+
+1. **REQUIRED: Read this first** — the working contract for the next agent. If this is a 2nd or 3rd consecutive failure on the same work, escalate the contract: bigger warnings, explicit "do not repeat patterns X, Y, Z," named handoff triggers.
+
+2. **Net result of this session** — plain prose stating the system state before vs after. Include specifically: what the user could do before that they cannot do now. What got worse. What infrastructure / scaffolding remains as residual value.
+
+3. **What this session attempted** — chronological numbered list of decisions with timestamps if available. Each decision: what was attempted, what happened, why the agent chose to continue or stop. This is not "what was done"; it is "what decisions were made and in what order."
+
+4. **Failure chain** — for each decision in #3 that contributed to the bad outcome, name the specific anti-pattern (cite applicable agent lessons where relevant). End with a pattern summary: what shape did the failure take across the session?
+
+5. **Working contract violations** (if applicable) — list each rule from the inherited working contract, mark VIOLATED / OBSERVED / NOT-APPLICABLE, with evidence citation.
+
+6. **What the next agent must do** — concrete and small. Numbered list, each item starts with "Do NOT" or "Do" and is specific. The minimum-viable-fix surface, not a roadmap.
+
+7. **Carry-Forward Issues Not Addressed** — what remains broken or unverified.
+
+8. **Known Issues (do not repeat)** — bugs encountered during the session that the next agent will hit if not warned. Include false-fact corrections (column name X is actually Y, container name X is actually Y, count X is actually Y).
+
+9. **Methodology deltas** — what should be added to REF docs / lessons / skills based on this session's findings.
+
+The standard template's "What Was Done" / "What Needs to Happen Next" structure is replaced by these sections. Do not produce a "What Was Done" list for a failure session; the failure chain replaces it.
+
+### Naming the failure PIC
+
+For 1st failure on a work item: `PIC - {Topic}`.
+For 2nd failure on the same work item: `PIC - Recover {Topic} Post Failed Session N`.
+For 3rd+ failure: escalate to the user. The same work failing 3+ times means the work needs to be reframed or parked, not picked up by another agent. Default response: "This is the 3rd failed session on {topic}. Do you want me to write the PIC anyway, or should we park this work until a different approach is identified?"
+
+### Logging the failure session
+
+The DN entry for a failure session uses **bold-flag format**:
+
+```
+#### {Project Name}
+- **{Topic}: NET REGRESSION** (or NET FAILURE, or ROLLED BACK). {one-sentence summary of what got worse}. [[PIC - Recover ...|Recovery PIC]] | [[PJL - Project Name|Project log]]
+```
+
+Do not soft-pedal failure sessions in the DN. The flag is the signal.
+
+The PJL entry uses a `### Session N — FAILED, ROLLED BACK` heading with full chronology. Do not write a clean "what was done" PJL entry for a failed session.
+
+This step exists because past sessions were logged with a clean "what was done" structure that read like progress, when the reality was the system went from "alive but flawed" to "structurally correct on paper, producing zero output." Recovery PICs had to retroactively reconstruct the failure chain because the original PIC didn't capture it. Failure sessions get failure templates, full stop.
+
 ## Step 0a: Environment Verification (MANDATORY for deployed apps)
 
 Before logging anything, audit the session for code changes to deployed services and verify the deployment state of every change. The closeout log will end up in the daily note where future agents read it as ground truth, so false claims here cause cascading bugs.
@@ -194,8 +257,8 @@ If you cannot determine whether a change is yours vs another session's, **leave 
 ### 1.6a -- Identify this session's repos
 
 Walk the JSONL tool_use entries and extract every file path that was edited/written. Map each file to its parent git repo by walking up to find a `.git` directory. Common candidates:
-- Your vault directory (e.g., `~/Documents/Vaults/`)
-- Your code repos (e.g., `~/Repos/{{MONOREPO_NAME}}/`)
+- Your vault directory
+- Your code repos (e.g., `~/Repos/<project>/`)
 - `~/.claude/skills/` (only if a `.git` directory exists -- otherwise changes may be backed up via a vault mirror instead)
 - Remote repos on deployment targets (check via SSH if applicable)
 

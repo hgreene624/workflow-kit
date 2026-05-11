@@ -34,9 +34,46 @@ Before dispatching the team:
 1. Read the spec file to understand what's being proposed
 2. Infer the project from the spec's location in the vault directory tree:
    - `01_Work/03_Projects/<ProjectName>/` → that's your project
-   - Also check for sub-projects (e.g., `{{ORG}} Hub/`, `Inbox Triage/`, `Signal Engine/` under FWIS)
+   - Also check for sub-projects (e.g., `{{ORG}} Hub/` or domain-specific subfolders)
 3. Check for `CLAUDE.md` and `lessons.md` in that project directory
 4. Read the vault-root `AGENTS.md` file, then the project-level `CLAUDE.md` if one exists — these contain critical context about how work should be done in that project
+
+## Step 0a — Schema Pre-flight (mandatory for specs that touch a database)
+
+If the spec references ANY database table, column, or query, run a schema verification pass BEFORE dispatching the review team. This catches the most common spec defect: claims about schema that disagree with the live DB.
+
+**Process:**
+
+1. Grep the spec for table references. Patterns to find:
+   - `<schema>.<table>` (e.g., `public.signals`, `app.meetings`)
+   - Inline SQL fragments (`SELECT ... FROM`, `\d <table>`, `JOIN <table>`)
+   - Column references in SAT/acceptance queries
+   - Frontmatter fields that imply tables (e.g., `target_table: signals`)
+
+2. For each unique table found, run `\d <schema>.<table>` against the live DB:
+   ```bash
+   ssh <deploy-target> "docker exec <your-database-container> psql -U <user> -d <database> -c '\\d <schema>.<table>'"
+   ```
+   Use the right database for the project context.
+
+3. For each column the spec references on that table, verify the column exists with the claimed type. Common spec defects:
+   - Column claimed at top level but actually lives in a JSON payload field
+   - Column name nearly-but-not-exactly matches (e.g., `attribution_name` vs `attributed_to`)
+   - Type mismatches (TEXT vs TIMESTAMPTZ)
+
+4. Verify every count claim against the live DB. If the spec says "2,775 unrouted signals," run the matching query and confirm.
+
+5. Verify every container name and service reference against `docker ps` on the deploy target. Common defect: spec uses a wrong container name.
+
+**Output:** Write `{workspace}/ARE - {spec_name} Schema Pre-flight.md` with:
+- Tables verified (table | exists Y/N | columns checked)
+- Schema mismatches found (claimed | actual | severity)
+- Count mismatches (claimed | actual)
+- Container/service mismatches
+
+**Gate:** If pre-flight finds 3+ schema mismatches OR any Critical-severity mismatch (column does not exist, table does not exist), STOP and report to user before dispatching the review team. The spec needs author-level corrections, not reviewer feedback. Reviewing a spec built on wrong schema premises wastes cycles.
+
+This step exists because a past session wasted a full review cycle when the spec was drafted against imagined schema (columns that didn't exist, wrong container names). The review team correctly flagged these as Critical issues, but the catch happened AFTER the full review ran. A 2-minute pre-flight catches the same issues before the spec reaches reviewers.
 
 ## Step 1 — Dispatch the Team
 
@@ -84,9 +121,9 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 >
 > **Then gather context from these sources:**
 >
-> 1. **Lessons files** — Read `lessons.md` in the project directory AND in parent/sibling project directories. Also check `04_ Tools/Reference/REF - Project Planning Lessons.md` and `04_ Tools/Reference/REF - Agent Lessons.md`. Extract every lesson that's relevant to what this spec proposes.
+> 1. **Lessons files** — Read `lessons.md` in the project directory AND in parent/sibling project directories. Also check reference files for project planning lessons and agent lessons. Extract every lesson that's relevant to what this spec proposes.
 >
-> 2. **Reference files** — Search for `REF - *.md` files in the project directory and `04_ Tools/Reference/`. Read any that relate to the technologies, patterns, or infrastructure mentioned in the spec.
+> 2. **Reference files** — Search for `REF - *.md` files in the project directory and reference directories. Read any that relate to the technologies, patterns, or infrastructure mentioned in the spec.
 >
 > 3. **Related specs and plans** — Search for other `SPC - *.md` and `PL - *.md` files in the same project. Read them to understand:
 >    - What's already been specced/planned that this overlaps with
@@ -95,9 +132,9 @@ Use `TeamCreate` to spin up three agents in tmux panes. The user needs to be abl
 >
 > 4. **Past reports** — Check the project's `Reports/` directory for recent reports that provide context (audit results, incident reports, evaluation results).
 >
-> 5. **Workflow docs** — Read relevant workflows from `Documentation/Agent Workflows/` (Feature Development Workflow, Project Spec Workflow, Project Plan Workflow).
+> 5. **Workflow docs** — Read relevant workflows from documentation directories (Feature Development Workflow, Project Spec Workflow, Project Plan Workflow).
 >
-> 6. **Memory** — Check `~/.claude/projects/-Users-username-Library-Mobile-Documents-iCloud-md-obsidian-Documents-Personal-Vault/memory/` for any memory files relevant to this project.
+> 6. **Memory** — Check automemory files for any entries relevant to this project.
 >
 > **Output:** Write a context brief to `{workspace}/ARE - {spec_name} Context Brief.md` with sections:
 > - **Applicable Lessons** (lesson ID, source file, relevance to this spec)
@@ -208,7 +245,7 @@ Once all three agents finish:
 2. Summarize the key findings for the user — verdict, issue count by severity, top gotchas
 3. If the review found **Clarifications Needed**, present them one at a time using `AskUserQuestion`. Each clarification is a decision that changes the shape of the plan:
    - "The spec mentions a new API endpoint but doesn't specify auth. Should it use the existing JWT flow or the new unified auth?"
-   - "This overlaps with the Sales Context Panel spec. Should they share a backend service or stay independent?"
+   - "This overlaps with another spec. Should they share a backend service or stay independent?"
 4. Record the user's answers by appending a **Clarification Log** section to `ARE - {spec_name} Spec Review.md`:
    ```
    ## Clarification Log
@@ -220,7 +257,7 @@ Once all three agents finish:
    **Answer:** [user's answer] (2026-03-13)
    ```
 
-## Step 3 — Apply Spec Improvements (L23: No Double-Confirmation)
+## Step 3 — Apply Spec Improvements (No Double-Confirmation)
 
 After clarifications are resolved, apply improvements efficiently. **Do NOT re-ask the user to confirm decisions they already made.**
 

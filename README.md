@@ -59,7 +59,11 @@ This works for anything structured: a software feature, a business process, a hi
 
 - **macOS or Windows**
 - **A modern terminal** -- **[Warp](https://www.warp.dev)** on macOS (free, has tabs and AI features) or **[Windows Terminal](https://aka.ms/terminal)** on Windows (free, has tabs). The default macOS Terminal and Windows Command Prompt also work.
-- **[Claude Code](https://www.claude.com/product/claude-code)** -- the terminal/CLI tool (not Claude Desktop, which is a separate chat app). Requires a Claude subscription ($20/month Pro or $100/month Max).
+- **[Claude Code](https://www.claude.com/product/claude-code)** -- the terminal/CLI tool (not Claude Desktop, which is a separate chat app). Requires a Claude subscription ($20/month Pro or $100/month Max). Install it with:
+  ```bash
+  npm install -g @anthropic-ai/claude-code
+  ```
+  After install, restart your terminal and type `claude --version` to confirm. If "command not found," see [Troubleshooting](#troubleshooting-setup) below.
 - **[Obsidian](https://obsidian.md)** installed (free note-taking app)
 - **Git** -- on macOS, open your terminal and type `git` to check (installs automatically). On Windows, download from [git-scm.com](https://git-scm.com)
 
@@ -69,17 +73,25 @@ This works for anything structured: a software feature, a business process, a hi
 
 The Workflow Kit itself is free. The only cost is your Claude subscription ($20/month Pro or $100/month Max). For perspective: a single user doing normal productivity work barely dents the subscription. At API pricing, the same work would cost thousands per month. The subscription is a massive bargain for this type of use.
 
-### Step 1: Download the vault
+> **Note on rate limits:** The initial `/setup` scan is the heaviest single operation. On the Pro plan ($20/mo), you may approach your usage limit during an intensive first session. If you hit a limit, wait for the reset and continue. The Max plan ($100/mo) has higher limits and is recommended for heavy daily use.
+
+### Step 1: Fork and download the vault
+
+First, [fork this repo](https://github.com/YOUR_USERNAME/workflow-kit/fork) on GitHub. This creates your own copy that you control.
+
+Then clone **your fork** (replace `your-github-username` with your actual GitHub username):
 
 **macOS** -- Open Terminal and paste:
 ```bash
-git clone https://github.com/YOUR_USERNAME/workflow-kit.git ~/Documents/Vaults/Work\ Vault
+git clone https://github.com/your-github-username/workflow-kit.git ~/Documents/Vaults/Work\ Vault
 ```
 
 **Windows** -- Open Terminal and paste:
 ```cmd
-git clone https://github.com/YOUR_USERNAME/workflow-kit.git "%USERPROFILE%\Documents\Vaults\Work Vault"
+git clone https://github.com/your-github-username/workflow-kit.git "%USERPROFILE%\Documents\Vaults\Work Vault"
 ```
+
+> **Replace `your-github-username`** with your actual GitHub username. For example, if your GitHub is `jsmith`, the URL becomes `https://github.com/jsmith/workflow-kit.git`. If you get a 404 error, double-check that you forked the repo and spelled your username correctly.
 
 If `git` is not recognized, install it from [git-scm.com](https://git-scm.com) first, then restart your terminal.
 
@@ -109,6 +121,19 @@ This copies all skill folders into Claude Code's skills directory. You only need
 4. Click **Trust** when prompted (this enables the pre-configured plugins)
 
 You'll see a sidebar with folders like `01_Notes`, `02_Projects`, etc. These are already set up for you.
+
+> **Plugin note:** The daily note template uses Obsidian's [Bases](https://help.obsidian.md/bases) feature (built-in since Obsidian 1.9) to display recent specs, reports, and pickups. If you're on an older version of Obsidian, these sections will show raw embed syntax instead of tables. Update Obsidian to the latest version for the best experience.
+
+### Pre-flight check
+
+Before proceeding, verify everything is in place:
+
+- [ ] `git --version` returns a version number
+- [ ] `claude --version` returns a version number (if not, see [Troubleshooting](#troubleshooting-setup))
+- [ ] `ls ~/.claude/skills/orient/SKILL.md` shows the file (skills are installed)
+- [ ] Obsidian shows `Work Vault` with `01_Notes`, `02_Projects`, etc.
+
+If any check fails, fix it before continuing. The `/setup` scan requires all four.
 
 ### Step 4: Set up Claude
 
@@ -234,6 +259,17 @@ When you start a session with `/orient`, Claude reads today's SOD, the current W
 | Organize incoming files | `/intake` |
 | Save context for later | `/park` |
 | End your day | `/closeout` |
+| See what skills can help you | `/discover` |
+
+### You Can Also Just Talk
+
+Slash commands aren't the only way to interact. Claude understands natural language:
+
+- "I had a meeting with the team about the budget rewrite" (Claude creates meeting notes)
+- "What should I work on next?" (Claude checks your pickups and priorities)
+- "I want to build a client intake form for my consulting business" (Claude walks you through the spec process)
+- "Can you explain how the spec workflow works?" (Claude pulls from your vault docs)
+- "Organize these files I just downloaded" (Claude triages them into your project structure)
 | Review completed work | `/retro` |
 | See what skills can help you | `/discover` |
 | Review your backlog | `/pickup` (shows triage when multiple PICs exist) |
@@ -376,6 +412,18 @@ Found a bug or have an improvement? Run `/update-wfk contribute` and Claude will
 You can also open issues at [github.com/YOUR_USERNAME/workflow-kit/issues](https://github.com/YOUR_USERNAME/workflow-kit/issues) to report bugs or suggest features.
 
 ---
+
+## Troubleshooting Setup
+
+| Problem | Fix |
+|---------|-----|
+| `claude: command not found` | Restart your terminal. If that doesn't work, run `npm install -g @anthropic-ai/claude-code` again, then close and reopen the terminal. On macOS, you may need to add the npm global bin to your PATH: add `export PATH="$HOME/.npm-global/bin:$PATH"` to your `~/.zshrc` file. |
+| Clone returns 404 | Make sure you forked the repo first and replaced `your-github-username` in the clone URL with your actual GitHub username. |
+| `git: command not found` | Install Git from [git-scm.com](https://git-scm.com), then restart your terminal. |
+| Obsidian shows empty vault | Make sure you opened the `Work Vault` folder (not a parent directory). Go to File > Open Vault > Open folder and select the `Work Vault` folder. |
+| `/setup` says "skills not found" | Run Step 2 again (the `cp -r` command). The skills must be in `~/.claude/skills/` before `/setup` works. |
+| Hit your usage limit during setup | Wait for the rate limit to reset (check your Claude account page for timing). The `/setup` scan is the heaviest single operation. After setup, normal use is much lighter. |
+| Permission denied errors | Make sure you own the vault directory. On macOS: `ls -la ~/Documents/Vaults/` should show your username as owner. |
 
 ## License
 
