@@ -37,8 +37,8 @@ Plans set `ceremony_tier: light | standard | heavy` in frontmatter. Default is `
 
 | Tier | When | What's on | What's off |
 |------|------|-----------|------------|
-| **light** | UI, CRUD, config, docs, <15 tasks | Workers + smoke checks | Gates, audit agents |
-| **standard** | Auth, schema migrations, production deploys | Workers + smoke checks + security eval + deploy gates | PM tracker, QA auditor agent |
+| **light** | UI, CRUD, config, docs, <15 tasks | Workers + smoke checks | Gates, Verifier, audit agents |
+| **standard** | Auth, schema migrations, production deploys | Workers + smoke checks + security eval + deploy gates + Verifier pass on behavioral changes | PM tracker, QA auditor agent |
 | **heavy** | Multi-day, multi-team, infrastructure migrations | Everything from v1 | Nothing — full ceremony |
 
 If the plan has no `ceremony_tier`, infer: <15 tasks with no DB/deploy = light. Auth or schema work = standard. Multi-service infrastructure = heavy.
@@ -85,6 +85,8 @@ The bracket is saved to `~/.claude/state/bracket-active.md` and printed in chat.
 Worker prompts must include the surface and anti-scope sections so workers know when their proposed change is out of bounds. A worker proposing an edit outside the surface is returned with: "Out of bracket. Reground or surface the request as a re-bracket candidate."
 
 If a phase legitimately needs to expand the surface mid-build (genuine new requirement, not creep), invoke `/bracket` again to re-bracket. Do not silently expand. The user must approve the new bracket.
+
+The `/bracket` skill walks the user through each of its five sections (Surface, Success criteria, Anti-scope, Validation plan, Handoff trigger) and requires a per-section AskUserQuestion authorization before the bracket is considered locked. Do not begin dispatching workers until that walkthrough completes and the bracket is locked.
 
 ## Dispatch
 
@@ -148,6 +150,39 @@ For auth/middleware code changes, run the focused eval from `references/security
 An LLM review of ONLY the auth diff against a checklist: session validation, error message leaks,
 parameterized queries, CSRF, rate limiting. Skip for CRUD, UI, config.
 
+## Quality: Verifier Pass (Standard Tier, Behavioral Changes)
+
+For standard-tier changes whose acceptance criterion is **behavioral** (not just "compiles" or "returns 200"), the worker that wrote the change does NOT verify it. Dispatch a separate Verifier agent to test pre-selected I/O pairs against the deployed change.
+
+This is the actor/judge separation principle: workers that implement AND evaluate their own work systematically report premature completion. For pipeline / LLM-in-the-loop work where data quality is the deliverable, use `/qa-coord` instead — that skill has the full three-role protocol with closed-loop testing and a scored evaluation matrix.
+
+**When the Verifier fires:**
+- Auth/middleware changes — does it reject the invalid token AND accept the valid one?
+- Schema migrations with data semantics — does existing data still read correctly through the new shape?
+- API behavior changes — does the endpoint return the new response with correct values across the conditional paths?
+- Bulk operations with selection logic — did it hit the right rows?
+- Any acceptance criterion phrased "X should happen when Y" or "X should be preserved across Z"
+
+**When to skip the Verifier (smoke checks are sufficient):**
+- Pure config flips (env vars, feature flags) where the smoke check exercises the flag
+- Static endpoints whose acceptance criterion IS the smoke check (shape + status code)
+- Doc / copy edits
+- Additive UI components with no business logic
+
+When in doubt, dispatch. The cost is one Verifier call; the alternative is shipping unverified behavioral changes.
+
+**Mechanism:**
+
+1. Worker commits and reports per `references/worker.md` (standard-tier Verifier-handoff mode: no self-verification claims)
+2. Orchestrator deploys via the project's deploy procedure
+3. Smoke checks run first. If they fail, fix the deploy before dispatching the Verifier — no point verifying a broken deploy.
+4. Orchestrator pulls 3-5 pre-selected I/O pairs from the bracket's validation plan (minimum: 1 true positive, 1 true negative, 1 boundary or false-positive-risk input)
+5. Orchestrator dispatches Verifier with the template in `references/verifier.md`. Prefer model diversity (if Worker was sonnet, Verifier is opus; if Worker was opus, Verifier is sonnet)
+6. Verifier returns the I/O proof report (PASS/FAIL per test, no recommendations)
+7. Orchestrator decides per the PASS / FAIL / ESCALATE / INCONCLUSIVE rules in `references/verifier.md`
+
+**Why this exists:** Standard-tier changes are irreversible enough that "the deploy went through and the route returns 200" is the wrong stopping point. The role split costs one extra agent dispatch per behavioral phase; that is the right tax for auth, schema, and production-data changes.
+
 ## Gates
 
 **Light tier:** No gates. Workers self-verify via smoke checks.
@@ -196,6 +231,7 @@ If session ends before sprint finishes:
 | `references/worker.md` | Worker dispatch template + model guide | When dispatching |
 | `references/smoke-checks.md` | Automated pass/fail checks | After deploys/phases |
 | `references/security-eval.md` | LLM auth code review prompt | Standard tier, auth changes |
+| `references/verifier.md` | Verifier dispatch template + decision rules | Standard tier, behavioral changes |
 | `references/checklists/deploy.md` | Deploy verification | Workers touching production |
 | `references/checklists/frontend.md` | basePath, AG Grid, rendering | Frontend workers |
 | `references/checklists/db.md` | Schema inspection, migration safety | DB workers |

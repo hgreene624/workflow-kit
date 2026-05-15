@@ -1,12 +1,13 @@
 {
   "$schema": "Workflow Kit manifest — declares what ships with the kit vs stays local",
-  "version": "3.3.0",
+  "version": "3.4.0",
 
   "core_skills": [
     "apikeys",
     "article-intel",
     "auto-research",
     "best-practice",
+    "bracket",
     "closeout",
     "create-note",
     "discover",
@@ -31,6 +32,7 @@
     "pickup",
     "pr-review",
     "prototype",
+    "qa-coord",
     "recap",
     "resolve-ir",
     "retro",
@@ -38,6 +40,7 @@
     "roadmap",
     "setup",
     "skill-creator",
+    "spec-guard",
     "step-away",
     "test-check",
     "troubleshoot",
@@ -54,17 +57,19 @@
     "ag-local-test",
     "ag-verify-fix",
     "backup-vault",
+    "campaign",
     "case-study",
+    "cc-voting-data",
     "chawdys",
     "create-agent",
-    "create-campaign",
     "create-flora-agent",
-    "create-pulse-campaign",
     "cron",
     "dad-eod",
     "dashboard-brief",
+    "design-export",
     "document-change",
     "flora-app",
+    "flora-farms-design",
     "groom-plane",
     "kb-analysis",
     "kb-content",
@@ -74,7 +79,6 @@
     "kb-ingest",
     "kb-site",
     "kb-structure",
-    "kb-to-campaign",
     "kb-update",
     "limitless",
     "ms-graph",
@@ -82,6 +86,7 @@
     "ocg-extract",
     "ocg-ingest",
     "pipeline-qa",
+    "pipeline-tuner",
     "ssh-win",
     "stream-transcripts",
     "tasting-upload",
@@ -107,7 +112,10 @@
     "create-sd",
     "create-spec",
     "design",
-    "structure"
+    "structure",
+    "create-campaign",
+    "create-pulse-campaign",
+    "kb-to-campaign"
   ],
 
   "renamed_skills": {
@@ -155,6 +163,16 @@
       "new_name": "create-note",
       "reason": "Unified into create-note (type: SO). One skill handles all document types.",
       "reference_update": "Replace /structure with /create-note SO"
+    },
+    "create-campaign": {
+      "new_name": "campaign",
+      "reason": "Unified into the single campaign skill that handles design, refine, and import.",
+      "reference_update": "Replace /create-campaign with /campaign (org-skill, not shipped with kit)"
+    },
+    "create-pulse-campaign": {
+      "new_name": "campaign",
+      "reason": "Unified into the single campaign skill that handles design, refine, and import.",
+      "reference_update": "Replace /create-pulse-campaign with /campaign (org-skill, not shipped with kit)"
     }
   },
 
@@ -173,7 +191,10 @@
     "create-sd": "Unified into create-note (type: SD). All document creation now uses one skill with type dispatch.",
     "create-spec": "Unified into create-note (type: SPC). All document creation now uses one skill with type dispatch.",
     "design": "Unified into create-note (type: DD). All document creation now uses one skill with type dispatch.",
-    "structure": "Unified into create-note (type: SO). All document creation now uses one skill with type dispatch."
+    "structure": "Unified into create-note (type: SO). All document creation now uses one skill with type dispatch.",
+    "create-campaign": "Unified into the campaign skill (org-only). All campaign work (design, refine, import) now goes through one skill.",
+    "create-pulse-campaign": "Unified into the campaign skill (org-only). All campaign work (design, refine, import) now goes through one skill.",
+    "kb-to-campaign": "Folded into the campaign skill (org-only) — design phase reads KB analysis gaps directly."
   },
 
   "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",

@@ -325,7 +325,17 @@ git commit -m "WFK v{version}: {one-line summary}"
 git push origin main
 ```
 
-#### Step 11: Update sync manifest
+#### Step 11: Sync local repo
+
+After pushing to remote, pull into the local repo at `~/Repos/workflow-kit/` so it stays current:
+
+```bash
+cd ~/Repos/workflow-kit && git pull origin main
+```
+
+If the local repo doesn't exist, skip this step and warn: "Local repo at ~/Repos/workflow-kit/ not found. The /tmp scratch clone was pushed, but your persistent local copy is missing."
+
+#### Step 12: Update sync manifest
 
 Write the new manifest with current hashes for all synced skills and the new version number. Report what was pushed and skipped.
 

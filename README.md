@@ -245,7 +245,9 @@ When you start a session with `/orient`, Claude reads today's SOD, the current W
 | Capture an idea | `/create-note PD` |
 | Start a new project | `/create-note SPC` |
 | Plan the work | `/create-note PLN` |
+| Scope the work first | `/bracket` |
 | Execute the plan | `/implement` |
+| Three-role pipeline QA | `/qa-coord` |
 | Monthly + weekly roadmap | `/roadmap` |
 | End of day report + context | `/end-day` |
 | Research a domain before designing | `/oracle-create` |

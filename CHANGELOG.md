@@ -10,6 +10,45 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.4.0 - 2026-05-15
+
+### What this release is about
+
+This release introduces three new skills focused on scope discipline and verification: `/bracket` for printed scope contracts, `/spec-guard` for pre-implementation spec checks, and `/qa-coord` for three-role pipeline coordination. The promotion and supersession path for lessons gets explicit so the same rule no longer loads from three tiers at once. `/implement` gains a Verifier Pass for standard-tier behavioral changes so the agent that writes a change is not the same agent that judges it. `/update-wfk push` now also pulls the post-push commit into `~/Repos/workflow-kit/` so the developer's local clone stays current.
+
+### New skills
+
+- **`/bracket`** — Open any non-trivial work session by writing a printed scope contract: Surface, Success criteria, Anti-scope, Validation plan, Handoff trigger. The contract is referenced at every progress check so the agent cannot drift into scope creep without consciously deciding to. Required before `/implement`, before any multi-step code change, and before picking up a critical PIC. The structural fix for "agent read the working contract and violated it within hours."
+- **`/spec-guard`** — Pre-implementation spec check. Before building any feature on an existing system, the skill scans the project's `specs/` directory and flags any unimplemented or reviewed specs that govern the planned work. Hard-gates implementation when a `reviewed` or `conditional` spec exists and the planned work would deviate. Prevents the failure mode where an agent designs a feature from scratch when a spec already defines the canonical data model.
+- **`/qa-coord`** — Three-role pipeline coordination for complex LLM-in-the-loop work where data quality is the deliverable. Coordinator designs the test matrix, Worker implements, Verifier tests pre-selected I/O pairs. No agent both implements and evaluates its own work. Includes a multi-dimensional test matrix (true positive, true negative, false-positive risk, false-negative risk, ambiguity, closed-loop), mid-bracket finding triage protocol (Internal / Adjacent / Premise-breaking), and Coordinator decision-authority rules that keep technical questions off the user's plate.
+
+### What got better
+
+**`/learn` — Supersession protocol.** When a lesson is promoted from a feedback memory up to a project `lessons.md`, vault-level reference, or CLAUDE.md rule, the lower-tier source now gets a supersession pointer instead of being left behind. Without this, the same rule was being loaded from three tiers every session, wasting context and creating ambiguity about which version was authoritative. The skill also now syncs a trigger index (if your vault keeps one) so newly learned lessons are immediately discoverable at the point of action.
+
+**`/dream` — Cross-tier dedup + lesson system health.** Memory consolidation now does a second pass that checks whether any feedback memory has been superseded by a higher-tier rule, and replaces the duplicate with a pointer. Adds a Phase 5 health check that flags stale project lessons, empty `lessons.md` stubs, and cross-cutting lessons that look ready for promotion to a vault-level reference. The agent stops re-discovering the same rule across multiple memory tiers.
+
+**`/implement` — Verifier Pass.** Standard-tier changes whose acceptance criterion is *behavioral* (auth, schema migrations with data semantics, API behavior changes, bulk operations with selection logic) now require a separate Verifier agent that tests pre-selected I/O pairs against the deployed change. The Worker that wrote the change does not verify it. The cost is one Verifier dispatch; the alternative is shipping behavioral changes whose only proof was "the deploy succeeded and the route returns 200." `/implement` also now requires the `/bracket` walkthrough to complete before workers are dispatched.
+
+**`/pickup` — Repo freshness + spec check + documentation check.** Before reading any code files from a `~/Repos/` directory, pickup now runs `git fetch && git log HEAD..origin/main` so sessions never start against a stale tree. When the PIC's next steps involve implementing a feature on an existing system, pickup also scans the project's `specs/` directory and reads matching specs before any coding begins. At close, a mandatory documentation-stale check scans for SDs, REFs, and project CLAUDE.md files that the PIC's work may have invalidated and offers to update them.
+
+**`/update-wfk push` — Local repo sync.** After a successful push to GitHub, the skill now pulls the new commit into `~/Repos/workflow-kit/` so the developer's persistent local clone stays in sync with the `/tmp` scratch clone. Warns if the local repo is missing instead of silently leaving it stale.
+
+### What you need to do
+
+Nothing required. All new skills are opt-in (`/bracket`, `/qa-coord`) or auto-invoke at safe points (`/spec-guard` before implementation work, `/learn` supersession on promotion).
+
+If you want the new behavior immediately:
+- Run `/bracket` at the start of your next non-trivial work session
+- Let `/spec-guard` auto-invoke before your next implementation pass
+- Use `/qa-coord` when starting any pipeline-stage evaluation where data quality matters
+
+### Migration
+
+`/update-wfk pull` installs the three new skills and updates the five improved ones. The `create-campaign`, `create-pulse-campaign`, and `kb-to-campaign` skills are now formally deprecated (they were already replaced by the org-only unified `campaign` skill).
+
+---
+
 ## v3.3.0 - 2026-05-05
 
 ### What this release is about

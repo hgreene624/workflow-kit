@@ -290,6 +290,8 @@ Do NOT create empty subdirectories (`specs/`, `plans/`, `reports/`). Those are c
 3. Read the project's `CLAUDE.md` and `lessons.md` (created above if they didn't exist)
 4. If the PIC references a spec or plan, read those too
 5. **Read the Project Log** if one exists at `02_Projects/<project>/PJL - <Project Name>.md`. Read the most recent 2-3 date sections (newest entries). This gives you the project's recent history -- what was built, what decisions were made, what failed, what's deployed. Don't read the entire PJL if it's large; the recent entries are what matter for context loading.
+6. **Repo freshness check.** If the PIC references code under `~/Repos/`, run `git fetch origin && git log HEAD..origin/main --oneline` in that repo before reading any code files. If commits exist upstream, pull first. The local copy may be weeks behind, and starting a session against a stale tree wastes the entire pickup.
+7. **Spec check.** If the PIC's next steps involve implementing a feature on an existing system, glob the project's `specs/` directory for related specs. Read any that match the work domain before starting implementation.
 
 Build understanding of: project scope, what was done, concrete next steps, blockers, and any user preferences from the previous session.
 
@@ -376,6 +378,17 @@ Append a closing update:
 ```
 
 **Log work (MANDATORY before closing).** Invoke `/log-work` with the PIC's closing context before writing the closing update. Log-work writes to both the daily note AND the project log (PJL). Pass it: the project name, what was done (from the Closing Update), and any artifacts. Do not manually write to the daily note or PJL - let log-work handle both layers so formatting stays consistent. The PIC cannot be closed until log-work has created the PJL entry for today.
+
+**Documentation check (MANDATORY before closing).** Before writing the Closing Update, scan for stale documentation. The PIC's work may have changed system behavior that existing docs still describe in the old way. Check each of these and update if stale:
+
+1. **System Definitions.** Grep the project's directory and `04_Reference/` for `SD - *.md` files related to the PIC's domain. Read any matches and verify their Mechanics, Principles, and Adjacent Systems sections still match the system's current behavior. If the PIC changed how the system works, update the SD.
+2. **REF documents.** Check for `REF - *.md` files that describe the system (runbooks, work rules, architecture references). Verify they reflect the current state.
+3. **Project CLAUDE.md.** If the PIC introduced new conventions, tools, or architectural patterns, update the project's agent config.
+4. **Lessons.** If the PIC resolved an issue that produced a lesson, verify the lesson's trigger condition and action are still accurate.
+
+Report what you checked and whether updates were needed. If an SD, REF, or CLAUDE.md was updated, wikilink the updated file in the Closing Update's Artifacts list.
+
+This gate exists because system changes routinely outpace documentation. A PIC that changes a refresh cadence, or retires one auth path in favor of another, leaves stale docs that mislead every future agent until someone catches the drift. Catching it at close is cheaper than discovering it later.
 
 ### Batch Continuation
 

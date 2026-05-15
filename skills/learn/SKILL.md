@@ -112,9 +112,40 @@ Present via AskUserQuestion with these options: "Approve", "Edit wording", "Skip
 - **Rules:** Append to `## Rules` in the target `CLAUDE.md`. Use the next sequential number. If no `## Rules` section exists, create one before the last section of the file.
 - Match the formatting style of existing entries in the target file — consistent heading levels, spacing, and source attribution format.
 
-## Step 7: Update Index
+## Step 7: Update Trigger Index
 
-After creating a new lesson, update the Rules & Patterns Index at `Documentation/Rules and Patterns Index.md` — add the new lesson under the appropriate domain(s). This keeps the central index in sync with all lesson files across the vault.
+If your vault keeps a trigger index (an action-to-lesson lookup table) alongside its consolidated agent-lessons reference, check whether the new lesson fits an action category. If it does, add a one-line entry under the matching section. If no category fits, consider whether a new category is needed (only if 3+ lessons would belong to it). Skip this step if your vault doesn't keep a trigger index.
+
+## Step 8: Supersede Lower-Tier Sources
+
+When a lesson is promoted from a lower tier (feedback memory, project lessons.md) to a higher tier (vault-level lessons reference, CLAUDE.md rule), the source entry must be retired so agents don't load both.
+
+**Promotion chain:** feedback memory → project lessons.md → vault-level lessons reference → CLAUDE.md rule
+
+**When promoting from a feedback memory to a higher tier:**
+1. Write the higher-tier lesson (Step 6).
+2. Replace the feedback memory file content with a supersession pointer:
+   ```markdown
+   ---
+   name: {{original name}}
+   description: Superseded by {{target reference}}
+   type: feedback
+   superseded_by: "{{lesson ID or CLAUDE.md rule name}}"
+   ---
+   Superseded. See {{target reference}}.
+   ```
+3. Remove the entry from MEMORY.md (the index should not list superseded entries).
+
+**When promoting from project lessons.md to a vault-level reference:**
+1. Write the higher-tier lesson (Step 6).
+2. Replace the project lesson entry with: `## L[N]: → Promoted to {{target reference}}` (one line, preserving the heading for numbering continuity).
+3. No index update needed (project lessons don't typically have a central index).
+
+**When promoting from a vault-level reference to a CLAUDE.md rule:**
+1. Write the CLAUDE.md rule (Step 6).
+2. The lower-tier lesson stays (it has the full context and source). Add a note: `**Promoted to CLAUDE.md rule.**`
+
+**Why this matters:** Without supersession, the same rule gets loaded from multiple tiers every session. The agent sees a feedback memory, a vault-level lesson, and a CLAUDE.md rule all saying the same thing. This wastes context and creates ambiguity about which version is authoritative. The highest tier is always authoritative. Lower tiers retire.
 
 ## Examples
 
