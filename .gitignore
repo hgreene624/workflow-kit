@@ -22,3 +22,7 @@ workflow-kit.config.json
 
 # Keep project structure but not user projects
 # (users create their own projects after setup)
+
+# Local-only: contains the org-specific patterns to scrub before push.
+# Never sync; never publish.
+skills/update-wfk/scrub-map.json
