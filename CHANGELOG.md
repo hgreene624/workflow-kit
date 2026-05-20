@@ -10,6 +10,28 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.7.0 - 2026-05-20
+
+### What this release is about
+
+New skill: `/landscape-survey`, a structured six-phase workflow for researching the open-source landscape before designing or rebuilding a complex system. The skill was distilled from a real two-day survey that took a knowledge-graph rebuild from "candidate set provisional verdicts" to "comparative-analysis RE + consolidated 30-question SPC backlog" in one working day. The structural insight is that landscape research is itself a process worth bracketing, and that the bracket has a small set of load-bearing rules: the first repo must be read manually (it establishes the template the rest will mimic), the synthesis pass must be single-worker (multi-worker synthesis fragments), the candidate set must be locked before parallel reads start (additions destroy parallelism), and the discovery phase composes other kit skills rather than reinventing literature search.
+
+### New skills
+
+**`/landscape-survey` -- open-source landscape research before the SPC.** Walks six phases: bracket the survey (with explicit anti-scope: no SPC drafting, no design recommendations, no code sketches), discover the candidate set (composing `/video-intel` + `/oracle-create` + `/oracle-research` + WebFetch validation), set up a scratch workspace outside the vault, read the 1-2 closest architectural peers manually to establish the ARE template, dispatch a parallel team for the remaining candidates with pre-allocated Q-number ranges per worker, then run a single-worker synthesis pass that produces one comparative-analysis RE. Outputs land in the vault at `02_Projects/<project>/reports/<date>/`; cloned source repos live in `~/Repos/.scratch/<topic>/` outside the vault. Every ARE frontmatter carries the upstream `commit_sha` so the scratch is deterministically reconstructable from the vault artifacts alone. Hands off to `/create-note SD` and `/create-note SPC` when complete.
+
+The skill bundles six reference files: `ARE-template.md` and `RE-template.md` for the deliverable structures, `worker-brief-template.md` and `synthesis-worker-brief.md` for the parallel and synthesis worker dispatches, `discover.md` for the discovery-phase tool composition, `anti-patterns.md` listing ten failure modes the skill refuses to perform, and `example-survey.md` documenting the OSR knowledge-graph survey as the canonical worked example.
+
+### What you need to do
+
+Nothing required. The skill is available immediately after the pull and triggers on natural phrasing like "landscape survey", "deep-read these repos", "what should we borrow from X", or "research before we spec." Pointing the assistant at a candidate set of repos and asking for a build plan before the SPC will also auto-invoke it.
+
+### Migration
+
+`/update-wfk pull` installs `skills/landscape-survey/` and updates `kit.json` to v3.7.0. No vault changes, no template changes, no breaking changes to existing skills.
+
+---
+
 ## v3.6.0 - 2026-05-19
 
 ### What this release is about

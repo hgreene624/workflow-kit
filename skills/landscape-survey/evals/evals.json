@@ -1,0 +1,23 @@
+{
+  "skill_name": "landscape-survey",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to rebuild our knowledge graph from scratch. Before I write the SPC, let's do a proper landscape survey of the open-source options. Run the survey workflow against these: Graphiti, create-context-graph, agent-memory, CocoIndex, Instructor, GraphRAG, LightRAG.",
+      "expected_output": "Skill triggers. Walks Phase 1 (verifies/creates a PIC bracketing the work, surfaces anti-scope guardrails). Surveys whether a recent grounding doc exists in the vault for the domain; if yes, proposes skipping Phase 2 sub-steps 2a-2c and jumping to 2d (candidate lockdown). Proposes pre-allocated Q-ranges per repo for Phase 5 collision prevention. Confirms scratch path. Then proceeds through Phases 3-7 producing per-repo AREs in the vault + one comparative-analysis RE + grounding-doc cross-ref appendix.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "We need to evaluate vector database options before we commit to one for the new search service. Help me deep-read pgvector, Qdrant, Weaviate, and LanceDB.",
+      "expected_output": "Skill triggers. Phase 1 establishes bracket (target: vector DB choice for the new search service). Phase 2 either runs the full discover sequence (video-intel + oracle + WebFetch surface reads) OR confirms a candidate list directly if the user is confident. Phase 3 clones the 4 repos to ~/Repos/.scratch/. Phase 4 anchor-reads the 1-2 closest peers manually. Phase 5 dispatches parallel team workers for the rest. Phase 6 single-worker synthesis. Phase 7 handoff to SD update / SPC drafting.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "what should we borrow from langgraph and crewai for our agent orchestration layer",
+      "expected_output": "Skill triggers on 'what should we borrow from X' phrasing. Treats this as a 2-repo survey. Notes that with only 2 candidates the parallel-team phase is overkill; suggests reading both via the anchor-read phase manually (Phase 4) and skipping Phase 5 entirely. Still produces both AREs + a comparative RE because the user wants the verdicts pinned. If the user wants more candidates added, prompts them in Phase 2 lockdown.",
+      "files": []
+    }
+  ]
+}

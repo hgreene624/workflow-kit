@@ -1,6 +1,6 @@
 {
   "$schema": "Workflow Kit manifest — declares what ships with the kit vs stays local",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "core_skills": [
     "apikeys",
     "article-intel",
@@ -21,6 +21,7 @@
     "implement",
     "intake",
     "iterm",
+    "landscape-survey",
     "learn",
     "log-work",
     "oracle-ask",
