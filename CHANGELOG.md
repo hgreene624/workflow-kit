@@ -10,6 +10,26 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.7.2 - 2026-05-27
+
+### What this release is about
+
+`/orient`'s orphan-agent detection had a structural gap. The skill checked `~/.claude/teams/` for stale tmux team configs, but missed any `claude --dangerously-skip-permissions` worker running outside tmux. Cross-session orphans (workers spawned in one session that survived past its close) routinely run in non-tmux ttys with full Bash / SSH / shell tool surface, and the tmux-only check could not see them. The 2026-05-26 incident caught a PID with ~6h uptime that the prior session's orient missed entirely; in May 2026 a related class of orphans contributed to a production VPS outage. Orient's discipline at session start is supposed to be the first defense against this, closing the methodology gap had become non-optional.
+
+### What got better
+
+- **`/orient` Step 1c is now a three-check sweep.** The existing tmux + team-config scan stays in place (it catches stale team dirs after tmux exits). On top of it: a local `ps -ef | grep -E 'claude.*--team-name|claude.*--dangerously-skip-permissions'` check catches non-tmux Claude workers in any tty, and a templated optional remote SSH check catches workers running against production targets you configure in `LOCAL.md`. The three categories are reported separately in the orient summary because they mean different things: stale team dirs are usually harmless, live local processes need operator triage (could be concurrent sessions or cross-session orphans), live remote processes are highest-risk and need immediate confirmation. The skill detects and surfaces; it does NOT auto-kill, because killing another session's workers can destroy in-flight work. The only `AskUserQuestion` orient is allowed to issue is the live-process triage when category (b) or (c) returns matches.
+
+### What you need to do
+
+Nothing for the basic upgrade. If you want the optional remote check active, add a `LOCAL.md` to `~/.claude/skills/orient/` that defines your production SSH aliases and uncomment the remote loop in Step 1c.
+
+### Migration
+
+`update-wfk pull` replaces `SKILL.md` cleanly (Tier 2). No data migration; the new sweep runs the next time you invoke `/orient`.
+
+---
+
 ## v3.7.1 - 2026-05-27
 
 ### What this release is about

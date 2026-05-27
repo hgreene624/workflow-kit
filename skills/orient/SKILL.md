@@ -27,25 +27,48 @@ Do all of these before responding to the user:
 
 1a. **Machine detection** — Run `system_profiler SPHardwareDataType` (macOS) or equivalent to identify the current hardware. Include the machine name in your orient summary so path assumptions are correct for the session. If the hardware doesn't match any known machine, report it and ask.
 
-1c. **Orphan team detection** — Scan `~/.claude/teams/` for team configs whose lead tmux session is dead. When a prior session ended with a team still live, the team's tmux server typically exited too, leaving the team dir on disk but the workers unreachable. `SendMessage` to such teams returns `success: true` but messages drop silently (the recipient pane is gone), and `TeamDelete` cannot remove them from outside the original session.
+1c. **Orphan agent detection (three-check sweep)** — A tmux-only check is insufficient. `claude --dangerously-skip-permissions` workers don't require tmux — they run in any tty and carry a full Bash / SSH / shell tool surface, so a worker spawned outside tmux (or from a session that has since ended) is invisible to a tmux scan. Run three checks at session start; report each category distinctly.
 
-   Run:
    ```bash
+   # (a) STALE TEAM DIRS — tmux session died, team config survived on disk
    if ! tmux list-sessions >/dev/null 2>&1; then
-     # No tmux server — all team dirs are orphans
-     ls ~/.claude/teams/ 2>/dev/null | head -20
+     for d in ~/.claude/teams/*/; do
+       [ -d "$d" ] || continue
+       echo "STALE-TEAM-DIR: $(basename "$d") (mtime: $(stat -f %Sm -t %Y-%m-%d "$d"))"
+     done
    else
      for team in ~/.claude/teams/*/; do
        [ -d "$team" ] || continue
        lead=$(jq -r '.leadSessionId // empty' "$team/config.json" 2>/dev/null)
        [ -z "$lead" ] && continue
        tmux has-session -t "$lead" 2>/dev/null || \
-         echo "ORPHAN: $(basename "$team") (lead: $lead, mtime: $(stat -f %Sm -t %Y-%m-%d "$team"))"
+         echo "STALE-TEAM-DIR: $(basename "$team") (lead: $lead, mtime: $(stat -f %Sm -t %Y-%m-%d "$team"))"
      done
    fi
+
+   # (b) LIVE LOCAL CLAUDE PROCESSES — catches non-tmux workers and concurrent sessions
+   ps -ef | grep -E 'claude.*--team-name|claude.*--dangerously-skip-permissions' | grep -v grep | head -20
+
+   # (c) LIVE REMOTE CLAUDE PROCESSES (optional) — if you have known production SSH targets,
+   #     run the same check against each via a multiplexed SSH call. Configure your targets in
+   #     LOCAL.md (an array of SSH aliases). High-risk: a worker running against production has
+   #     full ssh / docker exec / db-client tool surface.
+   #
+   # Example (uncomment and customize per LOCAL.md):
+   # for host in <your-ssh-aliases>; do
+   #   ssh -o ConnectTimeout=5 "$host" "ps -ef | grep -E 'claude.*--team-name|claude.*--dangerously-skip' | grep -v grep" 2>/dev/null | head -20
+   # done
    ```
 
-   For each orphan, report in your summary: team name, mtime, worker count (read from `config.json`). If 5+ orphans exist, recommend a batch cleanup. Per-orphan cleanup: archive any non-empty worker inbox first, then `rm -rf ~/.claude/teams/<name>/ ~/.claude/tasks/<name>/`. Always ask the user before running destructive cleanup. This prevents the failure mode where the agent assumes a team is reachable, sends messages, sees `success: true`, and waits forever for responses that will never come.
+   Report all three categories separately in the orient summary. They mean different things:
+
+   - **(a) Stale team dirs.** Often harmless (a team dir on disk after its tmux session died). For each, report team name, mtime, worker count from `config.json`. If 5+ exist, recommend a batch cleanup. Per-orphan cleanup: archive any non-empty worker inbox, then `rm -rf ~/.claude/teams/<name>/ ~/.claude/tasks/<name>/`. Always ask before destructive cleanup. This prevents the failure mode where the agent assumes a team is reachable, sends `SendMessage`, sees `success: true`, and waits forever for responses that will never come.
+
+   - **(b) Live local Claude processes.** Could be active concurrent sessions OR cross-session orphans from prior closeouts. The agent cannot tell from `ps` alone — surface to the operator and ask whether to leave alone or treat as orphans. Do NOT auto-kill: killing other sessions' workers can destroy in-flight work. Show `--team-name`, `--parent-session-id`, start time, and tty for each match.
+
+   - **(c) Live remote Claude processes.** **Highest risk.** Any match means an agent with shell / SSH / db-client capability is running against your production target. Surface immediately and recommend the operator confirm whether each is owned by an active session. Do NOT auto-kill.
+
+   **When ANY live match (b or c) appears: escalate to operator in the orient summary before continuing.** Detection's only purpose is to surface; cleanup decisions require operator authorization. (Background: a parallel-`docker exec` agent-cluster from cross-session orphans took down a production VPS in May 2026; the recovery established that orphan-sweep at session start is mandatory, not best-effort.)
 
 1b. **Validate vault paths** — Read `~/.claude/wfk-paths.json`. For each entry in `paths`, check that `{vault_root}/{path}` exists as a directory (use `ls`). If any path is missing:
    - Report which paths are stale: "Path config drift: `{key}` points to `{path}` but directory doesn't exist."
@@ -125,7 +148,11 @@ After loading, give a short summary:
 - **Operative chain status** — what SOD/WRM/MRM/EOW/EOM were loaded, and any missing-document flags
 - **Recent Infrastructure Changes** — the checklist from Step 8 (if any infrastructure changes were found in reports)
 - **REF doc drift warnings** — any staleness mismatches found in Step 8a
-- **Path/orphan/vault-health flags** — anything surfaced during validation
-- Stop. Do not propose work; do not ask what to work on; do not present an `AskUserQuestion`. If the user wants to pick up work, they will run `/pickup`.
+- **Path / vault-health flags** — anything surfaced during validation
+- **Orphan sweep** — report the three categories from Step 1c distinctly:
+  - **(a) Stale team dirs:** count + names + mtimes. Harmless unless >5.
+  - **(b) Live local Claude processes:** count + each match's `--team-name`, `--parent-session-id`, start time, tty. Surface to operator with the explicit question "active concurrent sessions or orphans?" before continuing. Never auto-kill.
+  - **(c) Live remote Claude processes:** count + each match. HIGHEST priority surface. Recommend the operator confirm ownership before proceeding.
+- Stop. Do not propose work; do not ask what to work on; do not present an `AskUserQuestion` about next steps. The only `AskUserQuestion` orient may issue is the live-process triage in 1c when category (b) or (c) returns matches. If the user wants to pick up work, they will run `/pickup`.
 
 Keep the summary concise — the user doesn't need a recitation of everything you read, just confirmation you loaded context and any standout items.
