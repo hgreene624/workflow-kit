@@ -10,6 +10,28 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.7.1 - 2026-05-27
+
+### What this release is about
+
+`/orient` was quietly drifting into `/pickup`'s territory. The skill loaded session context (configs, lessons, period reports) and then proposed which PIC to start, flagged "likely deployment regressions" by cross-referencing open PICs against the EOW, and closed with an `AskUserQuestion` asking what to work on. That blurred the boundary between two skills that serve different jobs: orient establishes the agent's context; pickup decides what to work on. When orient pre-recommended, the user got the same conversation twice (once at orient, once at pickup), and the orient summary became noisier than the SOD it was reading from.
+
+### What got better
+
+**`/orient` is now context-load only.** The PIC cross-reference step that drew "X was shipped, so the related PIC is probably a deployment regression, investigate the deploy first" conclusions was removed; that analysis belongs to `/pickup`. The closing `AskUserQuestion` was removed; orient now ends after reporting what it loaded. A boundary note at the top of the Response Format makes the contract explicit: orient reports state, pickup recommends action. The two infrastructure-context steps (Recent Infrastructure Changes from EOW/SOD, REF doc staleness check) stay in orient because they correct the agent's factual mental model rather than recommending a next move.
+
+The practical effect is a shorter, more focused orient summary and a cleaner handoff to `/pickup` when the user is ready to choose work. If you previously relied on orient to suggest a PIC, run `/pickup` next — it's the skill that owns that decision.
+
+### What you need to do
+
+Nothing required. The change is internal to the orient skill; no kit.json structure changes, no new skills, no renames, no templates affected.
+
+### Migration
+
+`/update-wfk pull` installs the updated `skills/orient/SKILL.md`. If you have local edits to orient, the pull will offer to preserve them to `LOCAL.md` before replacing.
+
+---
+
 ## v3.7.0 - 2026-05-20
 
 ### What this release is about

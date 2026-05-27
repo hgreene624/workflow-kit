@@ -81,14 +81,7 @@ Do all of these before responding to the user:
    - No WRM for current week: "No WRM found for W{ww}. Run /end-day on Friday to generate one."
    - No SOD for today: "No SOD for today. Run /end-day yesterday or backfill."
 
-8. **Cross-reference reports with open work** — This step prevents wasted investigation. After reading the SOD and EOW:
-   - For each open PIC in the SOD, check whether the EOW mentions the same system, pipeline, or project as recently shipped/deployed/built
-   - If the EOW says "X was built/deployed" and a PIC says "X is broken" — the first hypothesis should be a deployment regression (lost env var, missed config, container rebuild), NOT that the system needs to be reverse-engineered
-   - Flag any matches in your orient summary: "PIC [topic] touches [system] which was shipped [date per EOW] — check deployment state before investigating from scratch"
-
-   This exists because agents repeatedly waste time re-discovering systems that were built days ago. The reports already contain the context — the failure is in not connecting it to the current task.
-
-   **8a. Recent Infrastructure Changes** — Scan the EOW and SOD for any infrastructure-changing events and produce a compact checklist block in your orient summary. Extract:
+8. **Recent Infrastructure Changes** — Scan the EOW and SOD for any infrastructure-changing events and produce a compact checklist block in your orient summary. Extract:
    - Containers added, removed, renamed, or replaced
    - Apps migrated or sunset (old location -> new location)
    - Routes changed (new paths, removed paths, domain changes)
@@ -105,7 +98,7 @@ Do all of these before responding to the user:
 
    If no infrastructure changes are found in the reports, omit this block. This prevents the "investigate unknown system from scratch" failure mode — anything listed here is already known context, not a mystery to solve.
 
-   **8b. REF doc staleness check** — After building the infrastructure changes list, spot-check your infrastructure reference docs against the EOW for obvious drift:
+   **8a. REF doc staleness check** — After building the infrastructure changes list, spot-check your infrastructure reference docs against the EOW for obvious drift:
    - Does the app location map list containers that the EOW says were sunset or replaced?
    - Does the infrastructure config reference paths that were removed or relocated?
    - Are there entries for services that no longer exist per the EOW?
@@ -123,15 +116,16 @@ Do all of these before responding to the user:
 
 ## Response Format
 
+Orient reports loaded state. It does NOT propose next actions, recommend PICs, summarize "Suggested Start" content from the SOD as if it were the orient's recommendation, or ask the user what to work on. That is `/pickup`'s job. If the SOD contains a "Suggested Start" section, mention that it exists (link or reference it) but do not restate or extend it.
+
 After loading, give a short summary:
 - Which files you read
-- Current date
+- Current date and machine
 - Active projects or context from local agent configs
-- **Report / PIC cross-references** — any open PICs that touch systems the EOW says were recently built/deployed (flag these prominently — they're likely deployment regressions, not new investigations)
-- **Recent Infrastructure Changes** — the checklist from Step 8a (if any infrastructure changes were found in reports)
-- **REF doc drift warnings** — any staleness mismatches found in Step 8b
-- Key lessons that seem relevant to whatever work is coming
-- Any vault health issues found
-- Ask what the user wants to work on
+- **Operative chain status** — what SOD/WRM/MRM/EOW/EOM were loaded, and any missing-document flags
+- **Recent Infrastructure Changes** — the checklist from Step 8 (if any infrastructure changes were found in reports)
+- **REF doc drift warnings** — any staleness mismatches found in Step 8a
+- **Path/orphan/vault-health flags** — anything surfaced during validation
+- Stop. Do not propose work; do not ask what to work on; do not present an `AskUserQuestion`. If the user wants to pick up work, they will run `/pickup`.
 
 Keep the summary concise — the user doesn't need a recitation of everything you read, just confirmation you loaded context and any standout items.
