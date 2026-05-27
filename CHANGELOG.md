@@ -10,6 +10,22 @@ What changed, what it means for you, and what to watch for. The `/update-wfk pul
 
 ---
 
+## v3.7.3 - 2026-05-27
+
+### What this release is about
+
+Tiny polish on v3.7.2's new orient sweep. The no-tmux branch was listing the intentional `_archive/` subdirectory under `~/.claude/teams/` as a `STALE-TEAM-DIR` candidate, producing harmless but noisy output. Filtered.
+
+### What got better
+
+- **`/orient` Step 1c now skips `~/.claude/teams/_archive/` in the stale-dir scan.** Single-line filter (`[ "$(basename "$d")" = "_archive" ] && continue`) added to the no-tmux branch. The tmux-alive branch already skipped it implicitly via the `leadSessionId` empty-check, but the explicit filter is added there too for symmetry.
+
+### What you need to do
+
+Nothing. `update-wfk pull` replaces `SKILL.md` cleanly.
+
+---
+
 ## v3.7.2 - 2026-05-27
 
 ### What this release is about

@@ -34,11 +34,13 @@ Do all of these before responding to the user:
    if ! tmux list-sessions >/dev/null 2>&1; then
      for d in ~/.claude/teams/*/; do
        [ -d "$d" ] || continue
+       [ "$(basename "$d")" = "_archive" ] && continue
        echo "STALE-TEAM-DIR: $(basename "$d") (mtime: $(stat -f %Sm -t %Y-%m-%d "$d"))"
      done
    else
      for team in ~/.claude/teams/*/; do
        [ -d "$team" ] || continue
+       [ "$(basename "$team")" = "_archive" ] && continue
        lead=$(jq -r '.leadSessionId // empty' "$team/config.json" 2>/dev/null)
        [ -z "$lead" ] && continue
        tmux has-session -t "$lead" 2>/dev/null || \
