@@ -65,7 +65,8 @@ Use AskUserQuestion for real choices (one at a time). Confirm the final goal wor
 Read `templates/coordination-pl.md` from this skill directory. Instantiate it for the project:
 - Fill frontmatter: `date created`, `project`, `goal` (the confirmed paragraph), `status: Active`, `agent: meta-orchestrator`, `last_synced` / `last_orchestrator_run` to today / run #0.
 - Fill the Pipeline map, Critical path, Status board streams, Decision queue, Cross-stream entanglements (keep at least one placeholder row even if empty), and Stale-items table from Step 2's sorted set.
-- Keep the Orchestrator playbook section verbatim from the template (it is the engine the orchestrator agent applies).
+- Keep the **Orchestrator resume** block verbatim (the three-role explainer and the HAN-sweep resume protocol are the delegation engine). Seed the **Active delegation handoffs** index with a single `none active` row; the first handoff gets added in Step 4.
+- Keep the Orchestrator playbook section verbatim from the template (it is the engine the orchestrator agent applies, including the delegation-handoff sweep step).
 
 Write to the project's plans directory under a dated subfolder, per the host vault's routing (`<project>/plans/<date>/PL - <Project> Meta-Plan Execution.md`). Report the path.
 
@@ -76,7 +77,7 @@ Pick the single most-ready bounded slice from the sorted pile (a critical-path i
 - Fill Mission (+ any locked decisions), Verified live state, Bracket/phased plan, Hard constraints + anti-scope, and Done criteria from what you and the operator established.
 - Leave `## Checkpoint log` and `## Clarification requests` empty (the coordinator writes the first checkpoint).
 
-Write to the project's pickups directory under a dated subfolder (`<project>/pickups/<date>/HAN - <Name>.md`). Then update the PL: set the slice's Status Board row to DISPATCHED-TO-AGENT with a wikilink to the HAN, and append an Update-log entry. Report the path.
+Write to the project's pickups directory under a dated subfolder (`<project>/pickups/<date>/HAN - <Name>.md`). Then update the PL in three places: (a) set the slice's Status Board row to `DISPATCHED-TO-AGENT` with a wikilink to the HAN; (b) replace the `none active` row in the Active-delegation-handoffs index with a real row (handoff wikilink, State `active`, and what the orchestrator owes on its next sweep); (c) append an Update-log entry. Report the path.
 
 (If the create-note overlay is installed, you may equivalently invoke create-note to author the HAN; the bundled template here keeps this skill self-contained so it works on a fresh machine before any other skill is consulted.)
 

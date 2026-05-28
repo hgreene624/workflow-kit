@@ -193,6 +193,25 @@
     "kb-to-campaign": "Folded into the campaign skill (org-only) — design phase reads KB analysis gaps directly."
   },
   "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",
+  "bundles": {
+    "pipeline-coordination": {
+      "version": "1.0.0",
+      "description": "Coordinated Pipeline Execution delegation layer: a self-contained plugin for running multi-stream work across sessions. Orchestrator plans (owns a meta-plan), coordinator runs one handoff slice (spawns + validates workers), workers build. The /meta-plan-init front door bootstraps a project's meta-plan, drafts the first handoff, and installs the handoff-handling overlays.",
+      "source": "bundles/pipeline-coordination/",
+      "self_contained": true,
+      "overlay_install": true,
+      "components": {
+        "skills": ["meta-plan-init", "meta-coordinator"],
+        "agents": ["meta-orchestrator", "meta-plan-worker"]
+      },
+      "install_targets": {
+        "skills": "~/.claude/skills/",
+        "agents": "~/.claude/agents/"
+      },
+      "requires_runtime_config": false,
+      "anchor_doc": "SD - Coordinated Pipeline Execution"
+    }
+  },
   "runtime_config": {
     "path": "~/.claude/wfk-paths.json",
     "written_by": "/setup (Step 3b)",
