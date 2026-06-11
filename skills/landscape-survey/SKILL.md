@@ -54,7 +54,7 @@ Compose existing skills to produce the candidate set + grounding doc. The phase 
 
 **Video intelligence.** Run `/video-intel` on 2-5 relevant talks. The user provides URLs, or the skill prompts for domain keywords + a YouTube search. Outputs land at `06_Media/Transcripts/<date>/<title>/` (handled by `/video-intel`). Capture every architectural pattern surfaced; these become candidate borrows.
 
-**Oracle research.** Run `/oracle-create` (or expand an existing oracle via `/oracle-research`) seeded by the video research notes + any prior vault grounding docs + web search for "best 2026 [domain] frameworks." Run `deep_research` passes until convergence (no net-new sources after a pass). Produce a grounding doc at `02_Projects/<project>/reports/<date>/ARE - <Domain> Grounding Report.md` with the literature-anchored verdicts.
+**Oracle research.** Run `/oracle build` (or expand an existing oracle via `/oracle research`) seeded by the video research notes + any prior vault grounding docs + web search for "best 2026 [domain] frameworks." Run `deep_research` passes until convergence (no net-new sources after a pass). Produce a grounding doc at `02_Projects/<project>/reports/<date>/ARE - <Domain> Grounding Report.md` with the literature-anchored verdicts.
 
 **Surface-read validation.** WebFetch each top-candidate repo's homepage / README / pricing / license pages. Catch stale claims in the grounding doc (a 2024 GitHub issue cited as a 2026 limitation; a project that pivoted; a license change). This is cheap insurance against wasting a deep-read session on premise-broken work.
 

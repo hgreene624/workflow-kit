@@ -46,7 +46,7 @@ Run these for every type. This is the boilerplate that was duplicated across 7 s
 
 3. **Writing profiles.** Load `WP - General.md` from your vault's Writing Profiles directory. Then load the type-specific profile if one exists (see lookup table below). Follow both.
 
-4. **Oracle check.** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, query it for domain grounding relevant to the document being created. If none exists, offer to create one. This is a prompt, not a gate. Skip for MN and PIC (they don't benefit from oracle grounding).
+4. **Oracle check.** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, query it via `/oracle ask` (inline contract: it resolves the canonical oracle at runtime, returns a cited proposition, never blocks) for domain grounding relevant to the document being created. If none exists, offer to build one with `/oracle build`. This is a prompt, not a gate. Skip for MN and PIC (they don't benefit from oracle grounding).
 
 5. **Frontmatter.** Set from the lookup table below. Never guess the category.
 

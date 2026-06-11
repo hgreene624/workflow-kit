@@ -1,6 +1,6 @@
 {
-  "$schema": "Workflow Kit manifest — declares what ships with the kit vs stays local",
-  "version": "3.7.4",
+  "$schema": "Workflow Kit manifest \u2014 declares what ships with the kit vs stays local",
+  "version": "3.8.0",
   "core_skills": [
     "apikeys",
     "article-intel",
@@ -24,9 +24,7 @@
     "landscape-survey",
     "learn",
     "log-work",
-    "oracle-ask",
-    "oracle-create",
-    "oracle-research",
+    "oracle",
     "orient",
     "park",
     "pickup",
@@ -113,7 +111,10 @@
     "structure",
     "create-campaign",
     "create-pulse-campaign",
-    "kb-to-campaign"
+    "kb-to-campaign",
+    "oracle-ask",
+    "oracle-create",
+    "oracle-research"
   ],
   "renamed_skills": {
     "plan-spec": {
@@ -170,6 +171,21 @@
       "new_name": "campaign",
       "reason": "Unified into the single campaign skill that handles design, refine, and import.",
       "reference_update": "Replace /create-pulse-campaign with /campaign (org-skill, not shipped with kit)"
+    },
+    "oracle-create": {
+      "new_name": "oracle",
+      "reason": "Superseded by the unified /oracle skill (build command). New pipeline adds a hard full-text gate, A-F composite source scoring, perspective balance, and audit-by-construction via the oracle-forge CLI.",
+      "reference_update": "Replace /oracle-create with /oracle build"
+    },
+    "oracle-research": {
+      "new_name": "oracle",
+      "reason": "Superseded by the unified /oracle skill (research|expand command). Expansions now pass the same qualification gate as builds.",
+      "reference_update": "Replace /oracle-research with /oracle research"
+    },
+    "oracle-ask": {
+      "new_name": "oracle",
+      "reason": "Superseded by the unified /oracle skill (ask command). Preserves the exact proposition/return contract inline callers depend on; adds verbatim-quote-then-cite grounding discipline. Works without oracle-forge (nlm CLI only).",
+      "reference_update": "Replace /oracle-ask with /oracle ask"
     }
   },
   "deprecation_context": {
@@ -190,7 +206,10 @@
     "structure": "Unified into create-note (type: SO). All document creation now uses one skill with type dispatch.",
     "create-campaign": "Unified into the campaign skill (org-only). All campaign work (design, refine, import) now goes through one skill.",
     "create-pulse-campaign": "Unified into the campaign skill (org-only). All campaign work (design, refine, import) now goes through one skill.",
-    "kb-to-campaign": "Folded into the campaign skill (org-only) — design phase reads KB analysis gaps directly."
+    "kb-to-campaign": "Folded into the campaign skill (org-only) \u2014 design phase reads KB analysis gaps directly.",
+    "oracle-create": "Superseded by the unified /oracle skill (build command). New pipeline adds a hard full-text gate, A-F composite source scoring, perspective balance, and audit-by-construction via the oracle-forge CLI.",
+    "oracle-research": "Superseded by the unified /oracle skill (research|expand command). Expansions now pass the same qualification gate as builds.",
+    "oracle-ask": "Superseded by the unified /oracle skill (ask command). Preserves the exact proposition/return contract inline callers depend on; adds verbatim-quote-then-cite grounding discipline. Works without oracle-forge (nlm CLI only)."
   },
   "note": "update-workflow is NOT deprecated -- it is the developer's personal vault sync skill. It does not ship with the kit because it is personal, not because it is replaced.",
   "runtime_config": {
@@ -221,7 +240,7 @@
       "on_pull": "Merge by section markers. Replace WFK:START/END blocks, preserve LOCAL:START/END blocks."
     },
     "agents_md": {
-      "on_push": "Same as claude_md — push generalized version only.",
+      "on_push": "Same as claude_md \u2014 push generalized version only.",
       "on_pull": "Same section-marker merge. Never touch project-level agents.md files."
     },
     "never_sync": [

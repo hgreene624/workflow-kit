@@ -74,7 +74,7 @@ This step is mandatory before any worker dispatch. Skipping it means the PL's op
 
 Before dispatching work:
 
-0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, note it for mid-build queries. When a worker hits a design choice not covered by the plan, query the oracle: "What's the recommended approach for {specific question}?" Surface to user: "Implementation question: {question}. Oracle recommends {approach} (source: {citation}). Proceed with this approach?" Never silently apply oracle recommendations. See [[SD - Oracle System]].
+0. **Oracle check:** Read the project's PJL frontmatter for `oracles:`. If an oracle exists, note it for mid-build queries. When a worker hits a design choice not covered by the plan, query the oracle via `/oracle ask` (inline contract — runtime resolution, cited proposition, advisory never blocking): "What's the recommended approach for {specific question}?" Surface to user: "Implementation question: {question}. Oracle recommends {approach} (source: {citation}). Proceed with this approach?" Never silently apply oracle recommendations. See the `/oracle` skill (ask-contract reference).
 1. Read the plan, spec, project `CLAUDE.md` and `lessons.md`, and `REF - Agent Lessons.md`
 2. **Read the Project Log** — If a PJL exists at `02_Projects/<project>/PJL - <Project Name>.md`, read the most recent 3–5 date sections. This is critical context for implementation:
    - **Decisions already made** — don't re-litigate what's in the PJL

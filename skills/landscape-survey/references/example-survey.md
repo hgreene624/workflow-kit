@@ -17,7 +17,7 @@ PIC: `02_Projects/{{ORG}} Intelligence/context-graph/pickups/2026-05-19/PIC - OC
 - Stephen Chin (Neo4j) "Connecting the Dots with Context Graphs" → surfaced POLE+O label layer, `:TOUCHED` audit edges, consolidation primitives as API
 - Martin (SurrealDB) "Knowledge Graphs for AI Agents" → surfaced enrichment-as-navigation (LightRAG pattern), two-tier retrieval tools, KG-vs-vector decision gate
 
-**Oracle research:** Two oracles via `/oracle-create`:
+**Oracle research:** Two oracles via `/oracle build`:
 - `5812eb9f-...` "Context Graph Design" (143 sources) → [[ARE - Context Graph Design Research]]
 - `44b21c8d-...` "KG System Landscape" (106 sources) → [[ARE - KG System Landscape Grounding Report]]
 - `eb8a2056-...` "Context Graph - Extraction Quality" (47 sources + Appendix A recency pass) → [[ARE - OCG Extraction Quality Grounding Report]]
@@ -87,6 +87,6 @@ PIC stays picked-up. Step 9 (storage-migration strategic-question reopen, Kuzu s
 - AREs land in vault, scratch is ephemeral
 - commit_sha in ARE frontmatter is mandatory for scratch reconstructability
 - The "Multiplicative interactions" sub-section in the RE is where synthesis-pass value lives
-- Composition with existing skills (`/video-intel`, `/oracle-create`, `/oracle-research`) is the right pattern for discovery
+- Composition with existing skills (`/video-intel`, `/oracle build`, `/oracle research`) is the right pattern for discovery
 
 The artifacts from this survey are persistent and viewable. Future skill invocations can point at these as the canonical shape.

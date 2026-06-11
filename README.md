@@ -250,8 +250,8 @@ When you start a session with `/orient`, Claude reads today's SOD, the current W
 | Three-role pipeline QA | `/qa-coord` |
 | Monthly + weekly roadmap | `/roadmap` |
 | End of day report + context | `/end-day` |
-| Research a domain before designing | `/oracle-create` |
-| Ask the oracle a design question | `/oracle-ask` |
+| Research a domain before designing | `/oracle build` |
+| Ask the oracle a design question | `/oracle ask` |
 | Survey open-source candidates before the SPC | `/landscape-survey` |
 | Define a system's principles | `/create-note SD` |
 | Log what you did | `/log-work` |

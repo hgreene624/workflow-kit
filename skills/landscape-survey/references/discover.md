@@ -16,7 +16,7 @@ Example from the OCG survey: Chin (Neo4j) talk surfaced POLE+O, `:TOUCHED` audit
 
 ### 2b. Oracle research
 
-Run `/oracle-create` (or expand an existing oracle with `/oracle-research`). Seed with:
+Run `/oracle build` (or expand an existing oracle with `/oracle research`). Seed with:
 - The video research notes from 2a
 - Any existing grounding docs in the vault on the same domain
 - Web search results for "best 2026 [domain] frameworks", "[domain] state of the art", "production [domain] open source"
