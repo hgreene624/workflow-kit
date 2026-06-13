@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://workflow-kit/schemas/work-event.schema.json",
+  "title": "Work Event",
+  "description": "The single typed record the AI-Memory event-log writer appends (FR-1) and the generated daily + per-project views render from (FR-2). One unit of logged work = exactly one of these records. The human daily-note and per-project (PJL) views are generatable from a stream of these events; no second hand-authored copy is kept.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["timestamp", "project", "type", "summary", "provenance"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 timestamp of when the unit of work occurred (event time, not log time). Example: 2026-06-13T14:32:00-06:00."
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The project this event belongs to. Drives per-project view grouping. Use the canonical project name (matches 02_Projects/<project>/), or a standalone label for cross-cutting work."
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The kind of event. Controls how the renderer groups/labels the entry.",
+      "enum": [
+        "feature",
+        "fix",
+        "refactor",
+        "investigation",
+        "decision",
+        "deploy",
+        "research",
+        "review",
+        "spec",
+        "plan",
+        "incident",
+        "maintenance",
+        "doc",
+        "other"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "One-line human-readable outcome statement. The headline rendered in the daily and per-project views. Name the distinct outcome (what shipped / what was fixed / what was decided)."
+    },
+    "details": {
+      "type": "string",
+      "description": "Optional longer-form body for the agent-readable layer (the PJL-equivalent view). Specifics a future agent needs to resume."
+    },
+    "paths": {
+      "type": "array",
+      "description": "Files, directories, or other filesystem paths touched by this unit of work.",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "decisions": {
+      "type": "array",
+      "description": "Decisions made during this unit of work and (ideally) why, so future agents do not re-litigate them.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["decision"],
+        "properties": {
+          "decision": { "type": "string", "minLength": 1, "description": "What was decided." },
+          "rationale": { "type": "string", "description": "Why it was decided this way." },
+          "ref": { "type": "string", "description": "Optional wikilink or identifier for the authority (ADR, SPC, lesson)." }
+        }
+      }
+    },
+    "tried_and_failed": {
+      "type": "array",
+      "description": "Approaches attempted that did not work, so future agents do not repeat the failure.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["attempt"],
+        "properties": {
+          "attempt": { "type": "string", "minLength": 1, "description": "What was tried." },
+          "why_failed": { "type": "string", "description": "Why it did not work." }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "Wikilinks to artifacts created or updated by this unit of work (specs, plans, PICs, IRs, ADRs, reports). Format: [[Doc Name]].",
+      "items": {
+        "type": "string",
+        "pattern": "^\\[\\[.+\\]\\]$",
+        "description": "An Obsidian wikilink, e.g. [[RE - AI-Memory Vault P1 Baseline]]."
+      },
+      "uniqueItems": true
+    },
+    "provenance": {
+      "type": "object",
+      "description": "FR-3. Origin metadata stamped on every event. Lets retrieval and the stale-premise detector attribute a fact to its source session and authoring agent.",
+      "additionalProperties": false,
+      "required": ["origin_session", "author_agent"],
+      "properties": {
+        "origin_session": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the session that produced this event (session id, transcript path, or a stable session label)."
+        },
+        "author_agent": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The agent or actor that authored this event (e.g. 'schemas-worker', 'orchestrator', 'operator', or a model/role label)."
+        }
+      }
+    }
+  }
+}

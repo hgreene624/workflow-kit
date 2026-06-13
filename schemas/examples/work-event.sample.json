@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-06-13T14:32:00-06:00",
+  "project": "workflow-kit",
+  "type": "feature",
+  "summary": "Authored the typed work-event schema and per-artifact frontmatter schemas for the AI-Memory vault",
+  "details": "Built schemas/work-event.schema.json (the single FR-1/FR-3 record) plus one frontmatter schema per live artifact prefix under schemas/artifacts/. Grounded type-specific required fields against the create-note templates.",
+  "paths": [
+    "schemas/work-event.schema.json",
+    "schemas/artifacts/"
+  ],
+  "decisions": [
+    {
+      "decision": "Required fields on a work-event are timestamp, project, type, summary, provenance.",
+      "rationale": "These are the minimum the daily + per-project views need to render every entry with attribution.",
+      "ref": "[[PL - AI-Memory Vault Phase 1]] task 2"
+    }
+  ],
+  "tried_and_failed": [
+    {
+      "attempt": "Validate with the repo's bundled JSON-schema tool.",
+      "why_failed": "No ajv/jsonschema present in the repo; installed jsonschema via pip3 for validation instead."
+    }
+  ],
+  "artifacts": [
+    "[[PL - AI-Memory Vault Phase 1]]",
+    "[[RE - AI-Memory Vault P1 Baseline]]"
+  ],
+  "provenance": {
+    "origin_session": "ai-memory-build/schemas-worker",
+    "author_agent": "schemas-worker"
+  }
+}
