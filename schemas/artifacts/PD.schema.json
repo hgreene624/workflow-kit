@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://workflow-kit/schemas/artifacts/PD.schema.json",
+  "title": "PD frontmatter (Product Definition)",
+  "description": "Required YAML frontmatter for a PD (Product Definition) document. category MUST be \"Spec\". Extra frontmatter keys are allowed.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "date created",
+    "tags",
+    "category",
+    "status",
+    "source"
+  ],
+  "properties": {
+    "date created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date (YYYY-MM-DD)."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Relevant tags."
+    },
+    "category": {
+      "const": "Spec",
+      "description": "Must be exactly \"Spec\" for a PD document."
+    },
+    "status": {
+      "type": "string",
+      "description": "Lifecycle status of the document."
+    },
+    "source": {
+      "type": "string",
+      "description": "Wikilink to the source spec/request this derives from."
+    }
+  }
+}

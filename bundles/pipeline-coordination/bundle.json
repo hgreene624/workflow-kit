@@ -1,0 +1,23 @@
+{
+  "name": "pipeline-coordination",
+  "version": "1.0.0",
+  "description": "Coordinated Pipeline Execution: a self-contained delegation layer for running multi-stream work across sessions. One setup skill bootstraps a project's coordination meta-plan, drafts the first handoff, and installs the handoff-handling overlays. Three roles (orchestrator plans, coordinator runs a slice, workers build) communicate through a lean handoff contract.",
+  "source": "bundles/pipeline-coordination/",
+  "self_contained": true,
+  "overlay_install": true,
+  "components": {
+    "skills": ["meta-plan-init", "meta-coordinator"],
+    "agents": ["meta-orchestrator", "meta-plan-worker"],
+    "overlays": ["create-note.LOCAL.md", "pickup.LOCAL.md"],
+    "templates": ["coordination-pl.md", "first-han.md"]
+  },
+  "install_targets": {
+    "skills": "~/.claude/skills/",
+    "agents": "~/.claude/agents/",
+    "overlays": "installed at runtime by /meta-plan-init into ~/.claude/skills/create-note/LOCAL.md and ~/.claude/skills/pickup/LOCAL.md (check-then-write; uninstall = delete)"
+  },
+  "entry_point": "meta-plan-init",
+  "requires_runtime_config": false,
+  "anchor_doc": "SD - Coordinated Pipeline Execution",
+  "notes": "Overlays and templates ship INSIDE skills/meta-plan-init/ (overlays/, templates/) so the setup skill is self-contained and runs on a clean machine before any other component loads. The meta-coordinator skill ships SKILL.md only; its LOCAL.md is an installation-private overlay the operator authors, never distributed. Deferred to v1.1+ (not in this bundle): auto-detectors, the /validate-artifact N-agent team, the communication-contract release gate."
+}

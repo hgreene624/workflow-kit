@@ -182,6 +182,56 @@ The lesson: **always build your context before asking for action.** For any doma
 
 5. **Recordings** -- If you have a recording device (Omi pendant, phone recorder, meeting transcription), feed transcripts through the system. Each conversation becomes searchable context.
 
+## Hook Scripts
+
+The `scripts/` directory ships small shell scripts that power Claude Code hooks (`PreToolUse`, `PostToolUse`, status-line, etc.). They are versioned in WFK so improvements distribute with the kit.
+
+### What ships
+
+| Script | Hook | Purpose |
+|--------|------|---------|
+| `em-dash-check.sh` | `PreToolUse` on `Write`/`Edit`/`NotebookEdit` | Warns when an em dash (U+2014) lands in a markdown write. Soft-warn (exit 0). |
+| `schema-guard.sh` | `PreToolUse` on `Write`/`Edit` for `SPC -` / `PL -` files | Warns when a spec/plan asserts DB schema (qualified tables, SQL DML, catalog meta-commands) without citing a schema audit. Soft-warn. Customize the `QUALIFIED_RE` schema list for your DB. |
+| `iterm-notify.sh` | `Stop` / `Notification` | Posts an iTerm2 system notification when Claude needs attention. macOS + iTerm2 only. |
+| `iterm-tab.sh` | helper invoked from skills | Sets iTerm2 tab title + color (escape sequences). macOS + iTerm2 only. |
+| `iterm-setup.sh` | post-pull setup | Detects iTerm2 and configures user defaults. Idempotent. Auto-run by `/update-wfk pull`. |
+
+### Install path
+
+Scripts install to `~/.claude/scripts/<name>.sh`. `/update-wfk pull` copies them there and preserves the executable bit (Step 12 of the pull flow).
+
+If you prefer the scripts to track the kit repo, symlink instead of copy:
+
+```bash
+ln -sf ~/Repos/workflow-kit/scripts/em-dash-check.sh ~/.claude/scripts/em-dash-check.sh
+ln -sf ~/Repos/workflow-kit/scripts/schema-guard.sh  ~/.claude/scripts/schema-guard.sh
+```
+
+Either pattern works. Claude Code reads `~/.claude/scripts/` for hook commands.
+
+### Wiring into settings.json
+
+Each script needs a hook entry in `~/.claude/settings.json` (or per-project `.claude/settings.json`) to actually fire. Example for em-dash-check:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|NotebookEdit",
+        "hooks": [{ "type": "command", "command": "~/.claude/scripts/em-dash-check.sh" }]
+      }
+    ]
+  }
+}
+```
+
+Adjust the `matcher` per-script. See the Claude Code hooks docs for the full schema.
+
+### Per-org customization
+
+`schema-guard.sh` has a `{{YOUR_SCHEMAS}}` placeholder in `QUALIFIED_RE`. Replace it with a pipe-delimited list of the DB schemas you actually use. Keep a copy at `~/.claude/scripts/schema-guard.sh` (the install copy) — `/update-wfk pull` overwrites that file, so customize after each pull or store your version in a `LOCAL.md`-style sidecar that you re-apply.
+
 ## How It Compounds
 
 Each piece of the system feeds into the others:

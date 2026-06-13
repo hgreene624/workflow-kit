@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://workflow-kit/schemas/artifacts/MRM.schema.json",
+  "title": "MRM frontmatter (Monthly Roadmap)",
+  "description": "Required YAML frontmatter for a MRM (Monthly Roadmap) document. category MUST be \"Report\". Extra frontmatter keys are allowed.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "date created",
+    "tags",
+    "category"
+  ],
+  "properties": {
+    "date created": {
+      "type": "string",
+      "format": "date",
+      "description": "Creation date (YYYY-MM-DD)."
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Relevant tags."
+    },
+    "category": {
+      "const": "Report",
+      "description": "Must be exactly \"Report\" for a MRM document."
+    }
+  }
+}
