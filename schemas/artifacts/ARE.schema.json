@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://workflow-kit/schemas/artifacts/ARE.schema.json",
   "title": "ARE frontmatter (Agent Report)",
-  "description": "Required YAML frontmatter for a ARE (Agent Report) document. category MUST be \"Report\". Extra frontmatter keys are allowed.",
+  "description": "Required YAML frontmatter for an ARE (Agent Report) document. category MUST be \"Report\" or \"Review\". Extra frontmatter keys are allowed.",
   "type": "object",
   "additionalProperties": true,
   "required": [
@@ -26,8 +26,11 @@
       "description": "Relevant tags."
     },
     "category": {
-      "const": "Report",
-      "description": "Must be exactly \"Report\" for a ARE document."
+      "enum": [
+        "Report",
+        "Review"
+      ],
+      "description": "Must be \"Report\" (agent report under /reports/) or \"Review\" (review artifact under /reviews/)."
     },
     "status": {
       "type": "string",
