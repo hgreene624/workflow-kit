@@ -6,6 +6,25 @@ category: Reference
 
 # Workflow Kit Changelog
 
+## v3.8.0 - 2026-06-10
+
+### What this release is about
+The oracle system is rebuilt from the ground up. The three-skill oracle family (`oracle-create` / `oracle-research` / `oracle-ask`) is retired and replaced by a single `/oracle` skill backed by a deterministic curation pipeline. The redesign exists because an audit found roughly half the "sources" in oracles built with the old skills were teasers — landing pages, tables of contents, paywall stubs — not real content. The new pipeline makes that structurally impossible.
+
+### New skills
+**`oracle`** — one skill with four commands: `build` (stand up a new oracle through an 8-question Grounding Brief and a gated curation pipeline), `research`/`expand` (add sources through the same gate), `ask` (grounded query that returns a cited proposition), and `audit`/`revalidate` (verify an oracle still matches its corpus). Every source must pass a hard full-text gate — teasers and stubs are rejected with logged reasons — then an A-F composite quality score with perspective-balance checks. Note: `build`/`research`/`audit` require the separate `oracle-forge` CLI; **`ask` works standalone** with just the `nlm` CLI, so inline callers degrade gracefully.
+
+### What got better
+- **create-note, grill, implement** — their inline oracle hooks now route through `/oracle ask`, which resolves the right oracle at runtime, returns a cited proposition, and never blocks the calling skill on any failure. Behavior at the call site is unchanged; the grounding behind it is verifiably full-text.
+- **landscape-survey** — its oracle-research step points at the new commands.
+
+### What you need to do
+Nothing manual. `update-wfk pull` removes the three retired skills (any LOCAL.md you added to them is preserved) and installs `/oracle`. References to the old slash commands map as: `/oracle-create` → `/oracle build`, `/oracle-research` → `/oracle research`, `/oracle-ask` → `/oracle ask`.
+
+### Migration
+Pull handles skill removal, rename mapping, and stale-reference detection automatically via the kit manifest.
+
+
 What changed, what it means for you, and what to watch for. The `/update-wfk pull` action reads this file to show you what's new.
 
 ---
